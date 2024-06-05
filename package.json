@@ -1,0 +1,16 @@
+{
+  "name": "hyperparam",
+  "version": "0.1.0",
+  "description": "Hyperparam CLI",
+  "license": "MIT",
+  "main": "cli.js",
+  "bin": {
+    "hyperparam": "./cli.js"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "1.6.0"
+  }
+}
