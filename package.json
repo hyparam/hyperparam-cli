@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "description": "Hyperparam CLI",
   "license": "MIT",
-  "main": "cli.js",
+  "main": "src/cli.js",
   "bin": {
-    "hyperparam": "./cli.js"
+    "hyperparam": "./src/cli.js"
   },
   "scripts": {
     "test": "vitest run"
