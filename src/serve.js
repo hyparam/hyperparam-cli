@@ -42,16 +42,19 @@ function handleRequest(req) {
   if (!req.url) return { status: 400, content: 'bad request' }
   const parsedUrl = url.parse(req.url, true)
   const pathname = parsedUrl.pathname || ''
+  console.log(`request ${req.method} ${pathname}`)
 
-  if (pathname.endsWith('/index.html')) {
-    // redirect index.html to /
-    return { status: 301, content: pathname.slice(0, -10) }
-  } else if (pathname.endsWith('/')) {
+  if (pathname === '/' || pathname === '/files') {
+    // redirect to /files
+    return { status: 301, content: '/files/' }
+  } else if (pathname.startsWith('/files/')) {
     // serve index.html
-    return handleStatic(`${pathname}index.html`)
-  } else {
+    return handleStatic('/index.html')
+  } else if (pathname.startsWith('/public/')) {
     // serve static files
-    return handleStatic(pathname)
+    return handleStatic(pathname.slice(7))
+  } else {
+    return { status: 404, content: 'not found' }
   }
 }
 

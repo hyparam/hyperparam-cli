@@ -1,6 +1,7 @@
 import HighTable from 'hightable'
 import React from 'react'
 import ReactDOM from 'react-dom'
+import Folder from './Folder.js'
 
 const header = ['ID', 'Name', 'Age', 'UUID', 'JSON']
 const data = {
@@ -29,6 +30,13 @@ function render() {
 
   // @ts-expect-error TODO: fix react createRoot type
   const root = ReactDOM.createRoot(app)
-  root.render(React.createElement(HighTable, { data }))
+  if (location.pathname.endsWith('/')) {
+    // Render folder view
+    root.render(React.createElement(Folder))
+  } else {
+    // Render file view
+    root.render(React.createElement(HighTable, { data }))
+  }
+
 }
 render()
