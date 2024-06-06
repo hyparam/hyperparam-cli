@@ -53,6 +53,10 @@ function handleRequest(req) {
   } else if (pathname.startsWith('/public/')) {
     // serve static files
     return handleStatic(pathname.slice(7))
+  } else if (pathname === '/api/store/list') {
+    // serve file list
+    const prefix = parsedUrl.query.prefix?.[0] || ''
+    return handleListing(prefix)
   } else {
     return { status: 404, content: 'not found' }
   }
@@ -79,6 +83,44 @@ async function handleStatic(pathname) {
 
   const content = await fs.readFile(filePath)
   return { status: 200, content, contentType }
+}
+
+/**
+ * List files from local storage
+ *
+ * @param {string} prefix file path prefix
+ * @returns {Promise<ServeResult>}
+ */
+async function handleListing(prefix) {
+  const dir = `${process.cwd()}/${prefix}`
+  try {
+    const stat = await fs.stat(dir)
+    if (!stat.isDirectory()) return { status: 400, content: 'not a directory' }
+  } catch (error) {
+    return { status: 404, content: 'not found' }
+  }
+
+  const files = []
+  for (const filename of await fs.readdir(dir, { recursive: false })) {
+    // get stats for each file
+    const filePath = `${dir}/${filename}`
+    const stat = await fs.stat(filePath)
+
+    if (stat.isFile()) {
+      files.push({
+        key: filename,
+        fileSize: stat.size,
+        lastModified: stat.mtime.toISOString(),
+      })
+    } else if (stat.isDirectory()) {
+      files.push({
+        key: filename + '/',
+        lastModified: stat.mtime.toISOString(),
+      })
+    }
+  }
+
+  return { status: 200, content: JSON.stringify(files), contentType: 'application/json' }
 }
 
 /**

@@ -43,15 +43,19 @@ export default function Layout({ children, className, error, title }: LayoutProp
 
 function Sidebar() {
   return (
-    <nav>
-      <a className="brand" href='/'>
-        <img
-          alt="hyperparam"
-          height={26}
-          src="/assets/logo.svg"
-          width={26} />
-        hyperparam
-      </a>
+    <nav className='nav'>
+      <ul>
+        <li>
+          <a className="brand" href='/'>
+            <img
+              alt="hyperparam"
+              height={26}
+              src="/public/logo.svg"
+              width={26} />
+            hyperparam
+          </a>
+        </li>
+      </ul>
     </nav>
   )
 }

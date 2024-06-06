@@ -13,7 +13,7 @@ export default function Folder() {
 
   // Folder path from url
   const path = location.pathname.split('/')
-  let prefix = decodeURI(path.slice(2).join('/'))
+  const prefix = decodeURI(path.slice(2).join('/'))
 
   // Fetch files on component mount
   useEffect(() => {
@@ -26,8 +26,7 @@ export default function Folder() {
   }, [prefix])
 
   function fileUrl(file: FileMetadata): string {
-    const key = prefix + '/' + file.key
-    return file.key.endsWith('/') ? `/files/${key}` : `/files/${key}`
+    return prefix ? `/files/${prefix}/${file.key}` : `/files/${file.key}`
   }
 
   return (
@@ -45,7 +44,7 @@ export default function Folder() {
         {files.map((file, index) =>
           <li key={index}>
             <a href={fileUrl(file)}>
-              <span className={cn('file-name', file.key.endsWith('/') ? 'icon-directory' : 'icon-file')}>
+              <span className={cn('file-name', 'file', file.key.endsWith('/') && 'folder')}>
                 {file.key}
               </span>
               {!file.key.endsWith('/') && <>
