@@ -11,7 +11,7 @@
   "scripts": {
     "build": "rollup -c",
     "lint": "eslint src",
-    "serve": "node src/cli.js serve",
+    "serve": "node src/cli.js",
     "test": "vitest run"
   },
   "devDependencies": {

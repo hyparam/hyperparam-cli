@@ -13,7 +13,7 @@ export default function Folder() {
 
   // Folder path from url
   const path = location.pathname.split('/')
-  const prefix = decodeURI(path.slice(2).join('/'))
+  const prefix = decodeURI(path.slice(2, -1).join('/'))
 
   // Fetch files on component mount
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function Folder() {
         <div className='path'>
           <a href='/files'>/</a>
           {prefix && prefix.split('/').map((sub, depth) =>
-            <a href={'/files/' + path.slice(2, depth + 3).join('/')} key={depth}>{sub}/</a>
+            <a href={`/files/${path.slice(2, depth + 3).join('/')}/`} key={depth}>{sub}/</a>
           )}
         </div>
       </nav>

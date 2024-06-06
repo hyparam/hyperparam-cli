@@ -104,6 +104,9 @@
   overflow: hidden;
   white-space: nowrap;
 }
+.table td {
+  cursor: pointer;
+}
 
 /* don't hover on mobile */
 @media (hover: hover) {

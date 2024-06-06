@@ -22,7 +22,7 @@ const editorOptions = {
 /**
  * Cell viewer displays a single cell from a table.
  */
-export default function CellView(): JSX.Element {
+export default function CellView() {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [text, setText] = useState<string | undefined>()
   const [error, setError] = useState<Error>()
@@ -61,6 +61,16 @@ export default function CellView(): JSX.Element {
   }, [col, row, loading, setError])
 
   return <Layout error={error} title={key}>
+    <nav className='top-header'>
+      <div className='path'>
+        <a href='/files'>/</a>
+        {key && key.split('/').slice(0, -1).map((sub, depth) =>
+          <a href={`/files/${path.slice(2, depth + 3).join('/')}/`} key={depth}>{sub}/</a>
+        )}
+        <a href={`/files/${key}`}>{path.at(-1)}</a>
+      </div>
+    </nav>
+
     {/* @ts-expect-error MonocoEditor type is wrong? */
       <MonacoEditor
         className='code'

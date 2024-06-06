@@ -4,10 +4,11 @@ import replace from '@rollup/plugin-replace'
 import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
 
+
 export default {
   input: 'src/render.js',
   output: {
-    file: 'public/bundle.min.js',
+    file: 'public/build/render.min.js',
     name: 'hyperparam',
     format: 'iife',
     sourcemap: true,

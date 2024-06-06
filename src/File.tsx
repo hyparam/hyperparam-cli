@@ -14,6 +14,12 @@ export default function File() {
   const path = location.pathname.split('/')
   const key = decodeURI(path.slice(2).join('/'))
 
+  if (!key.endsWith('.parquet')) {
+    return <Layout error={new Error('Invalid file type')} title={key}>
+      <div className='center'>Invalid file type</div>
+    </Layout>
+  }
+
   // Filename loaded immediately from url, file contents loaded async
   const [loading, setLoading] = useState(false)
 
@@ -33,9 +39,10 @@ export default function File() {
       <nav className='top-header'>
         <div className='path'>
           <a href='/files'>/</a>
-          {key && key.split('/').map((sub, depth) =>
-            <a href={'/files/' + path.slice(2, depth + 3).join('/')} key={depth}>{sub}/</a>
+          {key && key.split('/').slice(0, -1).map((sub, depth) =>
+            <a href={`/files/${path.slice(2, depth + 3).join('/')}/`} key={depth}>{sub}/</a>
           )}
+          <a href={`/files/${key}`}>{path.at(-1)}</a>
         </div>
       </nav>
 
