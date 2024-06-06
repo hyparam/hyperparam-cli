@@ -45,15 +45,21 @@ function handleRequest(req) {
   const parsedUrl = url.parse(req.url, true)
   const pathname = parsedUrl.pathname || ''
 
+  // get location of hyperparam assets
+  const hyperparamPath = import.meta.url
+    .replace('file://', '')
+    .replace('/src/serve.js', '')
+
   if (pathname === '/' || pathname === '/files') {
     // redirect to /files
     return { status: 301, content: '/files/' }
   } else if (pathname.startsWith('/files/')) {
     // serve index.html
-    return handleStatic('/public/index.html')
+    console.log('serving index.html', `${hyperparamPath}/public/index.html`)
+    return handleStatic(`${hyperparamPath}/public/index.html`)
   } else if (pathname.startsWith('/public/')) {
     // serve static files
-    return handleStatic(pathname)
+    return handleStatic(`${hyperparamPath}${pathname}`)
   } else if (pathname === '/api/store/list') {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
@@ -75,12 +81,11 @@ function handleRequest(req) {
 
 /**
  * Serve static file from the serve directory
- * @param {string} pathname
+ * @param {string} filePath
  * @param {string} [range]
  * @returns {Promise<ServeResult>}
  */
-async function handleStatic(pathname, range) {
-  const filePath = path.join(process.cwd(), pathname)
+async function handleStatic(filePath, range) {
   const stats = await fs.stat(filePath).catch(() => undefined)
   if (!stats || !stats.isFile()) {
     return { status: 404, content: 'not found' }
