@@ -53,7 +53,7 @@ function handleRequest(req) {
   if (pathname === '/' || pathname === '/files') {
     // redirect to /files
     return { status: 301, content: '/files/' }
-  } else if (pathname.startsWith('/files/')) {
+  } else if (pathname.startsWith('/files/') || pathname.startsWith('/url/')) {
     // serve index.html
     console.log('serving index.html', `${hyperparamPath}/public/index.html`)
     return handleStatic(`${hyperparamPath}/public/index.html`)
@@ -244,8 +244,9 @@ export function serve({ port = 2048, path = '' }) {
     }
   }).listen(port, () => {
     console.log(`hyperparam server running on http://localhost:${port}`)
-    if (path) openUrl(`http://localhost:${port}/files/${path}`)
-    else openUrl(`http://localhost:${port}`)
+    if (!path) openUrl(`http://localhost:${port}`)
+    else if (path.startsWith('http')) openUrl(`http://localhost:${port}/url/${path}`)
+    else openUrl(`http://localhost:${port}/files/${path}`)
   })
 }
 

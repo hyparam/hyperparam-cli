@@ -12,6 +12,7 @@
     "build": "rollup -c",
     "lint": "eslint src",
     "serve": "node src/cli.js",
+    "url": "node src/cli.js https://huggingface.co/datasets/codeparrot/github-code/resolve/main/data/train-00000-of-01126.parquet?download=true",
     "test": "vitest run"
   },
   "devDependencies": {
