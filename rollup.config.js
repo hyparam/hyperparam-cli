@@ -3,14 +3,17 @@ import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
+import monaco from 'rollup-plugin-monaco-editor'
+import postcss from 'rollup-plugin-postcss'
 
 
 export default {
   input: 'src/render.js',
   output: {
-    file: 'public/build/render.min.js',
+    dir: 'public/build',
+    inlineDynamicImports: true,
     name: 'hyperparam',
-    format: 'iife',
+    format: 'es',
     sourcemap: true,
   },
   plugins: [
@@ -23,6 +26,12 @@ export default {
     terser(),
     typescript({
       exclude: ['test/**'],
+    }),
+    postcss({
+      extensions: ['.css'],
+    }),
+    monaco({
+      languages: ['javascript'],
     }),
   ],
 }

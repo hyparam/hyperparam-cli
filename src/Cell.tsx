@@ -1,8 +1,9 @@
-import MonacoEditor from '@monaco-editor/react'
 import { stringify } from 'hightable'
 import React, { useEffect, useState } from 'react'
+import MonacoEditor from 'react-monaco-editor'
 import Layout from './Layout.js'
 import { parquetDataFrame } from './tableProvider.js'
+import 'monaco-editor/esm/vs/basic-languages/javascript/javascript'
 
 enum LoadingState {
   NotLoaded,
