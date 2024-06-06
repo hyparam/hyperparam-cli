@@ -10,6 +10,7 @@
   },
   "scripts": {
     "lint": "eslint .",
+    "serve": "node src/cli.js serve",
     "test": "vitest run"
   },
   "devDependencies": {
