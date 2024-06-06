@@ -1,13 +1,15 @@
 import HighTable, { DataFrame } from 'hightable'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import type { FileContent } from './files.js'
 import Layout, { Spinner } from './Layout.js'
+import { parquetDataFrame } from './tableProvider.js'
 
 /**
  * File viewer page
  */
 export default function File() {
   const [error, setError] = useState<Error>()
+  const [dataframe, setDataframe] = useState<DataFrame>()
 
   // File path from url
   const path = location.pathname.split('/')
@@ -17,21 +19,12 @@ export default function File() {
   const [loading, setLoading] = useState(false)
   const [content, setContent] = useState<FileContent<void>>()
 
-  const header = ['ID', 'Name', 'Age', 'UUID', 'JSON']
-  const dataframe: DataFrame = {
-    header,
-    numRows: 10000,
-    async rows(start: number, end: number) {
-      const arr = []
-      for (let i = start; i < end; i++) {
-        const uuid = Math.random().toString(16).substring(2)
-        const row = [i + 1, 'Name' + i, 20 + i, uuid]
-        const object = Object.fromEntries(header.map((key, index) => [key, row[index]]))
-        arr.push([...row, object])
-      }
-      return arr
-    },
-  }
+  useEffect(() => {
+    parquetDataFrame('/api/store/get?key=' + prefix)
+      .then(setDataframe)
+      .catch(setError)
+      .finally(() => setLoading(false))
+  }, [])
 
   return (
     <Layout error={error} title={prefix}>
@@ -44,7 +37,7 @@ export default function File() {
         </div>
       </nav>
 
-      <HighTable data={dataframe} />
+      {dataframe && <HighTable data={dataframe} />}
 
       {loading && <Spinner className='center' />}
     </Layout>

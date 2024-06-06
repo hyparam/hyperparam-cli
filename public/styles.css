@@ -67,9 +67,10 @@ main {
   margin: 0;
 }
 .nav a {
-  color: #ddd;
+  color: #fff;
   cursor: pointer;
   display: block;
+  opacity: 0.85;
   padding: 10px 12px;
   text-decoration: none;
   user-select: none;

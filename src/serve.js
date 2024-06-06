@@ -3,13 +3,13 @@
  */
 
 import { exec } from 'child_process'
+import { createReadStream } from 'fs'
 import fs from 'fs/promises'
 import http from 'http'
 import path from 'path'
 import url from 'url'
 import zlib from 'zlib'
-
-const serveDirectory = 'public'
+import { pipe, readStreamToReadableStream } from './streamConverters.js'
 
 /** @type {Object<string, string>} */
 const mimeTypes = {
@@ -19,8 +19,9 @@ const mimeTypes = {
   '.json': 'application/json',
   '.map': 'application/json',
   '.ico': 'image/x-icon',
-  '.png': 'image/png',
   '.jpg': 'image/jpeg',
+  '.parquet': 'application/x-parquet',
+  '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain',
   '.ttf': 'font/ttf',
@@ -34,7 +35,8 @@ const mimeTypes = {
 
 /**
  * Route an http request
- * @typedef {{ status: number, content: string | Buffer, contentType?: string }} ServeResult
+ * @typedef {Object} ReadableStream
+ * @typedef {{ status: number, content: string | Buffer | ReadableStream, contentLength?: number, contentType?: string }} ServeResult
  * @param {http.IncomingMessage} req
  * @returns {Awaitable<ServeResult>}
  */
@@ -48,15 +50,24 @@ function handleRequest(req) {
     return { status: 301, content: '/files/' }
   } else if (pathname.startsWith('/files/')) {
     // serve index.html
-    return handleStatic('/index.html')
+    return handleStatic('/public/index.html')
   } else if (pathname.startsWith('/public/')) {
     // serve static files
-    return handleStatic(pathname.slice(7))
+    return handleStatic(pathname)
   } else if (pathname === '/api/store/list') {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
     if (Array.isArray(prefix)) return { status: 400, content: 'bad request' }
     return handleListing(prefix)
+  } else if (pathname === '/api/store/get') {
+    // serve file content
+    const key = parsedUrl.query.key || ''
+    if (Array.isArray(key)) return { status: 400, content: 'bad request' }
+    if (req.method === 'HEAD') {
+      return handleHead(key)
+    }
+    const range = req.method === 'HEAD' ? '0-0' : req.headers.range
+    return handleStatic(key, range)
   } else {
     return { status: 404, content: 'not found' }
   }
@@ -65,10 +76,11 @@ function handleRequest(req) {
 /**
  * Serve static file from the serve directory
  * @param {string} pathname
+ * @param {string} [range]
  * @returns {Promise<ServeResult>}
  */
-async function handleStatic(pathname) {
-  const filePath = path.join(process.cwd(), serveDirectory, pathname)
+async function handleStatic(pathname, range) {
+  const filePath = path.join(process.cwd(), pathname)
   const stats = await fs.stat(filePath).catch(() => undefined)
   if (!stats || !stats.isFile()) {
     return { status: 404, content: 'not found' }
@@ -76,13 +88,53 @@ async function handleStatic(pathname) {
 
   // detect content type
   const extname = path.extname(filePath)
-  if (!mimeTypes[extname]) {
-    console.error(`serving unknown mimetype ${extname}`)
-  }
+  if (!mimeTypes[extname]) console.error(`serving unknown mimetype ${extname}`)
   const contentType = mimeTypes[extname] || 'application/octet-stream'
+
+  // ranged requests
+  if (range) {
+    const [unit, ranges] = range.split('=')
+    if (unit === 'bytes') {
+      const [start, end] = ranges.split('-').map(Number)
+
+      // convert fs.ReadStream to web stream
+      const fsStream = createReadStream(filePath, { start, end })
+      const content = readStreamToReadableStream(fsStream)
+      const contentLength = end - start + 1
+
+      return {
+        status: 206,
+        content,
+        contentLength,
+        contentType,
+      }
+    }
+  }
 
   const content = await fs.readFile(filePath)
   return { status: 200, content, contentType }
+}
+
+/**
+ * Serve head request
+ * @param {string} pathname
+ * @returns {Promise<ServeResult>}
+ */
+async function handleHead(pathname) {
+  const filePath = path.join(process.cwd(), pathname)
+  const stats = await fs.stat(filePath).catch(() => undefined)
+  if (!stats || !stats.isFile()) {
+    console.error(`file not found ${filePath}`)
+    return { status: 404, content: 'not found' }
+  }
+  const contentLength = stats.size
+
+  // detect content type
+  const extname = path.extname(filePath)
+  if (!mimeTypes[extname]) console.error(`serving unknown mimetype ${extname}`)
+  const contentType = mimeTypes[extname] || 'application/octet-stream'
+
+  return { status: 200, content: '', contentLength, contentType }
 }
 
 /**
@@ -140,12 +192,15 @@ export function serve(port = 2048) {
     } catch (err) {
       console.error('error handling request', err)
     }
-    let { status, content, contentType } = result
+    let { status, content } = result
 
     // write http header
     /** @type {http.OutgoingHttpHeaders} */
     const headers = { 'Connection': 'keep-alive' }
-    if (contentType) headers['Content-Type'] = contentType
+    if (result.contentLength !== undefined) {
+      headers['Content-Length'] = result.contentLength
+    }
+    if (result.contentType) headers['Content-Type'] = result.contentType
     if (status === 301 && typeof content === 'string') {
       // handle redirect
       headers['Location'] = content
@@ -158,13 +213,20 @@ export function serve(port = 2048) {
       content = gzipped
     }
     res.writeHead(status, headers)
+
     // write http response
-    res.end(content)
+    if (content instanceof Buffer || typeof content === 'string') {
+      res.end(content)
+    } else if (content instanceof ReadableStream) {
+      pipe(content, res)
+    }
 
     // log request
     const endTime = new Date()
     const ms = endTime.getTime() - startTime.getTime()
-    const line = `${endTime.toISOString()} ${status} ${req.method} ${req.url} ${content.length} ${ms}ms`
+    // @ts-expect-error contentLength will exist if content is ReadableStream
+    const length = result.contentLength || content.length || 0
+    const line = `${endTime.toISOString()} ${status} ${req.method} ${req.url} ${length} ${ms}ms`
     if (status < 400) {
       console.log(line)
     } else {
@@ -180,11 +242,11 @@ export function serve(port = 2048) {
 /**
  * If the request accepts gzip, compress the content, else undefined
  * @param {http.IncomingMessage} req
- * @param {string | Buffer} content
+ * @param {string | Buffer | ReadableStream} content
  * @returns {Buffer | undefined}
  */
 function gzip(req, content) {
-  if (!content) return undefined
+  if (!(content instanceof Buffer) || !(typeof content === 'string')) return undefined
   const acceptEncoding = req.headers['accept-encoding']
   if (acceptEncoding?.includes('gzip')) {
     return zlib.gzipSync(content)
