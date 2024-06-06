@@ -8,6 +8,7 @@ import { readableStreamToArrayBuffer } from './streamConverters.js'
  * Construct a dataframe from a parquet file asynchronously.
  */
 export async function parquetDataFrame(url: string): Promise<DataFrame> {
+  console.log('parquetDataFrame', url)
   const asyncBuffer = await asyncBufferFrom(url)
   // load parquet metadata
   const metadata = await parquetMetadataAsync(asyncBuffer)

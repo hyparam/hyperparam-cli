@@ -1,5 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import Cell from './Cell.js'
 import File from './File.js'
 import Folder from './Folder.js'
 
@@ -12,6 +13,9 @@ function render() {
   if (location.pathname.endsWith('/')) {
     // Render folder view
     root.render(React.createElement(Folder))
+  } else if (location.search) {
+    // Render cell view
+    root.render(React.createElement(Cell))
   } else {
     // Render file view
     root.render(React.createElement(File))
