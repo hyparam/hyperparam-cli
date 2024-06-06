@@ -11,6 +11,9 @@ const systemPrompt = 'You are a machine learning web application named "hyperpar
   'The quickest way to get started is to upload a dataset and start exploring.'
 const messages = [{ role: 'system', content: systemPrompt }]
 
+/**
+ * @param {Object} chatInput
+ */
 function sendToServer(chatInput) {
   return new Promise((resolve, reject) => {
     const json = JSON.stringify(chatInput)
@@ -44,6 +47,9 @@ function sendToServer(chatInput) {
   })
 }
 
+/**
+ * @param {string[]} args
+ */
 function write(...args) {
   args.forEach(s => process.stdout.write(s))
 }
@@ -60,7 +66,7 @@ function chat() {
 
   write(colors.system, 'question: ', colors.normal)
 
-  process.stdin.on('data', async (input) => {
+  process.stdin.on('data', async (/** @type {string} */ input) => {
     input = input.trim()
     if (input === 'exit') {
       process.exit()
