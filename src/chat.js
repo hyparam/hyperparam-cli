@@ -13,6 +13,7 @@ const messages = [{ role: 'system', content: systemPrompt }]
 
 /**
  * @param {Object} chatInput
+ * @returns {Promise<string>}
  */
 function sendToServer(chatInput) {
   return new Promise((resolve, reject) => {

@@ -9,10 +9,15 @@
     "hyperparam": "./src/cli.js"
   },
   "scripts": {
+    "lint": "eslint .",
     "test": "vitest run"
   },
   "devDependencies": {
     "@types/node": "20.14.2",
+    "@typescript-eslint/eslint-plugin": "7.11.0",
+    "eslint": "8.57.0",
+    "eslint-plugin-import": "2.29.1",
+    "eslint-plugin-jsdoc": "48.2.7",
     "typescript": "5.4.5",
     "vitest": "1.6.0"
   }
