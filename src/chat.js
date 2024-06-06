@@ -1,4 +1,4 @@
-const http = require('http') // TODO: https
+import http from 'http' // TODO: https
 
 const systemPrompt = 'You are a machine learning web application named "hyperparam". ' +
   'You assist users with building high quality ML models by introspecting on their training set data. ' +
@@ -54,7 +54,7 @@ function write(...args) {
   args.forEach(s => process.stdout.write(s))
 }
 
-function chat() {
+export function chat() {
   process.stdin.setEncoding('utf-8')
 
   const colors = {
@@ -85,5 +85,3 @@ function chat() {
     write(colors.system, 'question: ', colors.normal)
   })
 }
-
-module.exports = { chat }

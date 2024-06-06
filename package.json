@@ -4,6 +4,7 @@
   "description": "Hyperparam CLI",
   "license": "MIT",
   "main": "src/cli.js",
+  "type": "module",
   "bin": {
     "hyperparam": "./src/cli.js"
   },
