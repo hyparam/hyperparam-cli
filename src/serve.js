@@ -2,8 +2,8 @@
  * Dependency-free http server for serving static files
  */
 
-import http from 'http'
 import fs from 'fs/promises'
+import http from 'http'
 import path from 'path'
 import url from 'url'
 import zlib from 'zlib'

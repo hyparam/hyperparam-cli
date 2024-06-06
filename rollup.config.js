@@ -1,0 +1,23 @@
+import commonjs from '@rollup/plugin-commonjs'
+import resolve from '@rollup/plugin-node-resolve'
+import replace from '@rollup/plugin-replace'
+import terser from '@rollup/plugin-terser'
+
+export default {
+  input: 'src/render.js',
+  output: {
+    file: 'public/bundle.min.js',
+    name: 'hyperparam',
+    format: 'iife',
+    sourcemap: true,
+  },
+  plugins: [
+    commonjs(),
+    replace({
+      'process.env.NODE_ENV': JSON.stringify('production'), // or 'development' based on your build environment
+      preventAssignment: true,
+    }),
+    resolve({ browser: true }),
+    terser(),
+  ],
+}
