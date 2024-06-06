@@ -148,12 +148,13 @@ function gzip(req, content) {
 
 /**
  * @param {string} url
+ * @returns {void}
  */
 function openUrl(url) {
   switch (process.platform) {
-    case 'darwin': return exec(`open ${url}`)
-    case 'win32': return exec(`start ${url}`)
-    case 'linux': return exec(`xdg-open ${url}`)
-    default: throw new Error(`unsupported platform ${process.platform}`)
+  case 'darwin': exec(`open ${url}`); return
+  case 'win32': exec(`start ${url}`); return
+  case 'linux': exec(`xdg-open ${url}`); return
+  default: throw new Error(`unsupported platform ${process.platform}`)
   }
 }
