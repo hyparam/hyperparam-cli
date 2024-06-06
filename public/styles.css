@@ -17,13 +17,15 @@
   font-family: 'Century Gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 1.1em;
   font-weight: bold;
+  text-orientation: mixed;
+  writing-mode: vertical-rl;
   text-shadow: 0 0 1px #222;
   user-select: none;
 }
 .brand img {
   height: 26px;
   width: 26px;
-  margin-right: 10px;
+  margin-bottom: 10px;
   filter: drop-shadow(0 0 1px #505050);
 }
 

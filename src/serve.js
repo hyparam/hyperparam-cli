@@ -42,7 +42,6 @@ function handleRequest(req) {
   if (!req.url) return { status: 400, content: 'bad request' }
   const parsedUrl = url.parse(req.url, true)
   const pathname = parsedUrl.pathname || ''
-  console.log(`request ${req.method} ${pathname}`)
 
   if (pathname === '/' || pathname === '/files') {
     // redirect to /files
@@ -55,7 +54,8 @@ function handleRequest(req) {
     return handleStatic(pathname.slice(7))
   } else if (pathname === '/api/store/list') {
     // serve file list
-    const prefix = parsedUrl.query.prefix?.[0] || ''
+    const prefix = parsedUrl.query.prefix || ''
+    if (Array.isArray(prefix)) return { status: 400, content: 'bad request' }
     return handleListing(prefix)
   } else {
     return { status: 404, content: 'not found' }
