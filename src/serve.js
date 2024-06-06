@@ -2,6 +2,7 @@
  * Dependency-free http server for serving static files
  */
 
+import { exec } from 'child_process'
 import fs from 'fs/promises'
 import http from 'http'
 import path from 'path'
@@ -127,6 +128,7 @@ export function serve(port = 2048) {
     }
   }).listen(port, () => {
     console.log(`hyperparam server running on http://localhost:${port}`)
+    openUrl(`http://localhost:${port}`)
   })
 }
 
@@ -141,5 +143,17 @@ function gzip(req, content) {
   const acceptEncoding = req.headers['accept-encoding']
   if (acceptEncoding?.includes('gzip')) {
     return zlib.gzipSync(content)
+  }
+}
+
+/**
+ * @param {string} url
+ */
+function openUrl(url) {
+  switch (process.platform) {
+    case 'darwin': return exec(`open ${url}`)
+    case 'win32': return exec(`start ${url}`)
+    case 'linux': return exec(`xdg-open ${url}`)
+    default: throw new Error(`unsupported platform ${process.platform}`)
   }
 }
