@@ -122,11 +122,10 @@ async function handleStatic(filePath, range) {
 
 /**
  * Serve head request
- * @param {string} pathname
+ * @param {string} filePath
  * @returns {Promise<ServeResult>}
  */
-async function handleHead(pathname) {
-  const filePath = path.join(process.cwd(), pathname)
+async function handleHead(filePath) {
   const stats = await fs.stat(filePath).catch(() => undefined)
   if (!stats || !stats.isFile()) {
     console.error(`file not found ${filePath}`)
@@ -149,18 +148,23 @@ async function handleHead(pathname) {
  * @returns {Promise<ServeResult>}
  */
 async function handleListing(prefix) {
-  const dir = `${process.cwd()}/${prefix}`
+  console.log(`listing files with prefix '${prefix}'`)
+  if (!prefix) {
+    prefix = process.cwd()
+  } else if (!prefix.startsWith('/')) {
+    prefix = `${process.cwd()}/${prefix}`
+  }
   try {
-    const stat = await fs.stat(dir)
+    const stat = await fs.stat(prefix)
     if (!stat.isDirectory()) return { status: 400, content: 'not a directory' }
   } catch (error) {
     return { status: 404, content: 'not found' }
   }
 
   const files = []
-  for (const filename of await fs.readdir(dir, { recursive: false })) {
+  for (const filename of await fs.readdir(prefix, { recursive: false })) {
     // get stats for each file
-    const filePath = `${dir}/${filename}`
+    const filePath = `${prefix}/${filename}`
     const stat = await fs.stat(filePath)
 
     if (stat.isFile()) {
@@ -182,9 +186,9 @@ async function handleListing(prefix) {
 
 /**
  * Start http server on given port
- * @param {number} port
+ * @param {{ port?: number, path?: string }} options
  */
-export function serve(port = 2048) {
+export function serve({ port = 2048, path = '' }) {
   // create http server
   http.createServer(async (req, res) => {
     const startTime = new Date()
@@ -240,7 +244,8 @@ export function serve(port = 2048) {
     }
   }).listen(port, () => {
     console.log(`hyperparam server running on http://localhost:${port}`)
-    openUrl(`http://localhost:${port}`)
+    if (path) openUrl(`http://localhost:${port}/files/${path}`)
+    else openUrl(`http://localhost:${port}`)
   })
 }
 
