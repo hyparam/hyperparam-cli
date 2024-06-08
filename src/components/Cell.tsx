@@ -29,11 +29,13 @@ export default function CellView() {
   const [error, setError] = useState<Error>()
 
   // File path from url
-  const path = location.pathname.split('/')
-  const key = decodeURI(path.slice(2).join('/'))
+  const search = new URLSearchParams(location.search)
+  const key = decodeURIComponent(search.get('key') || '').replace(/\/$/, '')
+  const path = key.split('/')
+  const isUrl = key.startsWith('http://') || key.startsWith('https://')
+  const url = isUrl ? key : '/api/store/get?key=' + key
 
   // row, col from url
-  const search = new URLSearchParams(location.search)
   const row = Number(search.get('row'))
   const col = Number(search.get('col'))
 
@@ -42,7 +44,7 @@ export default function CellView() {
     async function loadCellData() {
       try {
         // TODO: handle first row > 100kb
-        const df = await parquetDataFrame(`/api/store/get?key=${key}`)
+        const df = await parquetDataFrame(url)
         const rows = await df.rows(row, row + 1)
         const cell = rows[0][col]
         setText(stringify(cell))
@@ -64,11 +66,16 @@ export default function CellView() {
   return <Layout error={error} title={key}>
     <nav className='top-header'>
       <div className='path'>
-        <a href='/files'>/</a>
-        {key && key.split('/').slice(0, -1).map((sub, depth) =>
-          <a href={`/files/${path.slice(2, depth + 3).join('/')}/`} key={depth}>{sub}/</a>
-        )}
-        <a href={`/files/${key}`}>{path.at(-1)}</a>
+        {isUrl &&
+          <a href={`/files?key=${key}`}>{key}</a>
+        }
+        {!isUrl && <>
+          <a href='/files'>/</a>
+          {key && key.split('/').slice(0, -1).map((sub, depth) =>
+            <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>
+          )}
+          <a href={`/files?key=${key}`}>{path.at(-1)}</a>
+        </>}
       </div>
     </nav>
 

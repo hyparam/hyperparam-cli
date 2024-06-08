@@ -50,12 +50,11 @@ function handleRequest(req) {
     .replace('file://', '')
     .replace('/src/serve.js', '')
 
-  if (pathname === '/' || pathname === '/files') {
+  if (pathname === '/' || pathname === '/files/') {
     // redirect to /files
-    return { status: 301, content: '/files/' }
-  } else if (pathname.startsWith('/files/') || pathname.startsWith('/url/')) {
+    return { status: 301, content: '/files' }
+  } else if (pathname.startsWith('/files')) {
     // serve index.html
-    console.log('serving index.html', `${hyperparamPath}/public/index.html`)
     return handleStatic(`${hyperparamPath}/public/index.html`)
   } else if (pathname.startsWith('/public/')) {
     // serve static files
@@ -245,8 +244,10 @@ export function serve({ port = 2048, path = '' }) {
   }).listen(port, () => {
     console.log(`hyperparam server running on http://localhost:${port}`)
     if (!path) openUrl(`http://localhost:${port}`)
-    else if (path.startsWith('http')) openUrl(`http://localhost:${port}/url/${path}`)
-    else openUrl(`http://localhost:${port}/files/${path}`)
+    else {
+      path = encodeURIComponent(path)
+      openUrl(`http://localhost:${port}/files?key=${path}`)
+    }
   })
 }
 

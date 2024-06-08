@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../files.js'
+import {
+  FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles,
+} from '../files.js'
 import Layout, { Spinner, cn } from './Layout.js'
 
 /**
@@ -12,55 +14,54 @@ export default function Folder() {
   const listRef = useRef<HTMLUListElement>(null)
 
   // Folder path from url
-  const path = location.pathname.split('/')
-  const prefix = decodeURI(path.slice(2, -1).join('/'))
+  const search = new URLSearchParams(location.search)
+  const key = (search.get('key') || '').replace(/\/$/, '')
+  const path = key.split('/')
 
   // Fetch files on component mount
   useEffect(() => {
-    listFiles(prefix)
+    listFiles(key)
       .then(setFiles)
       .catch(error => {
         setFiles([])
         setError(error)
       })
-  }, [prefix])
+  }, [key])
 
   function fileUrl(file: FileMetadata): string {
-    return prefix ? `/files/${prefix}/${file.key}` : `/files/${file.key}`
+    return key ? `/files?key=${key}/${file.key}` : `/files?key=${file.key}`
   }
 
-  return (
-    <Layout error={error} title={prefix}>
-      <nav className='top-header'>
-        <div className='path'>
-          <a href='/files'>/</a>
-          {prefix && prefix.split('/').map((sub, depth) =>
-            <a href={`/files/${path.slice(2, depth + 3).join('/')}/`} key={depth}>{sub}/</a>
-          )}
-        </div>
-      </nav>
-
-      {files && files.length > 0 && <ul className='file-list' ref={listRef}>
-        {files.map((file, index) =>
-          <li key={index}>
-            <a href={fileUrl(file)}>
-              <span className={cn('file-name', 'file', file.key.endsWith('/') && 'folder')}>
-                {file.key}
-              </span>
-              {!file.key.endsWith('/') && <>
-                <span className='file-size' title={file.fileSize?.toLocaleString() + ' bytes'}>
-                  {getFileSize(file)}
-                </span>
-                <span className='file-date' title={getFileDate(file)}>
-                  {getFileDateShort(file)}
-                </span>
-              </>}
-            </a>
-          </li>
+  return <Layout error={error} title={key}>
+    <nav className='top-header'>
+      <div className='path'>
+        <a href='/files'>/</a>
+        {key && key.split('/').map((sub, depth) =>
+          <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>
         )}
-      </ul>}
-      {files?.length === 0 && <div className='center'>No files</div>}
-      {files === undefined && <Spinner className='center' />}
-    </Layout>
-  )
+      </div>
+    </nav>
+
+    {files && files.length > 0 && <ul className='file-list' ref={listRef}>
+      {files.map((file, index) =>
+        <li key={index}>
+          <a href={fileUrl(file)}>
+            <span className={cn('file-name', 'file', file.key.endsWith('/') && 'folder')}>
+              {file.key}
+            </span>
+            {!file.key.endsWith('/') && <>
+              <span className='file-size' title={file.fileSize?.toLocaleString() + ' bytes'}>
+                {getFileSize(file)}
+              </span>
+              <span className='file-date' title={getFileDate(file)}>
+                {getFileDateShort(file)}
+              </span>
+            </>}
+          </a>
+        </li>
+      )}
+    </ul>}
+    {files?.length === 0 && <div className='center'>No files</div>}
+    {files === undefined && <Spinner className='center' />}
+  </Layout>
 }

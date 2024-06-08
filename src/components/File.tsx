@@ -11,46 +11,47 @@ export default function File() {
   const [dataframe, setDataframe] = useState<DataFrame>()
 
   // File path from url
-  const path = location.pathname.split('/')
-  const key = decodeURI(path.slice(2).join('/'))
+  const search = new URLSearchParams(location.search)
+  const key = decodeURIComponent(search.get('key') || '').replace(/\/$/, '')
+  const path = key.split('/')
 
-  if (!key.endsWith('.parquet')) {
-    return <Layout error={new Error('Invalid file type')} title={key}>
-      <div className='center'>Invalid file type</div>
-    </Layout>
-  }
+  const isUrl = key.startsWith('http://') || key.startsWith('https://')
+  const url = isUrl ? key : '/api/store/get?key=' + key
 
   // Filename loaded immediately from url, file contents loaded async
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    parquetDataFrame('/api/store/get?key=' + key)
+    parquetDataFrame(url)
       .then(setDataframe)
       .catch(setError)
       .finally(() => setLoading(false))
   }, [])
 
   function onDoubleClickCell(row: number, col: number) {
-    location.href = '/files/' + key + '?row=' + row + '&col=' + col
+    location.href = '/files?key=' + key + '&row=' + row + '&col=' + col
   }
 
-  return (
-    <Layout error={error} title={key}>
-      <nav className='top-header'>
-        <div className='path'>
+  return <Layout error={error} title={key}>
+    <nav className='top-header'>
+      <div className='path'>
+        {isUrl &&
+          <a href={`/files?key=${key}`}>{key}</a>
+        }
+        {!isUrl && <>
           <a href='/files'>/</a>
           {key && key.split('/').slice(0, -1).map((sub, depth) =>
-            <a href={`/files/${path.slice(2, depth + 3).join('/')}/`} key={depth}>{sub}/</a>
+            <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>
           )}
-          <a href={`/files/${key}`}>{path.at(-1)}</a>
-        </div>
-      </nav>
+          <a href={`/files?key=${key}`}>{path.at(-1)}</a>
+        </>}
+      </div>
+    </nav>
 
-      {dataframe &&
-        <HighTable data={dataframe} onDoubleClickCell={onDoubleClickCell} />
-      }
+    {dataframe &&
+      <HighTable data={dataframe} onDoubleClickCell={onDoubleClickCell} />
+    }
 
-      {loading && <Spinner className='center' />}
-    </Layout>
-  )
+    {loading && <Spinner className='center' />}
+  </Layout>
 }
