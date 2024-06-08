@@ -10,6 +10,7 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "coverage": "vitest run --coverage --coverage.include=src",
     "lint": "eslint src",
     "serve": "node src/cli.js",
     "url": "node src/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet",
@@ -25,6 +26,7 @@
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",
     "@typescript-eslint/eslint-plugin": "7.12.0",
+    "@vitest/coverage-v8": "1.6.0",
     "eslint": "8.57.0",
     "eslint-plugin-import": "2.29.1",
     "eslint-plugin-jsdoc": "48.2.9",
