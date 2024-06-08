@@ -12,7 +12,7 @@
     "build": "rollup -c",
     "lint": "eslint src",
     "serve": "node src/cli.js",
-    "url": "node src/cli.js https://huggingface.co/datasets/codeparrot/github-code/resolve/main/data/train-00000-of-01126.parquet?download=true",
+    "url": "node src/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet",
     "test": "vitest run"
   },
   "devDependencies": {
@@ -27,9 +27,9 @@
     "@typescript-eslint/eslint-plugin": "7.12.0",
     "eslint": "8.57.0",
     "eslint-plugin-import": "2.29.1",
-    "eslint-plugin-jsdoc": "48.2.8",
+    "eslint-plugin-jsdoc": "48.2.9",
     "hightable": "0.2.1",
-    "hyparquet": "0.9.8",
+    "hyparquet": "0.9.9",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-monaco-editor": "0.55.0",

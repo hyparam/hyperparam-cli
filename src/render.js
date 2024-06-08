@@ -1,9 +1,9 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import Cell from './Cell.js'
-import File from './File.js'
-import Folder from './Folder.js'
-import Url from './Url.js'
+import Cell from './components/Cell.js'
+import File from './components/File.js'
+import Folder from './components/Folder.js'
+import Url from './components/Url.js'
 
 function render() {
   const app = document.getElementById('app')
@@ -13,16 +13,16 @@ function render() {
   // @ts-expect-error TODO: fix react createRoot type
   const root = ReactDOM.createRoot(app)
   if (location.pathname.endsWith('/')) {
-    // Render folder view
+    // folder view
     root.render(React.createElement(Folder))
   } else if (location.pathname.startsWith('/url/')) {
-    // Render url view
+    // url view
     root.render(React.createElement(Url))
   } else if (location.search) {
-    // Render cell view
+    // local cell view
     root.render(React.createElement(Cell))
   } else {
-    // Render file view
+    // local file view
     root.render(React.createElement(File))
   }
 

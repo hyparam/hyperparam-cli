@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from './files.js'
+import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../files.js'
 import Layout, { Spinner, cn } from './Layout.js'
 
 /**

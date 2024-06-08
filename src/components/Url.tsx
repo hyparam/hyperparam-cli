@@ -1,7 +1,7 @@
 import HighTable, { DataFrame } from 'hightable'
 import React, { useEffect, useState } from 'react'
+import { parquetDataFrame } from '../tableProvider.js'
 import Layout, { Spinner } from './Layout.js'
-import { parquetDataFrame } from './tableProvider.js'
 
 /**
  * Url viewer page
