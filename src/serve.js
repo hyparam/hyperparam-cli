@@ -147,7 +147,6 @@ async function handleHead(filePath) {
  * @returns {Promise<ServeResult>}
  */
 async function handleListing(prefix) {
-  console.log(`listing files with prefix '${prefix}'`)
   if (!prefix) {
     prefix = process.cwd()
   } else if (!prefix.startsWith('/')) {
