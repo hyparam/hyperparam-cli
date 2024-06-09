@@ -5,6 +5,7 @@
     "jsx": "react",
     "lib": ["esnext", "dom"],
     "module": "nodenext",
+    "moduleResolution": "nodenext",
     "noEmit": true,
     "resolveJsonModule": true,
     "strict": true

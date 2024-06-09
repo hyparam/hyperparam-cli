@@ -6,11 +6,5 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    coverage: {
-      exclude: [
-        'node_modules',
-        'public',
-      ],
-    },
   },
 })

@@ -1,8 +1,9 @@
 import { stringify } from 'hightable'
 import React, { useEffect, useState } from 'react'
-import MonacoEditor from 'react-monaco-editor'
 import { parquetDataFrame } from '../tableProvider.js'
 import Layout from './Layout.js'
+
+const MonacoEditor = React.lazy(() => import('./Editor.js'))
 
 enum LoadingState {
   NotLoaded,
@@ -14,6 +15,7 @@ const editorOptions = {
   automaticLayout: true,
   colorDecorators: true,
   contextmenu: false,
+  theme: 'vs-dark',
   language: 'javascript',
   readOnly: true,
   selectOnLineNumbers: true,
@@ -82,14 +84,8 @@ export default function CellView() {
       </div>
     </nav>
 
-    {/* @ts-expect-error MonocoEditor type is wrong? */
-      <MonacoEditor
-        className='code'
-        height="100vh"
-        options={editorOptions}
-        theme='vs-dark'
-        value={text}
-        width="100%" />
-    }
+    <MonacoEditor
+      options={editorOptions}
+      value={text} />
   </Layout>
 }

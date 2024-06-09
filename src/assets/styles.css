@@ -6,7 +6,7 @@
 
 @font-face {
   font-family: 'codicon';
-  src: url('/public/codicon.ttf') format('truetype');
+  src: url('codicon.ttf') format('truetype');
 }
 
 #app {
@@ -233,12 +233,12 @@ main {
 
 /* file icons */
 .file {
-  background: url(/public/file.svg);
+  background: url(file.svg);
   background-position: left center;
   background-repeat: no-repeat;
   background-size: 12px;
   padding-left: 22px;
 }
 .folder {
-  background-image: url(/public/folder.svg);
+  background-image: url(folder.svg);
 }

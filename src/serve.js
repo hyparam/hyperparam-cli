@@ -55,10 +55,10 @@ function handleRequest(req) {
     return { status: 301, content: '/files' }
   } else if (pathname.startsWith('/files')) {
     // serve index.html
-    return handleStatic(`${hyperparamPath}/public/index.html`)
-  } else if (pathname.startsWith('/public/')) {
+    return handleStatic(`${hyperparamPath}/dist/index.html`)
+  } else if (pathname.startsWith('/assets/')) {
     // serve static files
-    return handleStatic(`${hyperparamPath}${pathname}`)
+    return handleStatic(`${hyperparamPath}/dist${pathname}`)
   } else if (pathname === '/api/store/list') {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
