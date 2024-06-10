@@ -3,12 +3,20 @@ import React, { useEffect, useState } from 'react'
 import { parquetDataFrame } from '../tableProvider.js'
 import Layout, { Spinner } from './Layout.js'
 
+enum LoadingState {
+  NotLoaded,
+  Loading,
+  Loaded
+}
+
 /**
  * File viewer page
  */
 export default function File() {
-  const [error, setError] = useState<Error>()
+  const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [dataframe, setDataframe] = useState<DataFrame>()
+  const [progress, setProgress] = useState<number>()
+  const [error, setError] = useState<Error>()
 
   // File path from url
   const search = new URLSearchParams(location.search)
@@ -19,21 +27,30 @@ export default function File() {
   const isUrl = key.startsWith('http://') || key.startsWith('https://')
   const url = isUrl ? key : '/api/store/get?key=' + key
 
-  // Filename loaded immediately from url, file contents loaded async
-  const [loading, setLoading] = useState(false)
-
   useEffect(() => {
-    parquetDataFrame(url)
-      .then(setDataframe)
-      .catch(setError)
-      .finally(() => setLoading(false))
+    async function loadParquetDataFrame() {
+      try {
+        setProgress(0.5)
+        const df = await parquetDataFrame(url)
+        setDataframe(df)
+        setProgress(undefined)
+      } catch (error) {
+        setError(error as Error)
+      } finally {
+        setLoading(LoadingState.Loaded)
+      }
+    }
+    if (loading === LoadingState.NotLoaded) {
+      setLoading(LoadingState.Loading)
+      loadParquetDataFrame()
+    }
   }, [])
 
   function onDoubleClickCell(row: number, col: number) {
     location.href = '/files?key=' + key + '&row=' + row + '&col=' + col
   }
 
-  return <Layout error={error} title={shortKey}>
+  return <Layout progress={progress} error={error} title={shortKey}>
     <nav className='top-header'>
       <div className='path'>
         {isUrl &&

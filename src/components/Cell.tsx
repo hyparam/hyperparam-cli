@@ -59,12 +59,11 @@ export default function CellView() {
       }
     }
 
-    setLoading(loading => {
+    if (loading === LoadingState.NotLoaded) {
       // use loading state to ensure we only load content once
-      if (loading !== LoadingState.NotLoaded) return loading
+      setLoading(LoadingState.Loading)
       loadCellData()
-      return LoadingState.Loading
-    })
+    }
   }, [col, row, loading, setError])
 
   return <Layout progress={progress} error={error} title={shortKey}>
