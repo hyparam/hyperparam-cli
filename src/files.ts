@@ -34,7 +34,8 @@ export async function listFiles(prefix: string, recursive?: boolean): Promise<Fi
 }
 
 export function getFileDateShort(file?: { lastModified?: string }): string {
-  const date = new Date(file?.lastModified!)
+  if (!file?.lastModified) return ''
+  const date = new Date(file.lastModified)
   // time if within last 24 hours, date otherwise
   const time = date.getTime()
   const now = Date.now()
@@ -52,7 +53,8 @@ export function getFileDateShort(file?: { lastModified?: string }): string {
  * @returns formatted date string
  */
 export function getFileDate(file?: { lastModified?: string }): string {
-  const date = new Date(file?.lastModified!)
+  if (!file?.lastModified) return ''
+  const date = new Date(file.lastModified)
   return isFinite(date.getTime()) ? date.toLocaleString() : ''
 }
 

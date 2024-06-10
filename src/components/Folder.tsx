@@ -15,28 +15,29 @@ export default function Folder() {
 
   // Folder path from url
   const search = new URLSearchParams(location.search)
-  const key = (search.get('key') || '').replace(/\/$/, '')
-  const path = key.split('/')
+  const prefix = (search.get('key') || '').replace(/\/$/, '')
+  const path = prefix.split('/')
+  const shortKey = path.at(-1)
 
   // Fetch files on component mount
   useEffect(() => {
-    listFiles(key)
+    listFiles(prefix)
       .then(setFiles)
       .catch(error => {
         setFiles([])
         setError(error)
       })
-  }, [key])
+  }, [prefix])
 
   function fileUrl(file: FileMetadata): string {
-    return key ? `/files?key=${key}/${file.key}` : `/files?key=${file.key}`
+    return prefix ? `/files?key=${prefix}/${file.key}` : `/files?key=${file.key}`
   }
 
-  return <Layout error={error} title={key}>
+  return <Layout error={error} title={shortKey}>
     <nav className='top-header'>
       <div className='path'>
         <a href='/files'>/</a>
-        {key && key.split('/').map((sub, depth) =>
+        {prefix && prefix.split('/').map((sub, depth) =>
           <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>
         )}
       </div>

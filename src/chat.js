@@ -21,7 +21,7 @@ function sendToServer(chatInput) {
     const options = {
       hostname: 'localhost',
       port: 3000,
-      path: '/api/functions/llama/chat',
+      path: '/api/functions/openai/chat',
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

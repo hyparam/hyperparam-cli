@@ -1,8 +1,9 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect } from 'react'
 
 interface LayoutProps {
   children: ReactNode
   className?: string
+  progress?: number
   error?: Error
   title?: string
 }
@@ -11,53 +12,41 @@ interface LayoutProps {
  * Layout for shared UI.
  * Content div style can be overridden by className prop.
  *
- * @param {Object} props
- * @param {ReactNode} props.children - content to display inside the layout
- * @param {string} props.className - additional class names to apply to the content container
- * @param {Error} props.error - error message to display
- * @param {string} props.title - page title
- * @returns rendered layout component
+ * @param props
+ * @param props.children - content to display inside the layout
+ * @param props.className - additional class names to apply to the content container
+ * @param props.progress - progress bar value
+ * @param props.error - error message to display
+ * @param props.title - page title
  */
-export default function Layout({ children, className, error, title }: LayoutProps) {
+export default function Layout({ children, className, progress, error, title }: LayoutProps) {
   const errorMessage = error?.toString()
   if (error) console.error(error)
 
-  return <>
-    <head>
-      <title>{title ? `${title} - hyperparam` : 'hyperparam'}</title>
-      <meta content="hyperparam is the missing UI for machine learning" name="description" />
-      <meta content="width=device-width, initial-scale=1" name="viewport" />
-      <link href="/favicon.png" rel="icon" />
-    </head>
-    <main className='main'>
-      <Sidebar />
-      <div className='content-container'>
-        <div className={cn('content', className)}>
-          {children}
-        </div>
-        <div className={cn('error-bar', error && 'show-error')}>{errorMessage}</div>
+  useEffect(() => {
+    document.title = title ? `${title} - hyperparam` : 'hyperparam'
+  }, [title])
+
+  return <main className='main'>
+    <Sidebar />
+    <div className='content-container'>
+      <div className={cn('content', className)}>
+        {children}
       </div>
-    </main>
-  </>
+      <div className={cn('error-bar', error && 'show-error')}>{errorMessage}</div>
+    </div>
+    {progress !== undefined && progress < 1 &&
+      <div className={'progress-bar'} role='progressbar'>
+        <div style={{ width: `${100 * progress}%` }} />
+      </div>
+    }
+  </main>
 }
 
 function Sidebar() {
-  return (
-    <nav className='nav'>
-      <ul>
-        <li>
-          <a className="brand" href='/'>
-            <img
-              alt="hyperparam"
-              height={26}
-              src="/public/logo.svg"
-              width={26} />
-            hyperparam
-          </a>
-        </li>
-      </ul>
-    </nav>
-  )
+  return <nav className='nav'>
+    <a className="brand" href='/'>hyperparam</a>
+  </nav>
 }
 
 /**

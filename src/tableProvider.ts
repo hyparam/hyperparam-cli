@@ -20,7 +20,7 @@ export async function parquetDataFrame(url: string): Promise<DataFrame> {
   return {
     header,
     numRows,
-    rows: async (rowStart?: number, rowEnd?: number) => {
+    rows: (rowStart?: number, rowEnd?: number) => {
       return new Promise<string[][]>((onComplete, reject) => {
         parquetRead({ metadata, file: asyncBuffer, rowStart, rowEnd, onComplete })
           .catch(reject)

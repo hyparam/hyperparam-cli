@@ -12,8 +12,9 @@ export default function File() {
 
   // File path from url
   const search = new URLSearchParams(location.search)
-  const key = decodeURIComponent(search.get('key') || '').replace(/\/$/, '')
+  const key = decodeURIComponent(search.get('key') || '')
   const path = key.split('/')
+  const shortKey = path.at(-1)
 
   const isUrl = key.startsWith('http://') || key.startsWith('https://')
   const url = isUrl ? key : '/api/store/get?key=' + key
@@ -32,7 +33,7 @@ export default function File() {
     location.href = '/files?key=' + key + '&row=' + row + '&col=' + col
   }
 
-  return <Layout error={error} title={key}>
+  return <Layout error={error} title={shortKey}>
     <nav className='top-header'>
       <div className='path'>
         {isUrl &&

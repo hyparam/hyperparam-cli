@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react'
 import MonacoEditor from 'react-monaco-editor'
 import { parquetDataFrame } from '../tableProvider.js'
 import Layout from './Layout.js'
-import 'monaco-editor/esm/vs/basic-languages/javascript/javascript'
 
 enum LoadingState {
   NotLoaded,
@@ -12,12 +11,12 @@ enum LoadingState {
 }
 
 const editorOptions = {
+  automaticLayout: true,
   colorDecorators: true,
   contextmenu: false,
-  selectOnLineNumbers: true,
-  readOnly: true,
   language: 'javascript',
-  automaticLayout: true,
+  readOnly: true,
+  selectOnLineNumbers: true,
 }
 
 /**
@@ -26,12 +25,14 @@ const editorOptions = {
 export default function CellView() {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [text, setText] = useState<string | undefined>()
+  const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
 
   // File path from url
   const search = new URLSearchParams(location.search)
-  const key = decodeURIComponent(search.get('key') || '').replace(/\/$/, '')
+  const key = decodeURIComponent(search.get('key') || '')
   const path = key.split('/')
+  const shortKey = path.at(-1)
   const isUrl = key.startsWith('http://') || key.startsWith('https://')
   const url = isUrl ? key : '/api/store/get?key=' + key
 
@@ -44,8 +45,11 @@ export default function CellView() {
     async function loadCellData() {
       try {
         // TODO: handle first row > 100kb
+        setProgress(0.33)
         const df = await parquetDataFrame(url)
+        setProgress(0.66)
         const rows = await df.rows(row, row + 1)
+        setProgress(undefined)
         const cell = rows[0][col]
         setText(stringify(cell))
       } catch (error) {
@@ -63,7 +67,7 @@ export default function CellView() {
     })
   }, [col, row, loading, setError])
 
-  return <Layout error={error} title={key}>
+  return <Layout progress={progress} error={error} title={shortKey}>
     <nav className='top-header'>
       <div className='path'>
         {isUrl &&

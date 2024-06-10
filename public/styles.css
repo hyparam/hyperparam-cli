@@ -17,21 +17,32 @@
 }
 
 .brand {
-  display: flex !important;
+  color: #fff;
+  display: flex;
   align-items: center;
+  filter: drop-shadow(0 0 2px #444);
   font-family: 'Century Gothic', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-size: 1.1em;
   font-weight: bold;
   text-orientation: mixed;
-  writing-mode: vertical-rl;
-  text-shadow: 0 0 1px #222;
+  opacity: 0.85;
+  padding: 10px 12px;
   user-select: none;
+  writing-mode: vertical-rl;
 }
-.brand img {
+.brand:hover {
+  color: #fff;
+  filter: drop-shadow(0 0 2px #333);
+  opacity: 0.9;
+  text-decoration: none;
+}
+.brand::before {
+  content: '';
+  background: url(logo.svg) no-repeat 0 center;
+  background-size: 26px;
   height: 26px;
   width: 26px;
   margin-bottom: 10px;
-  filter: drop-shadow(0 0 1px #505050);
 }
 
 a {
@@ -62,24 +73,6 @@ main {
   display: flex;
   flex-direction: column;
   height: 100vh;
-}
-
-/* nav links */
-.nav ul {
-  list-style: none;
-}
-.nav li {
-  margin: 0;
-}
-.nav a {
-  color: #fff;
-  cursor: pointer;
-  display: block;
-  opacity: 0.85;
-  padding: 10px 12px;
-  text-decoration: none;
-  user-select: none;
-  white-space: nowrap;
 }
 
 /* content area */
@@ -145,6 +138,39 @@ main {
   }
 }
 
+/* progress bar */
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 1000;
+  transition: width 0.3s;
+
+  /* Shimmer effect overlay */
+  background-image: linear-gradient(
+    to right,
+    #ddd 0%,
+    #cbb 50%,
+    #ddd 100%
+  );
+  background-size: 1000px;
+  animation: shimmer 4s infinite linear;
+}
+@keyframes shimmer {
+  0% {
+    background-position: -1000px;
+  }
+  100% {
+    background-position: 1000px;
+  }
+}
+.progress-bar > div {
+  height: 100%;
+  background-color: #3a4;
+}
+
 /* error bar */
 .error-bar {
   max-height: 0;
@@ -201,7 +227,7 @@ main {
   text-align: right;
 }
 .file-date {
-  width: 80px;
+  min-width: 90px;
   text-align: right;
 }
 
