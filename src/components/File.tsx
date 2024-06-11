@@ -1,5 +1,5 @@
 import HighTable, { DataFrame } from 'hightable'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { parquetDataFrame } from '../tableProvider.js'
 import Layout, { Spinner } from './Layout.js'
 
@@ -46,9 +46,9 @@ export default function File() {
     }
   }, [])
 
-  function onDoubleClickCell(row: number, col: number) {
+  const onDoubleClickCell = useCallback((row: number, col: number) => {
     location.href = '/files?key=' + key + '&row=' + row + '&col=' + col
-  }
+  }, [key])
 
   return <Layout progress={progress} error={error} title={shortKey}>
     <nav className='top-header'>
@@ -66,9 +66,10 @@ export default function File() {
       </div>
     </nav>
 
-    {dataframe &&
-      <HighTable data={dataframe} onDoubleClickCell={onDoubleClickCell} />
-    }
+    {dataframe && <HighTable
+      data={dataframe}
+      onDoubleClickCell={onDoubleClickCell}
+      onError={setError} />}
 
     {loading && <Spinner className='center' />}
   </Layout>

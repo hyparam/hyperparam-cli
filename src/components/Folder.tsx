@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import {
   FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles,
 } from '../files.js'
@@ -29,9 +29,9 @@ export default function Folder() {
       })
   }, [prefix])
 
-  function fileUrl(file: FileMetadata): string {
+  const fileUrl = useCallback((file: FileMetadata) => {
     return prefix ? `/files?key=${prefix}/${file.key}` : `/files?key=${file.key}`
-  }
+  }, [prefix])
 
   return <Layout error={error} title={shortKey}>
     <nav className='top-header'>

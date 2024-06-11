@@ -2,6 +2,7 @@ import type { DataFrame } from 'hightable'
 import {
   AsyncBuffer, SchemaTree, parquetMetadataAsync, parquetRead, parquetSchema,
 } from 'hyparquet'
+import { compressors } from 'hyparquet-compressors'
 import { readableStreamToArrayBuffer } from './streamConverters.js'
 
 /**
@@ -22,7 +23,7 @@ export async function parquetDataFrame(url: string): Promise<DataFrame> {
     numRows,
     rows: (rowStart?: number, rowEnd?: number) => {
       return new Promise<string[][]>((onComplete, reject) => {
-        parquetRead({ metadata, file: asyncBuffer, rowStart, rowEnd, onComplete })
+        parquetRead({ metadata, compressors, file: asyncBuffer, rowStart, rowEnd, onComplete })
           .catch(reject)
       })
     },

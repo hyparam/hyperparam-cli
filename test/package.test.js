@@ -12,8 +12,9 @@ describe('package.json', () => {
     expect(packageJson.license).toBe('MIT')
   })
   it('should have precise dependency versions', () => {
-    const { devDependencies } = packageJson
-    Object.values(devDependencies).forEach(version => {
+    const { dependencies, devDependencies } = packageJson
+    const allDependencies = { ...dependencies, ...devDependencies }
+    Object.values(allDependencies).forEach(version => {
       expect(version).toMatch(/^\d+\.\d+\.\d+$/)
     })
   })
