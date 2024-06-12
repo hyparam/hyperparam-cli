@@ -4,11 +4,6 @@
   padding: 0;
 }
 
-@font-face {
-  font-family: 'codicon';
-  src: url('/public/codicon.ttf') format('truetype');
-}
-
 #app {
   display: flex;
   font-family: 'Mulish', 'Helvetica Neue', Helvetica, Arial, sans-serif;
