@@ -3,7 +3,6 @@ import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import terser from '@rollup/plugin-terser'
 import typescript from '@rollup/plugin-typescript'
-import monaco from 'rollup-plugin-monaco-editor'
 import postcss from 'rollup-plugin-postcss'
 
 
@@ -29,9 +28,6 @@ export default {
     }),
     postcss({
       extensions: ['.css'],
-    }),
-    monaco({
-      languages: ['javascript'],
     }),
   ],
 }

@@ -1,22 +1,13 @@
 import { stringify } from 'hightable'
 import React, { useEffect, useState } from 'react'
-import MonacoEditor from 'react-monaco-editor'
 import { parquetDataFrame } from '../tableProvider.js'
+import Highlight from './Highlight.js'
 import Layout from './Layout.js'
 
 enum LoadingState {
   NotLoaded,
   Loading,
   Loaded
-}
-
-const editorOptions = {
-  automaticLayout: true,
-  colorDecorators: true,
-  contextmenu: false,
-  language: 'javascript',
-  readOnly: true,
-  selectOnLineNumbers: true,
 }
 
 /**
@@ -82,14 +73,6 @@ export default function CellView() {
       </div>
     </nav>
 
-    {/* @ts-expect-error MonocoEditor type is wrong? */
-      <MonacoEditor
-        className='code'
-        height="100vh"
-        options={editorOptions}
-        theme='vs-dark'
-        value={text}
-        width="100%" />
-    }
+    <Highlight text={text || ''} />
   </Layout>
 }
