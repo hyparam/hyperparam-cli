@@ -33,11 +33,11 @@ export default function File() {
         setProgress(0.5)
         const df = await parquetDataFrame(url)
         setDataframe(df)
-        setProgress(undefined)
       } catch (error) {
         setError(error as Error)
       } finally {
         setLoading(LoadingState.Loaded)
+        setProgress(undefined)
       }
     }
     if (loading === LoadingState.NotLoaded) {

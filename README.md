@@ -6,6 +6,8 @@
 
 This is the hyperparam cli tool.
 
+The hyperparam cli tool is for viewing arbitrarily large datasets in the browser.
+
 ## Running
 
 To start a chat with hyperparam:

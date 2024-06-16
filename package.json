@@ -6,6 +6,7 @@
   "main": "src/cli.js",
   "type": "module",
   "bin": {
+    "hyp": "./src/cli.js",
     "hyperparam": "./src/cli.js"
   },
   "scripts": {
@@ -18,7 +19,7 @@
   },
   "dependencies": {
     "hightable": "0.2.2",
-    "hyparquet": "0.9.9",
+    "hyparquet": "0.9.10",
     "hyparquet-compressors": "0.1.4"
   },
   "devDependencies": {
@@ -36,7 +37,7 @@
     "@vitest/coverage-v8": "1.6.0",
     "eslint": "8.57.0",
     "eslint-plugin-import": "2.29.1",
-    "eslint-plugin-jsdoc": "48.2.9",
+    "eslint-plugin-jsdoc": "48.2.12",
     "jsdom": "24.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",

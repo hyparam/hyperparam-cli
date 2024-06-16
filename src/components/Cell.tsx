@@ -49,13 +49,13 @@ export default function CellView() {
         const df = await parquetDataFrame(url)
         setProgress(0.66)
         const rows = await df.rows(row, row + 1)
-        setProgress(undefined)
         const cell = rows[0][col]
         setText(stringify(cell))
       } catch (error) {
         setError(error as Error)
       } finally {
         setLoading(LoadingState.Loaded)
+        setProgress(undefined)
       }
     }
 
