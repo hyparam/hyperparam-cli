@@ -1,6 +1,6 @@
 {
   "name": "hyperparam",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Hyperparam CLI",
   "license": "MIT",
   "main": "src/cli.js",
@@ -9,6 +9,10 @@
     "hyp": "./src/cli.js",
     "hyperparam": "./src/cli.js"
   },
+  "files": [
+    "public",
+    "src"
+  ],
   "scripts": {
     "build": "rollup -c",
     "coverage": "vitest run --coverage",
