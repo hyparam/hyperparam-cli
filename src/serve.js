@@ -34,6 +34,31 @@ const mimeTypes = {
  */
 
 /**
+ * Start http server with optional path
+ * @param {string} [path]
+ */
+export async function serve(path = '') {
+  let port = 2048
+  while (port < 2048 + 10) {
+    try {
+      await startServer(port)
+      break
+    } catch (/** @type {any} */ err) {
+      if (err.code !== 'EADDRINUSE') throw err
+      console.error(`port ${port} in use, trying next port`)
+      if (port === 2048) port++ // skip unsafe nfs port 2049
+      port++
+    }
+  }
+  console.log(`hyperparam server running on http://localhost:${port}`)
+  if (!path) openUrl(`http://localhost:${port}`)
+  else {
+    path = encodeURIComponent(path)
+    openUrl(`http://localhost:${port}/files?key=${path}`)
+  }
+}
+
+/**
  * Route an http request
  * @typedef {Object} ReadableStream
  * @typedef {{ status: number, content: string | Buffer | ReadableStream, contentLength?: number, contentType?: string }} ServeResult
@@ -183,70 +208,67 @@ async function handleListing(prefix) {
 }
 
 /**
- * Start http server on given port
- * @param {{ port?: number, path?: string }} options
+ * @param {number} port
+ * @returns {Promise<void>}
  */
-export function serve({ port = 2048, path = '' }) {
-  // create http server
-  http.createServer(async (req, res) => {
-    const startTime = new Date()
+function startServer(port) {
+  return new Promise((resolve, reject) => {
+    // create http server
+    const server = http.createServer(async (req, res) => {
+      const startTime = new Date()
 
-    // handle request
-    /** @type {ServeResult} */
-    let result = { status: 500, content: 'internal server error' }
-    try {
-      result = await handleRequest(req)
-    } catch (err) {
-      console.error('error handling request', err)
-    }
-    let { status, content } = result
+      // handle request
+      /** @type {ServeResult} */
+      let result = { status: 500, content: 'internal server error' }
+      try {
+        result = await handleRequest(req)
+      } catch (err) {
+        console.error('error handling request', err)
+      }
+      let { status, content } = result
 
-    // write http header
-    /** @type {http.OutgoingHttpHeaders} */
-    const headers = { 'Connection': 'keep-alive' }
-    if (result.contentLength !== undefined) {
-      headers['Content-Length'] = result.contentLength
-    }
-    if (result.contentType) headers['Content-Type'] = result.contentType
-    if (status === 301 && typeof content === 'string') {
-      // handle redirect
-      headers['Location'] = content
-      content = ''
-    }
-    // compress content
-    const gzipped = gzip(req, content)
-    if (gzipped) {
-      headers['Content-Encoding'] = 'gzip'
-      content = gzipped
-    }
-    res.writeHead(status, headers)
+      // write http header
+      /** @type {http.OutgoingHttpHeaders} */
+      const headers = { 'Connection': 'keep-alive' }
+      if (result.contentLength !== undefined) {
+        headers['Content-Length'] = result.contentLength
+      }
+      if (result.contentType) headers['Content-Type'] = result.contentType
+      if (status === 301 && typeof content === 'string') {
+        // handle redirect
+        headers['Location'] = content
+        content = ''
+      }
+      // compress content
+      const gzipped = gzip(req, content)
+      if (gzipped) {
+        headers['Content-Encoding'] = 'gzip'
+        content = gzipped
+      }
+      res.writeHead(status, headers)
 
-    // write http response
-    if (content instanceof Buffer || typeof content === 'string') {
-      res.end(content)
-    } else if (content instanceof ReadableStream) {
-      pipe(content, res)
-    }
+      // write http response
+      if (content instanceof Buffer || typeof content === 'string') {
+        res.end(content)
+      } else if (content instanceof ReadableStream) {
+        pipe(content, res)
+      }
 
-    // log request
-    const endTime = new Date()
-    const ms = endTime.getTime() - startTime.getTime()
-    // @ts-expect-error contentLength will exist if content is ReadableStream
-    const length = result.contentLength || content.length || 0
-    const line = `${endTime.toISOString()} ${status} ${req.method} ${req.url} ${length} ${ms}ms`
-    if (status < 400) {
-      console.log(line)
-    } else {
-      // highlight errors red
-      console.log(`\x1b[31m${line}\x1b[0m`)
-    }
-  }).listen(port, () => {
-    console.log(`hyperparam server running on http://localhost:${port}`)
-    if (!path) openUrl(`http://localhost:${port}`)
-    else {
-      path = encodeURIComponent(path)
-      openUrl(`http://localhost:${port}/files?key=${path}`)
-    }
+      // log request
+      const endTime = new Date()
+      const ms = endTime.getTime() - startTime.getTime()
+      // @ts-expect-error contentLength will exist if content is ReadableStream
+      const length = result.contentLength || content.length || 0
+      const line = `${endTime.toISOString()} ${status} ${req.method} ${req.url} ${length} ${ms}ms`
+      if (status < 400) {
+        console.log(line)
+      } else {
+        // highlight errors red
+        console.log(`\x1b[31m${line}\x1b[0m`)
+      }
+    })
+    server.on('error', reject)
+    server.listen(port, resolve)
   })
 }
 
