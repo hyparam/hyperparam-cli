@@ -29,8 +29,8 @@ const mimeTypes = {
 }
 
 /**
- * @typedef {T | Promise<T>} Awaitable<T>
  * @template T
+ * @typedef {T | Promise<T>} Awaitable<T>
  */
 
 /**
