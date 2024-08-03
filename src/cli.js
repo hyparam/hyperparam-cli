@@ -1,20 +1,27 @@
 #!/usr/bin/env node
 
 import fs from 'fs'
+import { chat } from './chat.js'
+import { serve } from './serve.js'
 
-if (process.argv[2] === 'chat') {
-  import('./chat.js').then(({ chat }) => chat())
-} else if (process.argv[2] === '--help') {
+const arg = process.argv[2]
+if (arg === 'chat') {
+  chat()
+} else if (arg === '--help') {
   console.log('Usage:')
   console.log('  hyperparam [path]')
   console.log('  hyperparam chat')
-} else if (process.argv[2].match(/^https?:\/\//)) {
-  // Load URL
-  import('./serve.js').then(({ serve }) => serve(process.argv[2]))
-} else if (fs.existsSync(process.argv[2])) {
-  // Load file or directory
-  import('./serve.js').then(({ serve }) => serve(process.argv[2]))
+} else if (!arg) {
+  serve()
+} else if (arg.match(/^https?:\/\//)) {
+  serve(arg) // url
 } else {
-  console.error(`Error: file ${process.argv[2]} does not exist`)
-  process.exit(1)
+  // resolve file or directory
+  const path = fs.realpathSync(arg)
+  if (fs.existsSync(path)) {
+    serve(path)
+  } else {
+    console.error(`Error: file ${process.argv[2]} does not exist`)
+    process.exit(1)
+  }
 }
