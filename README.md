@@ -10,6 +10,22 @@ The hyperparam cli tool is for viewing arbitrarily large datasets in the browser
 
 ## Running
 
+To open a file browser in your current local directory run:
+
+```sh
+npx hyperparam
+```
+
+You can also pass a specific file, folder, or url:
+
+```sh
+npx hyperparam example.parquet
+npx hyperparam directory/
+npx hyperparam https://hyperparam-public.s3.amazonaws.com/bunnies.parquet
+```
+
+## Chat
+
 To start a chat with hyperparam:
 
 ```sh
@@ -22,4 +38,16 @@ Install for all users:
 
 ```sh
 sudo npm i -g hyperparam
+```
+
+Now you can just run:
+
+```sh
+hyperparam
+```
+
+or:
+
+```sh
+hyp
 ```
