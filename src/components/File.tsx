@@ -1,20 +1,11 @@
-import HighTable, { DataFrame } from 'hightable'
-import React, { useCallback, useEffect, useState } from 'react'
-import { parquetDataFrame } from '../tableProvider.js'
-import Layout, { Spinner } from './Layout.js'
-
-enum LoadingState {
-  NotLoaded,
-  Loading,
-  Loaded
-}
+import React, { useState } from 'react'
+import Layout from './Layout.js'
+import ParquetView from './ParquetView.js'
 
 /**
  * File viewer page
  */
 export default function File() {
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
-  const [dataframe, setDataframe] = useState<DataFrame>()
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
 
@@ -25,30 +16,6 @@ export default function File() {
   const shortKey = path.at(-1)
 
   const isUrl = key.startsWith('http://') || key.startsWith('https://')
-  const url = isUrl ? key : '/api/store/get?key=' + key
-
-  useEffect(() => {
-    async function loadParquetDataFrame() {
-      try {
-        setProgress(0.5)
-        const df = await parquetDataFrame(url)
-        setDataframe(df)
-      } catch (error) {
-        setError(error as Error)
-      } finally {
-        setLoading(LoadingState.Loaded)
-        setProgress(undefined)
-      }
-    }
-    if (loading === LoadingState.NotLoaded) {
-      setLoading(LoadingState.Loading)
-      loadParquetDataFrame()
-    }
-  }, [])
-
-  const onDoubleClickCell = useCallback((row: number, col: number) => {
-    location.href = '/files?key=' + key + '&row=' + row + '&col=' + col
-  }, [key])
 
   return <Layout progress={progress} error={error} title={shortKey}>
     <nav className='top-header'>
@@ -66,11 +33,6 @@ export default function File() {
       </div>
     </nav>
 
-    {dataframe && <HighTable
-      data={dataframe}
-      onDoubleClickCell={onDoubleClickCell}
-      onError={setError} />}
-
-    {loading && <Spinner className='center' />}
+    <ParquetView content={key} setProgress={setProgress} setError={setError} />
   </Layout>
 }
