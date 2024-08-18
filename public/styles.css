@@ -237,3 +237,10 @@ main {
 .folder {
   background-image: url(/public/folder.svg);
 }
+
+/* viewer */
+.viewer {
+  flex: 1;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}

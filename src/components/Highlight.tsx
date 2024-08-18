@@ -19,10 +19,8 @@ export default function Highlight({ text }: HighlightProps) {
   }, [text])
 
   return (
-    <pre>
-      <code ref={codeRef} className="language-javascript">
-        {text}
-      </code>
-    </pre>
+    <code ref={codeRef} className="viewer language-javascript">
+      {text}
+    </code>
   )
 }
