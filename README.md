@@ -8,7 +8,7 @@ This is the hyperparam cli tool.
 
 The hyperparam cli tool is for viewing arbitrarily large datasets in the browser.
 
-## Running
+## Viewer
 
 To open a file browser in your current local directory run:
 
