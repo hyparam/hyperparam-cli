@@ -1,8 +1,8 @@
 import React from 'react'
-import ImageView, { imageTypes } from './ImageView.js'
-import TableView from './ParquetView.js'
-import TextView from './TextView.js'
+import ImageView, { imageTypes } from './viewers/ImageView.js'
 import MarkdownView from './viewers/MarkdownView.js'
+import TableView from './viewers/ParquetView.js'
+import TextView from './viewers/TextView.js'
 
 interface ViewerProps {
   content: string

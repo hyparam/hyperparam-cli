@@ -1,7 +1,7 @@
 import HighTable, { DataFrame } from 'hightable'
 import React, { useCallback, useEffect, useState } from 'react'
-import { parquetDataFrame } from '../tableProvider.js'
-import { Spinner } from './Layout.js'
+import { parquetDataFrame } from '../../tableProvider.js'
+import { Spinner } from '../Layout.js'
 
 enum LoadingState {
   NotLoaded,
