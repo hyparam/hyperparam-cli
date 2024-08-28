@@ -189,14 +189,15 @@ async function handleListing(prefix) {
     // get stats for each file
     const filePath = `${prefix}/${filename}`
     const stat = await fs.stat(filePath)
+      .catch(() => undefined) // handle bad symlinks
 
-    if (stat.isFile()) {
+    if (stat?.isFile()) {
       files.push({
         key: filename,
         fileSize: stat.size,
         lastModified: stat.mtime.toISOString(),
       })
-    } else if (stat.isDirectory()) {
+    } else if (stat?.isDirectory()) {
       files.push({
         key: filename + '/',
         lastModified: stat.mtime.toISOString(),
