@@ -269,3 +269,35 @@ main {
   background-size: 32px 32px;
   background-position:0 0, 16px 0, 16px -16px, 0px 16px;
 }
+/* markdown */
+.markdown {
+  background-color: #222226;
+  color: #ddd;
+  flex: 1;
+  padding: 8px 20px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+.markdown a {
+  color: #cdf;
+}
+.markdown p {
+  margin-block: 1em;
+}
+.markdown pre {
+  background-color: #34343a;
+  border-left: #446 solid 5px;
+  margin: 0;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+}
+.markdown h1 {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.markdown h2 {
+  font-weight: 500;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}
