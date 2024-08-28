@@ -83,7 +83,6 @@ main {
   flex-direction: column;
   flex: 1;
   height: 100vh;
-  overflow-y: auto;
   padding: 0;
   /* no outer scrollbars */
   overflow: hidden;
@@ -240,6 +239,7 @@ main {
 
 /* viewer */
 .viewer {
+  display: flex;
   flex: 1;
   white-space: pre-wrap;
   overflow-y: auto;
@@ -254,4 +254,18 @@ main {
   width: 100%;
   overflow-x: auto;
   white-space: pre-wrap;
+}
+/* images */
+.image {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  object-fit: scale-down;
+  background-image:
+    linear-gradient(45deg, #ddd 25%, transparent 25%),
+    linear-gradient(135deg, #ddd 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ddd 75%),
+    linear-gradient(135deg, transparent 75%, #ddd 75%);
+  background-size: 32px 32px;
+  background-position:0 0, 16px 0, 16px -16px, 0px 16px;
 }
