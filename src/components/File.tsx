@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Layout from './Layout.js'
-import ParquetView from './ParquetView.js'
+import Viewer from './Viewer.js'
 
 /**
  * File viewer page
@@ -33,6 +33,6 @@ export default function File() {
       </div>
     </nav>
 
-    <ParquetView content={key} setProgress={setProgress} setError={setError} />
+    <Viewer content={key} setProgress={setProgress} setError={setError} />
   </Layout>
 }
