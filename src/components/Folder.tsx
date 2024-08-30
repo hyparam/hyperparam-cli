@@ -1,23 +1,22 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import {
-  FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles,
-} from '../files.js'
+import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../files.js'
 import Layout, { Spinner, cn } from './Layout.js'
+
+interface FolderProps {
+  prefix: string
+}
 
 /**
  * Folder browser page
  */
-export default function Folder() {
+export default function Folder({ prefix }: FolderProps) {
   // State to hold file listing
   const [files, setFiles] = useState<FileMetadata[]>()
   const [error, setError] = useState<Error>()
   const listRef = useRef<HTMLUListElement>(null)
 
   // Folder path from url
-  const search = new URLSearchParams(location.search)
-  const prefix = (search.get('key') || '').replace(/\/$/, '')
   const path = prefix.split('/')
-  const shortKey = path.at(-1)
 
   // Fetch files on component mount
   useEffect(() => {
@@ -33,7 +32,7 @@ export default function Folder() {
     return prefix ? `/files?key=${prefix}/${file.key}` : `/files?key=${file.key}`
   }, [prefix])
 
-  return <Layout error={error} title={shortKey}>
+  return <Layout error={error} title={prefix}>
     <nav className='top-header'>
       <div className='path'>
         <a href='/files'>/</a>
