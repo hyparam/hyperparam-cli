@@ -16,7 +16,6 @@ export default function File({ file }: FileProps) {
   // File path from url
   const path = file.split('/')
   const fileName = path.at(-1)
-
   const isUrl = file.startsWith('http://') || file.startsWith('https://')
 
   return <Layout progress={progress} error={error} title={fileName}>
@@ -35,6 +34,6 @@ export default function File({ file }: FileProps) {
       </div>
     </nav>
 
-    <Viewer content={file} setProgress={setProgress} setError={setError} />
+    <Viewer file={file} setProgress={setProgress} setError={setError} />
   </Layout>
 }

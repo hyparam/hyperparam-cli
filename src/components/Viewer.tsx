@@ -5,7 +5,7 @@ import TableView from './viewers/ParquetView.js'
 import TextView from './viewers/TextView.js'
 
 interface ViewerProps {
-  content: string
+  file: string
   setError: (error: Error) => void
   setProgress: (progress: number) => void
 }
@@ -14,18 +14,18 @@ interface ViewerProps {
  * Get a viewer for a file.
  * Chooses viewer based on content type.
  */
-export default function Viewer({ content, setError, setProgress }: ViewerProps) {
-  if (content.endsWith('.md')) {
-    return <MarkdownView content={content} setError={setError} />
-  } else if (content.endsWith('.parquet')) {
-    return <TableView content={content} setError={setError} setProgress={setProgress} />
-  } else if (imageTypes.some(type => content.endsWith(type))) {
-    return <ImageView content={content} setError={setError} />
+export default function Viewer({ file, setError, setProgress }: ViewerProps) {
+  if (file.endsWith('.md')) {
+    return <MarkdownView file={file} setError={setError} />
+  } else if (file.endsWith('.parquet')) {
+    return <TableView file={file} setError={setError} setProgress={setProgress} />
+  } else if (imageTypes.some(type => file.endsWith(type))) {
+    return <ImageView file={file} setError={setError} />
   }
 
   // Default to text viewer
   return <TextView
-    content={content}
+    file={file}
     setError={setError}
     setProgress={setProgress} />
 }

@@ -1,6 +1,5 @@
-import { stringify } from 'hightable'
 import React, { useEffect, useState } from 'react'
-import { parquetDataFrame } from '../tableProvider.js'
+import { asyncBufferFrom, parquetDataFrame } from '../tableProvider.js'
 import Highlight from './Highlight.js'
 import Layout from './Layout.js'
 
@@ -36,12 +35,16 @@ export default function CellView() {
     async function loadCellData() {
       try {
         // TODO: handle first row > 100kb
-        setProgress(0.33)
-        const df = await parquetDataFrame(url)
-        setProgress(0.66)
+        setProgress(0.25)
+        const asyncBuffer = await asyncBufferFrom(url)
+        setProgress(0.5)
+        const df = await parquetDataFrame(asyncBuffer)
+        setProgress(0.75)
         const rows = await df.rows(row, row + 1)
         const cell = rows[0][col]
-        setText(stringify(cell))
+        const text = stringify(cell)
+        console.log('cell', cell, text)
+        setText(text)
       } catch (error) {
         setError(error as Error)
       } finally {
@@ -73,6 +76,26 @@ export default function CellView() {
       </div>
     </nav>
 
-    <Highlight text={text || ''} />
+    {/* <Highlight text={text || ''} /> */}
+    <pre className="viewer text">{text}</pre>
   </Layout>
+}
+
+/**
+ * Robust stringification of any value, including json and bigints.
+ */
+function stringify(value: any): string | undefined {
+  if (typeof value === 'string') return value
+  if (typeof value === 'number') return value.toLocaleString()
+  if (Array.isArray(value)) return `[\n${value.map(v => indent(stringify(v), 2)).join(',\n')}\n]`
+  if (value === null || value === undefined) return JSON.stringify(value)
+  if (value instanceof Date) return value.toISOString()
+  if (typeof value === 'object') {
+    return `{${Object.entries(value).map(([k, v]) => `${k}: ${stringify(v)}`).join(', ')}}`
+  }
+  return value.toString()
+}
+
+function indent(text: string | undefined, spaces: number) {
+  return text?.split('\n').map(line => ' '.repeat(spaces) + line).join('\n')
 }

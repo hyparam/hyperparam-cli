@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import React from 'react'
+import { Spinner } from '../Layout.js'
+import ContentHeader from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -8,7 +10,7 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  content: string
+  file: string
   setError: (error: Error) => void
   setProgress: (progress: number) => void
 }
@@ -16,13 +18,13 @@ interface ViewerProps {
 /**
  * Text viewer component.
  */
-export default function TextView({ content, setError }: ViewerProps) {
+export default function TextView({ file, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [text, setText] = useState<string | undefined>()
   const textRef = useRef<HTMLPreElement>(null)
 
-  const isUrl = content.startsWith('http://') || content.startsWith('https://')
-  const url = isUrl ? content : '/api/store/get?key=' + content
+  const isUrl = file.startsWith('http://') || file.startsWith('https://')
+  const url = isUrl ? file : '/api/store/get?key=' + file
 
   // Load plain text content
   useEffect(() => {
@@ -44,17 +46,26 @@ export default function TextView({ content, setError }: ViewerProps) {
       loadContent()
       return LoadingState.Loading
     })
-  }, [content, loading, setError])
+  }, [file, loading, setError])
 
-  if (loading === LoadingState.Loading) {
-    return <span>loading...</span>
-  } else if (text === undefined) {
-    // Loading failed
-    return null
-  } else {
-    // Simple text viewer
-    return <code className='text' ref={textRef}>
+  const headers = <>
+    <span>{text ? newlines(text) : 0} lines</span>
+  </>
+
+  // Simple text viewer
+  return <ContentHeader content={{ fileSize: text?.length }} headers={headers}>
+    <code className='text' ref={textRef}>
       {text}
     </code>
+
+    {loading && <Spinner className='center' />}
+  </ContentHeader>
+}
+
+function newlines(str: string): string {
+  let count = 0
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '\n') count++
   }
+  return count.toLocaleString()
 }

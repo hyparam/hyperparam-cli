@@ -10,10 +10,11 @@ describe('ImageView Component', () => {
     const body = new ArrayBuffer(8)
     vi.mocked(fetch).mockResolvedValueOnce({
       arrayBuffer: () => Promise.resolve(body),
+      headers: new Map([['content-length', body.byteLength]]),
     } as unknown as Response)
 
-    const { findByRole } = render(
-      <ImageView content={'test.png'} setError={console.error} />
+    const { findByRole, findByText } = render(
+      <ImageView file={'test.png'} setError={console.error} />
     )
 
     // wait for asynchronous image loading
@@ -22,6 +23,7 @@ describe('ImageView Component', () => {
     expect(image).toBeDefined()
     expect(image.getAttribute('src')).not.toBeNull()
     expect(image.getAttribute('alt')).toBe('test.png')
+    expect(findByText('8 b')).resolves.toBeDefined()
   })
 
   // TODO: test error handling

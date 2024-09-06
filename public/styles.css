@@ -241,8 +241,21 @@ main {
 .viewer {
   display: flex;
   flex: 1;
+  flex-direction: column;
   white-space: pre-wrap;
   overflow-y: auto;
+}
+.view-header {
+  align-items: center;
+  background-color: #ccc;
+  color: #444;
+  display: flex;
+  gap: 16px;
+  height: 24px;
+  padding: 0 8px;
+  /* all one line */
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 /* viewers */
 .text {

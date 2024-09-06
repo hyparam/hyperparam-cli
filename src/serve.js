@@ -16,11 +16,15 @@ const mimeTypes = {
   '.html': 'text/html',
   '.js': 'application/javascript',
   '.css': 'text/css',
+  '.csv': 'text/csv',
   '.json': 'application/json',
   '.map': 'application/json',
+  '.md': 'text/markdown',
   '.ico': 'image/x-icon',
+  '.jpeg': 'image/jpeg',
   '.jpg': 'image/jpeg',
   '.parquet': 'application/x-parquet',
+  '.pdf': 'application/pdf',
   '.png': 'image/png',
   '.svg': 'image/svg+xml',
   '.txt': 'text/plain',
@@ -114,6 +118,7 @@ async function handleStatic(filePath, range) {
   if (!stats || !stats.isFile()) {
     return { status: 404, content: 'not found' }
   }
+  const contentLength = stats.size
 
   // detect content type
   const extname = path.extname(filePath)
@@ -141,7 +146,7 @@ async function handleStatic(filePath, range) {
   }
 
   const content = await fs.readFile(filePath)
-  return { status: 200, content, contentType }
+  return { status: 200, content, contentLength, contentType }
 }
 
 /**

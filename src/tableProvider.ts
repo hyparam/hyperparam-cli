@@ -8,8 +8,7 @@ import { readableStreamToArrayBuffer } from './streamConverters.js'
 /**
  * Construct a dataframe from a parquet file asynchronously.
  */
-export async function parquetDataFrame(url: string): Promise<DataFrame> {
-  const asyncBuffer = await asyncBufferFrom(url)
+export async function parquetDataFrame(asyncBuffer: AsyncBuffer): Promise<DataFrame> {
   // load parquet metadata
   const metadata = await parquetMetadataAsync(asyncBuffer)
 
@@ -30,7 +29,7 @@ export async function parquetDataFrame(url: string): Promise<DataFrame> {
   }
 }
 
-async function asyncBufferFrom(url: string): Promise<AsyncBuffer> {
+export async function asyncBufferFrom(url: string): Promise<AsyncBuffer> {
   // get byteLength with head
   const res = await fetch(url, { method: 'HEAD' })
   if (!res.ok) throw new Error(`Failed to fetch parquet file: ${res.statusText}`)

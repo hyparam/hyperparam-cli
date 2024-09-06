@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import ContentHeader, { parseFileSize } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -7,19 +8,24 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  content: string
+  file: string
   setError: (error: Error) => void
+}
+
+interface Content {
+  dataUri: string
+  fileSize?: number
 }
 
 /**
  * Image viewer component.
  */
-export default function ImageView({ content, setError }: ViewerProps) {
+export default function ImageView({ file, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
-  const [dataUri, setDataUri] = useState<string>()
+  const [content, setContent] = useState<Content>()
 
-  const isUrl = content.startsWith('http://') || content.startsWith('https://')
-  const url = isUrl ? content : '/api/store/get?key=' + content
+  const isUrl = file.startsWith('http://') || file.startsWith('https://')
+  const url = isUrl ? file : '/api/store/get?key=' + file
 
   useEffect(() => {
     async function loadContent() {
@@ -28,8 +34,9 @@ export default function ImageView({ content, setError }: ViewerProps) {
         const arrayBuffer = await res.arrayBuffer()
         // base64 encode and display image
         const b64 = arrayBufferToBase64(arrayBuffer)
-        const dataUri = `data:${contentType(content)};base64,${b64}`
-        setDataUri(dataUri)
+        const dataUri = `data:${contentType(url)};base64,${b64}`
+        const fileSize = parseFileSize(res.headers)
+        setContent({ dataUri, fileSize })
       } catch (error) {
         setError(error as Error)
       } finally {
@@ -43,14 +50,14 @@ export default function ImageView({ content, setError }: ViewerProps) {
       loadContent()
       return LoadingState.Loading
     })
-  }, [content, loading, setError])
+  }, [url, loading, setError])
 
-  return <div className='viewer'>
-    {dataUri && <img
-      alt={content}
+  return <ContentHeader content={content}>
+    {content?.dataUri && <img
+      alt={file}
       className='image'
-      src={dataUri} />}
-  </div>
+      src={content.dataUri} />}
+  </ContentHeader>
 }
 
 /**
