@@ -1,11 +1,16 @@
 import { render } from '@testing-library/react'
-import React from 'react'
-import { describe, expect, it } from 'vitest'
+import React, { act } from 'react'
+import { describe, expect, it, vi } from 'vitest'
 import File from '../../src/components/File.js'
 
+// Mock fetch
+global.fetch = vi.fn(() => Promise.resolve({ text: vi.fn() } as unknown as Response))
+
 describe('File Component', () => {
-  it('renders a local file path', () => {
-    const { getByText } = render(<File file="folder/subfolder/test.txt" />)
+  it('renders a local file path', async () => {
+    const { getByText } = await act(() => render(
+      <File file="folder/subfolder/test.txt" />
+    ))
 
     expect(getByText('/')).toBeDefined()
     expect(getByText('folder/')).toBeDefined()
@@ -13,15 +18,17 @@ describe('File Component', () => {
     expect(getByText('test.txt')).toBeDefined()
   })
 
-  it('renders a URL', () => {
+  it('renders a URL', async () => {
     const url = 'https://example.com/test.txt'
-    const { getByText } = render(<File file={url} />)
+    const { getByText } = await act(() => render(<File file={url} />))
 
     expect(getByText(url)).toBeDefined()
   })
 
-  it('renders correct breadcrumbs for nested folders', () => {
-    const { getAllByRole } = render(<File file="folder1/folder2/folder3/test.txt" />)
+  it('renders correct breadcrumbs for nested folders', async () => {
+    const { getAllByRole } = await act(() => render(
+      <File file="folder1/folder2/folder3/test.txt" />
+    ))
 
     const links = getAllByRole('link')
     expect(links[0].getAttribute('href')).toBe('/')
