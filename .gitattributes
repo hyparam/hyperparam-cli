@@ -1,0 +1,2 @@
+public/build/app.js -diff
+*.js.map -diff
