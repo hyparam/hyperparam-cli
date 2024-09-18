@@ -1,4 +1,4 @@
-import HighTable, { DataFrame } from 'hightable'
+import HighTable, { DataFrame, sortableDataFrame } from 'hightable'
 import React, { useCallback, useEffect, useState } from 'react'
 import { asyncBufferFrom, parquetDataFrame } from '../../tableProvider.js'
 import { Spinner } from '../Layout.js'
@@ -38,8 +38,9 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
         const asyncBuffer = await asyncBufferFrom(url)
         setProgress(0.66)
         const dataframe = await parquetDataFrame(asyncBuffer)
+        const sortable = sortableDataFrame(dataframe)
         const fileSize = asyncBuffer.byteLength
-        setContent({ dataframe, fileSize })
+        setContent({ dataframe: sortable, fileSize })
       } catch (error) {
         setError(error as Error)
       } finally {
