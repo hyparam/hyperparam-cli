@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import fs from 'fs'
+import fs from 'fs/promises'
 import { chat } from './chat.js'
 import { serve } from './serve.js'
 
@@ -12,16 +12,23 @@ if (arg === 'chat') {
   console.log('  hyperparam [path]')
   console.log('  hyperparam chat')
 } else if (!arg) {
-  serve()
+  serve(process.cwd(), undefined) // current directory
 } else if (arg.match(/^https?:\/\//)) {
-  serve(arg) // url
+  serve(undefined, arg) // url
 } else {
   // resolve file or directory
-  const path = fs.realpathSync(arg)
-  if (fs.existsSync(path)) {
-    serve(path)
-  } else {
+  fs.stat(arg).then(async stat => {
+    const path = await fs.realpath(arg)
+    if (stat.isDirectory()) {
+      serve(path, undefined)
+    } else if (stat.isFile()) {
+      const parent = path.split('/').slice(0, -1).join('/')
+      const key = path.split('/').pop()
+      console.log('WTF1', parent, key)
+      serve(parent, key)
+    }
+  }).catch(() => {
     console.error(`Error: file ${process.argv[2]} does not exist`)
     process.exit(1)
-  }
+  })
 }

@@ -39,13 +39,15 @@ const mimeTypes = {
 
 /**
  * Start http server with optional path
- * @param {string} [path]
+ * @param {string | undefined} serveDirectory serve files from this directory
+ * @param {string | undefined} key file to serve by default
  */
-export async function serve(path = '') {
+export async function serve(serveDirectory, key) {
+  // Search for open port
   let port = 2048
   while (port < 2048 + 10) {
     try {
-      await startServer(port)
+      await startServer(port, serveDirectory)
       break
     } catch (/** @type {any} */ err) {
       if (err.code !== 'EADDRINUSE') throw err
@@ -55,10 +57,10 @@ export async function serve(path = '') {
     }
   }
   console.log(`hyperparam server running on http://localhost:${port}`)
-  if (!path) openUrl(`http://localhost:${port}`)
+  if (!key) openUrl(`http://localhost:${port}`)
   else {
-    path = encodeURIComponent(path)
-    openUrl(`http://localhost:${port}/files?key=${path}`)
+    key = encodeURIComponent(key)
+    openUrl(`http://localhost:${port}/files?key=${key}`)
   }
 }
 
@@ -67,9 +69,10 @@ export async function serve(path = '') {
  * @typedef {Object} ReadableStream
  * @typedef {{ status: number, content: string | Buffer | ReadableStream, contentLength?: number, contentType?: string }} ServeResult
  * @param {http.IncomingMessage} req
+ * @param {string | undefined} serveDirectory
  * @returns {Awaitable<ServeResult>}
  */
-function handleRequest(req) {
+function handleRequest(req, serveDirectory) {
   if (!req.url) return { status: 400, content: 'bad request' }
   const parsedUrl = url.parse(req.url, true)
   const pathname = parsedUrl.pathname || ''
@@ -88,20 +91,22 @@ function handleRequest(req) {
   } else if (pathname.startsWith('/public/')) {
     // serve static files
     return handleStatic(`${hyperparamPath}${pathname}`)
-  } else if (pathname === '/api/store/list') {
+  } else if (serveDirectory && pathname === '/api/store/list') {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
     if (Array.isArray(prefix)) return { status: 400, content: 'bad request' }
-    return handleListing(prefix)
-  } else if (pathname === '/api/store/get') {
+    const perfixPath = `${serveDirectory}/${prefix}`
+    return handleListing(perfixPath)
+  } else if (serveDirectory && pathname === '/api/store/get') {
     // serve file content
     const key = parsedUrl.query.key || ''
     if (Array.isArray(key)) return { status: 400, content: 'bad request' }
+    const filePath = `${serveDirectory}/${key}`
     if (req.method === 'HEAD') {
-      return handleHead(key)
+      return handleHead(filePath)
     }
     const range = req.method === 'HEAD' ? '0-0' : req.headers.range
-    return handleStatic(key, range)
+    return handleStatic(filePath, range)
   } else {
     return { status: 404, content: 'not found' }
   }
@@ -177,11 +182,6 @@ async function handleHead(filePath) {
  * @returns {Promise<ServeResult>}
  */
 async function handleListing(prefix) {
-  if (!prefix) {
-    prefix = process.cwd()
-  } else if (!prefix.startsWith('/')) {
-    prefix = `${process.cwd()}/${prefix}`
-  }
   try {
     const stat = await fs.stat(prefix)
     if (!stat.isDirectory()) return { status: 400, content: 'not a directory' }
@@ -215,9 +215,10 @@ async function handleListing(prefix) {
 
 /**
  * @param {number} port
+ * @param {string | undefined} path serve files from this directory
  * @returns {Promise<void>}
  */
-function startServer(port) {
+function startServer(port, path) {
   return new Promise((resolve, reject) => {
     // create http server
     const server = http.createServer(async (req, res) => {
@@ -227,7 +228,7 @@ function startServer(port) {
       /** @type {ServeResult} */
       let result = { status: 500, content: 'internal server error' }
       try {
-        result = await handleRequest(req)
+        result = await handleRequest(req, path)
       } catch (err) {
         console.error('error handling request', err)
       }
