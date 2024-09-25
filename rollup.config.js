@@ -6,28 +6,31 @@ import typescript from '@rollup/plugin-typescript'
 import postcss from 'rollup-plugin-postcss'
 
 
-export default {
-  input: 'src/app.js',
-  output: {
-    dir: 'public/build',
-    inlineDynamicImports: true,
-    name: 'hyperparam',
-    format: 'es',
-    sourcemap: true,
+export default [
+  // app bundle
+  {
+    input: 'src/app.js',
+    output: {
+      file: 'public/build/app.min.js',
+      inlineDynamicImports: true,
+      name: 'hyperparam',
+      format: 'es',
+      sourcemap: true,
+    },
+    plugins: [
+      commonjs(),
+      replace({
+        'process.env.NODE_ENV': JSON.stringify('production'), // or 'development' based on your build environment
+        preventAssignment: true,
+      }),
+      resolve({ browser: true }),
+      terser(),
+      typescript({
+        exclude: ['test/**'],
+      }),
+      postcss({
+        extensions: ['.css'],
+      }),
+    ],
   },
-  plugins: [
-    commonjs(),
-    replace({
-      'process.env.NODE_ENV': JSON.stringify('production'), // or 'development' based on your build environment
-      preventAssignment: true,
-    }),
-    resolve({ browser: true }),
-    terser(),
-    typescript({
-      exclude: ['test/**'],
-    }),
-    postcss({
-      extensions: ['.css'],
-    }),
-  ],
-}
+]
