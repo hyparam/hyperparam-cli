@@ -1,8 +1,9 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
 import React, { useCallback, useEffect, useState } from 'react'
-import { asyncBufferFrom, parquetDataFrame } from '../../tableProvider.js'
+import { parquetDataFrame } from '../../tableProvider.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'
+import { asyncBufferFromUrl, FileMetaData, parquetMetadataAsync } from 'hyparquet'
 
 enum LoadingState {
   NotLoaded,
@@ -27,6 +28,7 @@ interface Content {
 export default function ParquetView({ file, setProgress, setError }: ViewerProps) {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
+  const [metadata, setMetadata] = useState<FileMetaData>()
 
   const isUrl = file.startsWith('http://') || file.startsWith('https://')
   const url = isUrl ? file : '/api/store/get?key=' + file
@@ -35,9 +37,12 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
     async function loadParquetDataFrame() {
       try {
         setProgress(0.33)
-        const asyncBuffer = await asyncBufferFrom(url)
+        const asyncBuffer = await asyncBufferFromUrl(url)
+        const from = { url, byteLength: asyncBuffer.byteLength }
         setProgress(0.66)
-        let dataframe = await parquetDataFrame(asyncBuffer)
+        const metadata = await parquetMetadataAsync(asyncBuffer)
+        setMetadata(metadata)
+        let dataframe = await parquetDataFrame(from, metadata)
         dataframe = rowCache(dataframe)
         const fileSize = asyncBuffer.byteLength
         setContent({ dataframe, fileSize })

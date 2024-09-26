@@ -33,4 +33,19 @@ export default [
       }),
     ],
   },
+  // web worker
+  {
+    input: 'src/workers/parquetWorker.ts',
+    output: {
+      file: 'public/build/worker.min.js',
+      format: 'umd',
+      sourcemap: true,
+    },
+    plugins: [
+      commonjs(),
+      resolve({ browser: true }),
+      terser(),
+      typescript(),
+    ],
+  },
 ]

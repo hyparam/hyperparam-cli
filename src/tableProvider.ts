@@ -1,27 +1,18 @@
 import type { DataFrame } from 'hightable'
-import {
-  AsyncBuffer, SchemaTree, parquetMetadataAsync, parquetQuery, parquetSchema,
-} from 'hyparquet'
-import { compressors } from 'hyparquet-compressors'
+import { AsyncBuffer, FileMetaData, parquetSchema } from 'hyparquet'
 import { readableStreamToArrayBuffer } from './streamConverters.js'
+import { AsyncBufferFrom, parquetQueryWorker } from './workers/parquetWorkerClient.js'
 
 /**
- * Construct a dataframe from a parquet file asynchronously.
+ * Convert a parquet file into a dataframe.
  */
-export async function parquetDataFrame(asyncBuffer: AsyncBuffer): Promise<DataFrame> {
-  // load parquet metadata
-  const metadata = await parquetMetadataAsync(asyncBuffer)
-
-  // construct dataframe
-  const { children }: SchemaTree = parquetSchema(metadata)
-  // TODO: concat child names for like-like columns?
-  const header = children.map(child => child.element.name)
-  const numRows = Number(metadata.num_rows)
+export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData): DataFrame {
+  const { children } = parquetSchema(metadata)
   return {
-    header,
-    numRows,
-    rows(rowStart?: number, rowEnd?: number, orderBy?: string) {
-      return parquetQuery({ metadata, compressors, file: asyncBuffer, rowStart, rowEnd, orderBy })
+    header: children.map(child => child.element.name),
+    numRows: Number(metadata.num_rows),
+    rows(rowStart: number, rowEnd: number, orderBy?: string) {
+      return parquetQueryWorker({ asyncBuffer: from, rowStart, rowEnd, orderBy })
     },
     sortable: true,
   }
