@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
-import { asyncBufferFrom, parquetDataFrame } from '../tableProvider.js'
-import Highlight from './Highlight.js'
+import { parquetDataFrame } from '../tableProvider.js'
 import Layout from './Layout.js'
+import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 
 enum LoadingState {
   NotLoaded,
@@ -36,10 +36,12 @@ export default function CellView() {
       try {
         // TODO: handle first row > 100kb
         setProgress(0.25)
-        const asyncBuffer = await asyncBufferFrom(url)
+        const asyncBuffer = await asyncBufferFromUrl(url)
+        const from = { url, byteLength: asyncBuffer.byteLength }
         setProgress(0.5)
-        const df = await parquetDataFrame(asyncBuffer)
+        const metadata = await parquetMetadataAsync(asyncBuffer)
         setProgress(0.75)
+        const df = await parquetDataFrame(from, metadata)
         const rows = await df.rows(row, row + 1)
         const colName = df.header[col]
         const cell = rows[0][colName]
