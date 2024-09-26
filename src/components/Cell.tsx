@@ -41,7 +41,8 @@ export default function CellView() {
         const df = await parquetDataFrame(asyncBuffer)
         setProgress(0.75)
         const rows = await df.rows(row, row + 1)
-        const cell = rows[0][col]
+        const colName = df.header[col]
+        const cell = rows[0][colName]
         const text = stringify(cell)
         console.log('cell', cell, text)
         setText(text)

@@ -54,7 +54,7 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
     }
   }, [])
 
-  const onDoubleClickCell = useCallback((row: number, col: number) => {
+  const onDoubleClickCell = useCallback((col: number, row: number) => {
     location.href = '/files?key=' + file + '&row=' + row + '&col=' + col
   }, [file])
 
