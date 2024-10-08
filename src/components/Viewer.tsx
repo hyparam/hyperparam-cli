@@ -15,11 +15,12 @@ interface ViewerProps {
  * Chooses viewer based on content type.
  */
 export default function Viewer({ file, setError, setProgress }: ViewerProps) {
-  if (file.endsWith('.md')) {
+  const filename = file.replace(/\?.*$/, '') // remove query string
+  if (filename.endsWith('.md')) {
     return <MarkdownView file={file} setError={setError} />
-  } else if (file.endsWith('.parquet')) {
+  } else if (filename.endsWith('.parquet')) {
     return <TableView file={file} setError={setError} setProgress={setProgress} />
-  } else if (imageTypes.some(type => file.endsWith(type))) {
+  } else if (imageTypes.some(type => filename.endsWith(type))) {
     return <ImageView file={file} setError={setError} />
   }
 
