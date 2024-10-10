@@ -37,10 +37,10 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
         setProgress(0.33)
         const asyncBuffer = await asyncBufferFrom(url)
         setProgress(0.66)
-        const dataframe = await parquetDataFrame(asyncBuffer)
-        const cached = rowCache(dataframe)
+        let dataframe = await parquetDataFrame(asyncBuffer)
+        // dataframe = rowCache(dataframe)
         const fileSize = asyncBuffer.byteLength
-        setContent({ dataframe: cached, fileSize })
+        setContent({ dataframe, fileSize })
       } catch (error) {
         setError(error as Error)
       } finally {
