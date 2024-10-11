@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "highlight.js": "11.10.0",
-    "hightable": "0.5.2",
+    "hightable": "0.5.3",
     "hyparquet": "1.4.1",
     "hyparquet-compressors": "0.1.4"
   },
