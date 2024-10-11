@@ -52,3 +52,21 @@ or:
 ```sh
 hyp
 ```
+
+## Developers
+
+To develop the CLI locally:
+
+```sh
+npm i
+npm run build
+npm run serve
+```
+
+When you make changes, make sure to rebuild:
+
+```sh
+npm run build
+```
+
+Then refresh the browser.
