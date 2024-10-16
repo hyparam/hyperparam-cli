@@ -1,4 +1,4 @@
-import type { FileMetaData } from 'hyparquet'
+import { asyncBufferFromUrl, cachedAsyncBuffer, AsyncBuffer, FileMetaData } from 'hyparquet'
 
 // Serializable constructor for AsyncBuffers
 export interface AsyncBufferFrom {
@@ -45,3 +45,16 @@ export function parquetQueryWorker({
     worker.postMessage({ metadata, asyncBuffer, rowStart, rowEnd, orderBy })
   })
 }
+
+/**
+ * Convert AsyncBufferFrom to AsyncBuffer and cache results.
+ */
+export async function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
+  const key = JSON.stringify(from)
+  const cached = cache.get(key)
+  if (cached) return cached
+  const asyncBuffer = asyncBufferFromUrl(from.url, from.byteLength)
+  cache.set(key, asyncBuffer.then(cachedAsyncBuffer))
+  return asyncBuffer
+}
+const cache = new Map<string, Promise<AsyncBuffer>>()
