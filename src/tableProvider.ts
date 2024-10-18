@@ -11,6 +11,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     header: children.map(child => child.element.name),
     numRows: Number(metadata.num_rows),
     rows(rowStart: number, rowEnd: number, orderBy?: string) {
+      console.log('parquetDataFrame.rows', { rowStart, rowEnd, orderBy })
       return parquetQueryWorker({ asyncBuffer: from, rowStart, rowEnd, orderBy })
     },
     sortable: true,

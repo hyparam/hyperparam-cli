@@ -17,6 +17,8 @@ interface ParquetReadWorkerOptions {
 }
 
 let worker: Worker | undefined
+let nextQueryId = 0
+const pending = new Map<number, { resolve: (value: any) => void, reject: (error: any) => void }>()
 
 /**
  * Presents almost the same interface as parquetRead, but runs in a worker.
@@ -28,21 +30,24 @@ export function parquetQueryWorker({
   metadata, asyncBuffer, rowStart, rowEnd, orderBy }: ParquetReadWorkerOptions
 ): Promise<Record<string, any>[]> {
   return new Promise((resolve, reject) => {
+    const queryId = nextQueryId++
+    pending.set(queryId, { resolve, reject })
     // Create a worker
     if (!worker) {
       worker = new Worker(new URL('worker.min.js', import.meta.url))
-    }
-    worker.onmessage = ({ data }) => {
-      // Convert postmessage data to callbacks
-      if (data.error) {
-        reject(data.error)
-      } else if (data.result) {
-        resolve(data.result)
-      } else {
-        reject(new Error('Unexpected message from worker'))
+      worker.onmessage = ({ data }) => {
+        const { resolve, reject } = pending.get(data.queryId)!
+        // Convert postmessage data to callbacks
+        if (data.error) {
+          reject(data.error)
+        } else if (data.result) {
+          resolve(data.result)
+        } else {
+          reject(new Error('Unexpected message from worker'))
+        }
       }
     }
-    worker.postMessage({ metadata, asyncBuffer, rowStart, rowEnd, orderBy })
+    worker.postMessage({ queryId, metadata, asyncBuffer, rowStart, rowEnd, orderBy })
   })
 }
 
@@ -53,8 +58,8 @@ export async function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffe
   const key = JSON.stringify(from)
   const cached = cache.get(key)
   if (cached) return cached
-  const asyncBuffer = asyncBufferFromUrl(from.url, from.byteLength)
-  cache.set(key, asyncBuffer.then(cachedAsyncBuffer))
+  const asyncBuffer = asyncBufferFromUrl(from.url, from.byteLength).then(cachedAsyncBuffer)
+  cache.set(key, asyncBuffer)
   return asyncBuffer
 }
 const cache = new Map<string, Promise<AsyncBuffer>>()
