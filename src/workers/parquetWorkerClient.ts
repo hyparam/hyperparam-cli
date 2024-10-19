@@ -1,4 +1,4 @@
-import { asyncBufferFromUrl, cachedAsyncBuffer, AsyncBuffer, FileMetaData } from 'hyparquet'
+import { asyncBufferFromUrl, cachedAsyncBuffer, AsyncBuffer, ParquetReadOptions } from 'hyparquet'
 
 // Serializable constructor for AsyncBuffers
 export interface AsyncBufferFrom {
@@ -7,13 +7,9 @@ export interface AsyncBufferFrom {
 }
 
 // Same as ParquetReadOptions, but AsyncBufferFrom instead of AsyncBuffer
-interface ParquetReadWorkerOptions {
+interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'file'> {
   asyncBuffer: AsyncBufferFrom
-  metadata?: FileMetaData // parquet metadata, will be parsed if not provided
-  columns?: number[] // columns to read, all columns if undefined
-  rowStart?: number // inclusive
-  rowEnd?: number // exclusive
-  orderBy?: string // column to sort by
+  orderBy?: string
 }
 
 let worker: Worker | undefined
@@ -23,11 +19,11 @@ const pending = new Map<number, { resolve: (value: any) => void, reject: (error:
 /**
  * Presents almost the same interface as parquetRead, but runs in a worker.
  * This is useful for reading large parquet files without blocking the main thread.
- * Instead of taking an AsyncBuffer, it takes a FileContent, because it needs
+ * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker.
  */
-export function parquetQueryWorker({
-  metadata, asyncBuffer, rowStart, rowEnd, orderBy }: ParquetReadWorkerOptions
+export function parquetQueryWorker(
+  { metadata, asyncBuffer, rowStart, rowEnd, orderBy, onChunk }: ParquetReadWorkerOptions
 ): Promise<Record<string, any>[]> {
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
@@ -42,12 +38,18 @@ export function parquetQueryWorker({
           reject(data.error)
         } else if (data.result) {
           resolve(data.result)
+        } else if (data.chunk) {
+          onChunk?.(data.chunk)
         } else {
           reject(new Error('Unexpected message from worker'))
         }
       }
     }
-    worker.postMessage({ queryId, metadata, asyncBuffer, rowStart, rowEnd, orderBy })
+    // If caller provided an onChunk callback, worker will send chunks as they are parsed
+    const chunks = onChunk !== undefined
+    worker.postMessage({
+      queryId, metadata, asyncBuffer, rowStart, rowEnd, orderBy, chunks
+    })
   })
 }
 
