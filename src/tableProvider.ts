@@ -1,4 +1,4 @@
-import { DataFrame, resolvablePromise } from 'hightable'
+import { DataFrame, resolvableRow } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
 import { AsyncBufferFrom, parquetQueryWorker, parquetSortIndexWorker } from './workers/parquetWorkerClient.js'
 
@@ -20,7 +20,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       const rowEnd = groupEnds[groupIndex]
       // Initialize with resolvable promises
       for (let i = rowStart; i < rowEnd; i++) {
-        data[i] = Object.fromEntries(header.map(key => [key, resolvablePromise()]))
+        data[i] = resolvableRow(header)
       }
       parquetQueryWorker({ from, metadata, rowStart, rowEnd }).then(groupData => {
         for (let i = rowStart; i < rowEnd; i++) {
@@ -49,7 +49,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       if (orderBy) {
         const numRows = rowEnd - rowStart
         const wrapped = new Array(numRows).fill(null)
-          .map(() => Object.fromEntries(header.map(key => [key, resolvablePromise()])))
+          .map(() => resolvableRow(header))
 
         let sortIndex = getSortIndex(orderBy)
         sortIndex.then(indices => {
