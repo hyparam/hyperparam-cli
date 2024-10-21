@@ -24,7 +24,6 @@ if (arg === 'chat') {
     } else if (stat.isFile()) {
       const parent = path.split('/').slice(0, -1).join('/')
       const key = path.split('/').pop()
-      console.log('WTF1', parent, key)
       serve(parent, key)
     }
   }).catch(() => {
