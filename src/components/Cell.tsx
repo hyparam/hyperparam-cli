@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { parquetDataFrame } from '../tableProvider.js'
 import Layout from './Layout.js'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
+import { asyncRows } from 'hightable'
 
 enum LoadingState {
   NotLoaded,
@@ -43,10 +44,10 @@ export default function CellView() {
         setProgress(0.75)
         const df = await parquetDataFrame(from, metadata)
         const rows = await df.rows(row, row + 1)
-        const colName = df.header[col]
-        const cell = rows[0][colName]
-        const text = stringify(cell)
-        console.log('cell', cell, text)
+        // Convert to AsyncRows
+        const asyncRow = asyncRows(rows, 1, df.header)[0]
+        // Await cell data
+        const text = await asyncRow[df.header[col]].then(stringify)
         setText(text)
       } catch (error) {
         setError(error as Error)
