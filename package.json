@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "highlight.js": "11.10.0",
-    "hightable": "0.5.6",
+    "hightable": "0.6.0",
     "hyparquet": "1.5.0",
     "hyparquet-compressors": "0.1.4"
   },
@@ -34,8 +34,8 @@
     "@rollup/plugin-terser": "0.4.4",
     "@rollup/plugin-typescript": "12.1.1",
     "@testing-library/react": "16.0.1",
-    "@types/node": "22.7.8",
-    "@types/react": "18.3.11",
+    "@types/node": "22.7.9",
+    "@types/react": "18.3.12",
     "@types/react-dom": "18.3.1",
     "@vitejs/plugin-react": "4.3.3",
     "@vitest/coverage-v8": "2.1.3",

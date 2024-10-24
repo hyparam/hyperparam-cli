@@ -67,6 +67,7 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
 
   return <ContentHeader content={content} headers={headers}>
     {content?.dataframe && <HighTable
+      cacheKey={url}
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
       onError={setError} />}
