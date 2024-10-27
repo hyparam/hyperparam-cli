@@ -61,6 +61,14 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
     location.href = '/files?key=' + file + '&row=' + row + '&col=' + col
   }, [file])
 
+  const onMouseDownCell = useCallback((event: React.MouseEvent, col: number, row: number) => {
+    if (event.button === 1) {
+      // Middle click open in new tab
+      event.preventDefault()
+      window.open('/files?key=' + file + '&row=' + row + '&col=' + col, '_blank')
+    }
+  }, [file])
+
   const headers = <>
     {content?.dataframe && <span>{content.dataframe.numRows.toLocaleString()} rows</span>}
   </>
@@ -70,6 +78,7 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
       cacheKey={url}
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
+      onMouseDownCell={onMouseDownCell}
       onError={setError} />}
 
     {loading && <Spinner className='center' />}
