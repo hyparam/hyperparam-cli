@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { Spinner } from '../Layout.js'
-import ContentHeader from './ContentHeader.js'
+import ContentHeader, { parseFileSize } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -15,12 +15,17 @@ interface ViewerProps {
   setProgress: (progress: number) => void
 }
 
+interface Content {
+  text: string
+  fileSize?: number
+}
+
 /**
  * Text viewer component.
  */
 export default function TextView({ file, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
-  const [text, setText] = useState<string | undefined>()
+  const [content, setContent] = useState<Content>()
   const textRef = useRef<HTMLPreElement>(null)
 
   const isUrl = file.startsWith('http://') || file.startsWith('https://')
@@ -32,7 +37,8 @@ export default function TextView({ file, setError }: ViewerProps) {
       try {
         const res = await fetch(url)
         const text = await res.text()
-        setText(text)
+        const fileSize = parseFileSize(res.headers) ?? text.length
+        setContent({ text, fileSize })
       } catch (error) {
         setError(error as Error)
       } finally {
@@ -49,13 +55,13 @@ export default function TextView({ file, setError }: ViewerProps) {
   }, [file, loading, setError])
 
   const headers = <>
-    <span>{text ? newlines(text) : 0} lines</span>
+    <span>{newlines(content?.text ?? "")} lines</span>
   </>
 
   // Simple text viewer
-  return <ContentHeader content={{ fileSize: text?.length }} headers={headers}>
+  return <ContentHeader content={content} headers={headers}>
     <code className='text' ref={textRef}>
-      {text}
+      {content?.text}
     </code>
 
     {loading && <Spinner className='center' />}

@@ -1,7 +1,7 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import Markdown from '../Markdown.js'
-import ContentHeader from './ContentHeader.js'
+import ContentHeader, { parseFileSize } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -14,12 +14,17 @@ interface ViewerProps {
   setError: (error: Error) => void
 }
 
+interface Content {
+  text: string
+  fileSize?: number
+}
+
 /**
  * Markdown viewer component.
  */
 export default function MarkdownView({ file, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
-  const [text, setText] = useState<string | undefined>()
+  const [content, setContent] = useState<Content>()
 
   const isUrl = file.startsWith('http://') || file.startsWith('https://')
   const url = isUrl ? file : '/api/store/get?key=' + file
@@ -29,7 +34,8 @@ export default function MarkdownView({ file, setError }: ViewerProps) {
       try {
         const res = await fetch(url)
         const text = await res.text()
-        setText(text)
+        const fileSize = parseFileSize(res.headers) ?? text.length
+        setContent({ text, fileSize })
       } catch (error) {
         setError(error as Error)
       } finally {
@@ -45,7 +51,7 @@ export default function MarkdownView({ file, setError }: ViewerProps) {
     })
   }, [url, loading, setError])
 
-  return <ContentHeader content={{ fileSize: text?.length }}>
-    <Markdown className='markdown' text={text || ''} />
+  return <ContentHeader content={content}>
+    <Markdown className='markdown' text={content?.text ?? ''} />
   </ContentHeader>
 }
