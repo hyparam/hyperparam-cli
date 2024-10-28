@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import ContentHeader, { parseFileSize } from './ContentHeader.js'
+import ContentHeader, { ContentSize, parseFileSize } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -12,9 +12,8 @@ interface ViewerProps {
   setError: (error: Error) => void
 }
 
-interface Content {
+interface Content extends ContentSize {
   dataUri: string
-  fileSize?: number
 }
 
 /**

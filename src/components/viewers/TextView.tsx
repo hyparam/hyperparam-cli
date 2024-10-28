@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import React from 'react'
 import { Spinner } from '../Layout.js'
-import ContentHeader, { parseFileSize } from './ContentHeader.js'
+import ContentHeader, { parseFileSize, TextContent } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -15,17 +15,12 @@ interface ViewerProps {
   setProgress: (progress: number) => void
 }
 
-interface Content {
-  text: string
-  fileSize?: number
-}
-
 /**
  * Text viewer component.
  */
 export default function TextView({ file, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
-  const [content, setContent] = useState<Content>()
+  const [content, setContent] = useState<TextContent>()
   const textRef = useRef<HTMLPreElement>(null)
 
   const isUrl = file.startsWith('http://') || file.startsWith('https://')

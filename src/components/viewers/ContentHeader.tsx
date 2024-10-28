@@ -1,8 +1,16 @@
 import React, { ReactNode } from 'react'
 import { getFileSize } from '../../files.js'
 
+export interface ContentSize {
+  fileSize?: number
+}
+
+export interface TextContent extends ContentSize {
+  text: string
+}
+
 interface ContentHeaderProps {
-  content?: { fileSize?: number }
+  content?: ContentSize
   headers?: ReactNode
   children?: ReactNode
 }

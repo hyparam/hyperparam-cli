@@ -1,7 +1,7 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import Markdown from '../Markdown.js'
-import ContentHeader, { parseFileSize } from './ContentHeader.js'
+import ContentHeader, { parseFileSize, TextContent } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,
@@ -14,17 +14,12 @@ interface ViewerProps {
   setError: (error: Error) => void
 }
 
-interface Content {
-  text: string
-  fileSize?: number
-}
-
 /**
  * Markdown viewer component.
  */
 export default function MarkdownView({ file, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
-  const [content, setContent] = useState<Content>()
+  const [content, setContent] = useState<TextContent>()
 
   const isUrl = file.startsWith('http://') || file.startsWith('https://')
   const url = isUrl ? file : '/api/store/get?key=' + file
