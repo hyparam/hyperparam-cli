@@ -2,7 +2,7 @@ import HighTable, { DataFrame, rowCache } from 'hightable'
 import React, { useCallback, useEffect, useState } from 'react'
 import { parquetDataFrame } from '../../tableProvider.js'
 import { Spinner } from '../Layout.js'
-import ContentHeader from './ContentHeader.js'
+import ContentHeader, {ContentSize} from './ContentHeader.js'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 
 enum LoadingState {
@@ -17,9 +17,8 @@ interface ViewerProps {
   setError: (error: Error) => void
 }
 
-interface Content {
+interface Content extends ContentSize {
   dataframe: DataFrame
-  fileSize?: number
 }
 
 /**
