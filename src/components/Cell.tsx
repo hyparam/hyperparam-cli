@@ -43,7 +43,7 @@ export default function CellView() {
         const metadata = await parquetMetadataAsync(asyncBuffer)
         setProgress(0.75)
         const df = await parquetDataFrame(from, metadata)
-        const rows = await df.rows(row, row + 1)
+        const rows = df.rows(row, row + 1)
         // Convert to AsyncRows
         const asyncRow = asyncRows(rows, 1, df.header)[0]
         // Await cell data

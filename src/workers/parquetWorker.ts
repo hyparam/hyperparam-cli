@@ -19,7 +19,7 @@ self.onmessage = async ({ data }) => {
       self.postMessage({ result, queryId })
     } else {
       const result = await parquetQuery({
-        metadata, file, rowStart, rowEnd, orderBy, columns, compressors, onChunk
+        metadata, file, rowStart, rowEnd, orderBy, columns, compressors, onChunk,
       })
       self.postMessage({ result, queryId })
     }
