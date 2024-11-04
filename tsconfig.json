@@ -6,8 +6,11 @@
     "lib": ["esnext", "dom"],
     "module": "nodenext",
     "noEmit": true,
-    "resolveJsonModule": true,
-    "strict": true
+    "resolveJsonModule": true,    
+    "strict": true,
+    // TODO: ??? restore the commented lines above
+    // "module": "esnext",
+    // "allowSyntheticDefaultImports": true,    
   },
   "include": ["src", "test"]
 }
