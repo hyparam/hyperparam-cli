@@ -1,9 +1,11 @@
-import HighTable, { DataFrame, rowCache } from 'hightable'
-import React, { useCallback, useEffect, useState } from 'react'
-import { parquetDataFrame } from '../../lib/tableProvider.js'
-import { Spinner } from '../Layout.js'
-import ContentHeader, {ContentSize} from './ContentHeader.js'
-import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
+import HighTable, { DataFrame, rowCache } from "hightable";
+import { useCallback, useEffect, useState } from "react";
+import { parquetDataFrame } from "../../lib/tableProvider.ts";
+import { Spinner } from "../Layout.tsx";
+import ContentHeader, {ContentSize} from "./ContentHeader.tsx";
+import { parquetMetadataAsync } from "hyparquet";
+import { asyncBufferFromUrl } from "../../lib/utils.ts";
+import {FileKey, UrlKey} from '../../lib/key.ts'
 
 enum LoadingState {
   NotLoaded,
@@ -12,9 +14,9 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  file: string
-  setProgress: (progress: number) => void
-  setError: (error: Error) => void
+  parsedKey: UrlKey | FileKey
+  setProgress: (progress: number | undefined) => void
+  setError: (error: Error | undefined) => void
 }
 
 interface Content extends ContentSize {
@@ -24,19 +26,17 @@ interface Content extends ContentSize {
 /**
  * Parquet file viewer
  */
-export default function ParquetView({ file, setProgress, setError }: ViewerProps) {
+export default function ParquetView({ parsedKey, setProgress, setError }: ViewerProps) {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
 
-  const isUrl = file.startsWith('http://') || file.startsWith('https://')
-  const url = isUrl ? file : '/api/store/get?key=' + file
-
+  const {resolveUrl, raw} = parsedKey
   useEffect(() => {
     async function loadParquetDataFrame() {
       try {
         setProgress(0.33)
-        const asyncBuffer = await asyncBufferFromUrl(url)
-        const from = { url, byteLength: asyncBuffer.byteLength }
+        const asyncBuffer = await asyncBufferFromUrl({url: resolveUrl, headers: {}})
+        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, headers: {} }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
         let dataframe = parquetDataFrame(from, metadata)
@@ -52,21 +52,21 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
     }
     if (loading === LoadingState.NotLoaded) {
       setLoading(LoadingState.Loading)
-      loadParquetDataFrame()
+      loadParquetDataFrame().catch(() => undefined);
     }
-  }, [])
+  }, [loading, resolveUrl, setError, setProgress]);
 
   const onDoubleClickCell = useCallback((col: number, row: number) => {
-    location.href = '/files?key=' + file + '&row=' + row + '&col=' + col
-  }, [file])
+    location.href = '/files?key=' + raw + '&row=' + row + '&col=' + col
+  }, [raw])
 
   const onMouseDownCell = useCallback((event: React.MouseEvent, col: number, row: number) => {
     if (event.button === 1) {
       // Middle click open in new tab
       event.preventDefault()
-      window.open('/files?key=' + file + '&row=' + row + '&col=' + col, '_blank')
+      window.open('/files?key=' + raw + '&row=' + row + '&col=' + col, '_blank')
     }
-  }, [file])
+  }, [raw])
 
   const headers = <>
     {content?.dataframe && <span>{content.dataframe.numRows.toLocaleString()} rows</span>}
@@ -74,7 +74,7 @@ export default function ParquetView({ file, setProgress, setError }: ViewerProps
 
   return <ContentHeader content={content} headers={headers}>
     {content?.dataframe && <HighTable
-      cacheKey={url}
+      cacheKey={resolveUrl}
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}

@@ -3,6 +3,7 @@ import { Spinner } from '../Layout.tsx'
 import Markdown from '../Markdown.tsx'
 import ContentHeader, {TextContent} from './ContentHeader.tsx'
 import { parseFileSize } from '../../lib/files.ts'
+import {FileKey, UrlKey} from '../../lib/key.ts'
 
 enum LoadingState {
   NotLoaded,
@@ -11,22 +12,23 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  url: string
+  parsedKey: UrlKey | FileKey
   setError: (error: Error | undefined) => void  
 }
 
 /**
  * Markdown viewer component.
  */
-export default function MarkdownView({ url, setError }: ViewerProps) {
+export default function MarkdownView({ parsedKey, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
+  const {resolveUrl} = parsedKey
 
   useEffect(() => {
     async function loadContent() {
       try {
-        const res = await fetch(url)
+        const res = await fetch(resolveUrl)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
         if (res.status == 401) {
@@ -50,7 +52,7 @@ export default function MarkdownView({ url, setError }: ViewerProps) {
       loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [url, setError])
+  }, [resolveUrl, setError])
 
   return <ContentHeader content={content}>
     <Markdown className='markdown' text={content?.text ?? ''} />

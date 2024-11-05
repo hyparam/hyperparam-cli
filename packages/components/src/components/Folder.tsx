@@ -1,21 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../lib/files.js'
-import Layout, { Spinner, cn } from './Layout.js'
+import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../lib/files.ts'
+import Layout, { Spinner, cn } from './Layout.tsx'
+import type { FolderKey } from '../lib/key.ts'
 
 interface FolderProps {
-  prefix: string
+  folderKey: FolderKey
 }
 
 /**
  * Folder browser page
  */
-export default function Folder({ prefix }: FolderProps) {
+export default function Folder({ folderKey }: FolderProps) {
   // State to hold file listing
   const [files, setFiles] = useState<FileMetadata[]>()
   const [error, setError] = useState<Error>()
   const listRef = useRef<HTMLUListElement>(null)
 
   // Folder path from url
+  const {prefix} = folderKey
   const path = prefix.split('/')
 
   // Fetch files on component mount

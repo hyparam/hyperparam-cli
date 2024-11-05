@@ -2,26 +2,21 @@ import { useState } from 'react'
 import Layout from './Layout.tsx'
 import Viewer from './Viewer.tsx'
 import Breadcrumb from './Breadcrumb.tsx'
+import {UrlKey, FileKey} from '../lib/key.ts'
 
 interface FileProps {
-  file: string
+  parsedKey: UrlKey | FileKey
 }
 
 /**
  * File viewer page
  */
-export default function File({ file }: FileProps) {
+export default function File({ parsedKey }: FileProps) {
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
 
-  // File path from url
-  const path = file.split('/')
-  const fileName = path.at(-1)
-  const isUrl = file.startsWith('http://') || file.startsWith('https://')
-  const url = isUrl ? file : '/api/store/get?key=' + file
-
-  return <Layout progress={progress} error={error} title={fileName}>
-    <Breadcrumb file={file} />
-    <Viewer url={url} setProgress={setProgress} setError={setError} />
+  return <Layout progress={progress} error={error} title={parsedKey.fileName}>
+    <Breadcrumb parsedKey={parsedKey} />
+    <Viewer parsedKey={parsedKey} setProgress={setProgress} setError={setError} />
   </Layout>
 }

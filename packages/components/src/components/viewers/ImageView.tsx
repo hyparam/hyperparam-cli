@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Spinner } from '../Layout.tsx'
 import ContentHeader from './ContentHeader.tsx'
 import { contentTypes, parseFileSize } from "../../lib/files.ts"
+import {FileKey, UrlKey} from '../../lib/key.ts'
 
 enum LoadingState {
   NotLoaded,
@@ -10,7 +11,7 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  url: string
+  parsedKey: UrlKey | FileKey
   setError: (error: Error | undefined) => void
 }
 
@@ -22,14 +23,16 @@ interface Content {
 /**
  * Image viewer component.
  */
-export default function ImageView({ url, setError }: ViewerProps) {
+export default function ImageView({ parsedKey, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
 
+  const {fileName, resolveUrl} = parsedKey
+  
   useEffect(() => {
     async function loadContent() {
       try {
-        const res = await fetch(url)
+        const res = await fetch(resolveUrl)
         if (res.status == 401) {
           const text = await res.text()
           setError(new Error(text))
@@ -39,7 +42,7 @@ export default function ImageView({ url, setError }: ViewerProps) {
         const arrayBuffer = await res.arrayBuffer()
         // base64 encode and display image
         const b64 = arrayBufferToBase64(arrayBuffer)
-        const dataUri = `data:${contentType(url)};base64,${b64}`
+        const dataUri = `data:${contentType(fileName)};base64,${b64}`
         const fileSize = parseFileSize(res.headers)
         setContent({ dataUri, fileSize })
         setError(undefined)
@@ -57,11 +60,11 @@ export default function ImageView({ url, setError }: ViewerProps) {
       loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [url, setError])
+  }, [fileName, resolveUrl, setError])
 
   return <ContentHeader content={content}>
     {content?.dataUri && <img
-      alt={url}
+      alt={parsedKey.raw}
       className='image'
       src={content.dataUri} />}
     
