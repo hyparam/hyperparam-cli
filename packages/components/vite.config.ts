@@ -6,8 +6,6 @@ import dts from "vite-plugin-dts";
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: "./",
-  /// ^ https://github.com/vitejs/vite/discussions/15547#discussioncomment-8950765
   plugins: [
     react(),
     dts({
@@ -25,8 +23,6 @@ export default defineConfig({
     rollupOptions: {
       external: ["react", "react/jsx-runtime", 'react-dom'],
       output: {
-        // assetFileNames: "assets/[name][extname]",
-        // entryFileNames: "[name].js",
         globals: {
           react: "React",
           "react/jsx-runtime": "jsx",

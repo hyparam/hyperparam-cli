@@ -1,4 +1,7 @@
 import { asyncBufferFromUrl, cachedAsyncBuffer, AsyncBuffer, ParquetReadOptions, FileMetaData } from 'hyparquet'
+import ParquetWorker from './parquetWorker?worker&inline'
+/// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
+/// (no need to copy the worker file to the right place)
 
 // Serializable constructor for AsyncBuffers
 export interface AsyncBufferFrom {
@@ -24,7 +27,7 @@ const pending = new Map<number, QueryAgent>()
 
 function getWorker() {
   if (!worker) {
-    worker = new Worker(new URL('./parquetWorker', import.meta.url), { type: 'module' })
+    worker = new ParquetWorker()
     worker.onmessage = ({ data }) => {
       const { resolve, reject, onChunk } = pending.get(data.queryId)!
       if (data.error) {
