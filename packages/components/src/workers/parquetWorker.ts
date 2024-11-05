@@ -1,29 +1,57 @@
-import { ColumnData, parquetQuery } from 'hyparquet'
-import { compressors } from 'hyparquet-compressors'
-import { asyncBufferFrom, compare } from './parquetWorkerClient.js'
+import { ColumnData, parquetQuery } from "hyparquet";
+import { compressors } from "hyparquet-compressors";
+import type {
+  ChunkMessage,
+  ErrorMessage,
+  ParquetReadWorkerOptions,
+  ResultMessage,
+} from "./types.ts";
+import { asyncBufferFrom } from "./parquetWorkerClient.ts";
 
-self.onmessage = async ({ data }) => {
-  const { metadata, from, rowStart, rowEnd, orderBy, columns, queryId, chunks, sortIndex } = data
-  const file = await asyncBufferFrom(from)
-  const onChunk = chunks ? (chunk: ColumnData) => self.postMessage({ chunk, queryId }) : undefined
+const postChunkMessage = ({ chunk, queryId }: ChunkMessage) => {
+  self.postMessage({ chunk, queryId });
+};
+const postResultMessage = ({ result, queryId }: ResultMessage) => {
+  self.postMessage({ result, queryId });
+};
+const postErrorMessage = ({ error, queryId }: ErrorMessage) => {
+  self.postMessage({ error, queryId });
+};
+
+self.onmessage = async ({
+  data,
+}: {
+  data: ParquetReadWorkerOptions & { queryId: number; chunks: boolean };
+}) => {
+  const {
+    metadata,
+    from,
+    rowStart,
+    rowEnd,
+    orderBy,
+    columns,
+    queryId,
+    chunks,
+  } = data;
+  const file = await asyncBufferFrom(from);
+  const onChunk = chunks
+    ? (chunk: ColumnData) => {
+        postChunkMessage({ chunk, queryId });
+      }
+    : undefined;
   try {
-    if (sortIndex) {
-      // Special case for sorted index
-      if (orderBy === undefined) throw new Error('sortIndex requires orderBy')
-      if (rowStart !== undefined || rowEnd !== undefined) throw new Error('sortIndex requires all rows')
-      const sortColumn = await parquetQuery({
-        metadata, file, columns: [orderBy], compressors
-      })
-      const result = Array.from(sortColumn, (_, index) => index)
-        .sort((a, b) => compare(sortColumn[a][orderBy], sortColumn[b][orderBy]))
-      self.postMessage({ result, queryId })
-    } else {
-      const result = await parquetQuery({
-        metadata, file, rowStart, rowEnd, orderBy, columns, compressors, onChunk,
-      })
-      self.postMessage({ result, queryId })
-    }
+    const result = await parquetQuery({
+      metadata,
+      file,
+      rowStart,
+      rowEnd,
+      orderBy,
+      columns,
+      compressors,
+      onChunk,
+    });
+    postResultMessage({ result, queryId });
   } catch (error) {
-    self.postMessage({ error, queryId })
+    postErrorMessage({ error: error as Error, queryId });
   }
-}
+};

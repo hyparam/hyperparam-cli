@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../lib/files.ts'
-import Layout, { Spinner, cn } from './Layout.tsx'
+import Layout, { Spinner } from './Layout.tsx'
 import type { FolderKey } from '../lib/key.ts'
+import { cn } from "../lib/utils.ts";
 
 interface FolderProps {
   folderKey: FolderKey

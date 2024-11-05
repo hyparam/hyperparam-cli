@@ -1,6 +1,10 @@
-import { DataFrame, resolvableRow } from 'hightable'
+import { DataFrame, ResolvablePromise, resolvablePromise } from "hightable";
 import { FileMetaData, parquetSchema } from 'hyparquet'
-import { AsyncBufferFrom, parquetQueryWorker, parquetSortIndexWorker } from '../workers/parquetWorkerClient.js'
+import { parquetQueryWorker } from "../workers/parquetWorkerClient.ts";
+import { parquetSortIndexWorker } from "../workers/sortParquetWorkerClient.ts";
+import type { AsyncBufferFrom } from "../workers/types.ts";
+
+type ResolvableRow = Record<string, ResolvablePromise<unknown>>;
 
 /**
  * Convert a parquet file into a dataframe.
@@ -9,27 +13,43 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
   const { children } = parquetSchema(metadata)
   const header = children.map(child => child.element.name)
   const sortCache = new Map<string, Promise<number[]>>()
-  const data = new Array(Number(metadata.num_rows))
+  const data = new Array<ResolvableRow>(Number(metadata.num_rows));
+  // TODO(SL) ^ isn't this too big?
+  // TODO(SL) ^ the type is currently a lie, because all rows are undefined for now
   const groups = new Array(metadata.row_groups.length).fill(false)
   let groupStart = 0
   const groupEnds = metadata.row_groups.map(group => groupStart += Number(group.num_rows))
 
   function fetchRowGroup(groupIndex: number) {
     if (!groups[groupIndex]) {
-      const rowStart = groupEnds[groupIndex - 1] || 0
-      const rowEnd = groupEnds[groupIndex]
+      const rowStart = groupEnds[groupIndex - 1] || 0;
+      const rowEnd = groupEnds[groupIndex];
       // Initialize with resolvable promises
       for (let i = rowStart; i < rowEnd; i++) {
-        data[i] = resolvableRow(header)
+        data[i] = Object.fromEntries(
+          header.map((key) => [key, resolvablePromise<unknown>()])
+          // ^ for type: resolvableRow uses any, not unknown
+        );
       }
-      parquetQueryWorker({ from, metadata, rowStart, rowEnd }).then(groupData => {
-        for (let i = rowStart; i < rowEnd; i++) {
-          for (const [key, value] of Object.entries(groupData[i - rowStart])) {
-            data[i][key].resolve(value)
-          }
-        }
+      parquetQueryWorker({
+        from,
+        metadata,
+        rowStart,
+        rowEnd,
       })
-      groups[groupIndex] = true
+        .then((groupData) => {
+          for (let i = rowStart; i < rowEnd; i++) {
+            for (const [key, value] of Object.entries(
+              groupData[i - rowStart]
+            )) {
+              data[i]?.[key].resolve(value);
+            }
+          }
+        })
+        .catch((error: unknown) => {
+          console.error("Error fetching row group", error);
+        });
+      groups[groupIndex] = true;
     }
   }
 
@@ -48,11 +68,10 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     rows(rowStart: number, rowEnd: number, orderBy?: string) {
       if (orderBy) {
         const numRows = rowEnd - rowStart
-        const wrapped = new Array(numRows).fill(null)
-          .map(() => resolvableRow(header))
+        const wrapped = new Array<ResolvableRow | null>(numRows).fill(null)
+          .map(() => Object.fromEntries(header.map((key) => [key, resolvablePromise()])))
 
-        let sortIndex = getSortIndex(orderBy)
-        sortIndex.then(indices => {
+        getSortIndex(orderBy).then(indices => {
           // Compute row groups to fetch
           for (const index of indices.slice(rowStart, rowEnd)) {
             const groupIndex = groupEnds.findIndex(end => index < end)
@@ -62,10 +81,25 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           // Re-assemble data in sorted order into wrapped
           for (let i = rowStart; i < rowEnd; i++) {
             for (const key of header) {
-              data[indices[i]][key].then((value: any) => wrapped[i - rowStart][key].resolve(value))
+              const row = data[indices[i]];
+              if (key in row) {
+                const cell = row[key];
+                cell
+                  .then((value: unknown) => {
+                    wrapped[i - rowStart]?.[key].resolve(value);
+                  })
+                  .catch((error: unknown) => {
+                    console.error("Error resolving sorted row", error);
+                  });
+              }
             }
           }
-        })
+        }).catch((error: unknown) => {
+          console.error(
+            "Error fetching sort index or resolving sorted rows",
+            error
+          );
+        });
 
         return wrapped
       } else {
