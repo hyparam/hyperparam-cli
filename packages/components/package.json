@@ -31,7 +31,6 @@
   "scripts": {
     "build": "tsc -b ./tsconfig.lib.json && vite build",
     "coverage": "vitest run --coverage --coverage.include=src",
-    "demo": "vite",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepublishOnly": "npm run build",
