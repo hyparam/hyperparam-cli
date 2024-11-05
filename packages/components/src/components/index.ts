@@ -1,4 +1,4 @@
-import App from './Page.tsx';
+import App from './App.tsx';
 import Cell from './Cell.tsx';
 import File from './File.tsx';
 import Folder from './Folder.tsx';
