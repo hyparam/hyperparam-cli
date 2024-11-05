@@ -18,19 +18,12 @@ interface ContentHeaderProps {
 export default function ContentHeader({ content, headers, children }: ContentHeaderProps) {
   return <div className='viewer'>
     <div className='view-header'>
-      <span title={content?.fileSize?.toLocaleString() + ' bytes'}>
+      {content?.fileSize && <span title={content.fileSize.toLocaleString('en-US') + ' bytes'}>
         {getFileSize(content)}
-      </span>
+      </span>}
       {headers}
     </div>
     {children}
   </div>
 }
 
-/**
- * Parse the content-length header from a fetch response.
- */
-export function parseFileSize(headers: Headers): number | undefined {
-  const contentLength = headers.get('content-length')
-  return contentLength ? Number(contentLength) : undefined
-}

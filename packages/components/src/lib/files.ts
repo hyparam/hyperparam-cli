@@ -83,3 +83,26 @@ function formatFileSize(bytes: number): string {
   const base = bytes / Math.pow(1024, i)
   return (base < 10 ? base.toFixed(1) : Math.round(base)) + ' ' + sizes[i]
 }
+
+/**
+ * Parse the content-length header from a fetch response.
+ *
+ * @param headers fetch response headers
+ * @returns content length in bytes or undefined if not found
+ */
+export function parseFileSize(headers: Headers): number | undefined {
+  const contentLength = headers.get("content-length");
+  return contentLength ? Number(contentLength) : undefined;
+}
+
+export const contentTypes: Record<string, string> = {
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  svg: "image/svg+xml",
+  tiff: "image/tiff",
+  webp: "image/webp",
+};
+
+export const imageTypes = [".png", ".jpg", ".jpeg", ".gif", ".svg", ".tiff", ".webp"];

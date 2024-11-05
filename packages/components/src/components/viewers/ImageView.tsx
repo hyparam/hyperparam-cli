@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
-import ContentHeader, { ContentSize, parseFileSize } from './ContentHeader.js'
+import { Spinner } from '../Layout.tsx'
+import ContentHeader from './ContentHeader.tsx'
+import { contentTypes, parseFileSize } from "../../lib/files.ts"
 
 enum LoadingState {
   NotLoaded,
@@ -8,54 +10,62 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  file: string
-  setError: (error: Error) => void
+  url: string
+  setError: (error: Error | undefined) => void
 }
 
-interface Content extends ContentSize {
+interface Content {
   dataUri: string
+  fileSize?: number
 }
 
 /**
  * Image viewer component.
  */
-export default function ImageView({ file, setError }: ViewerProps) {
+export default function ImageView({ url, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
-
-  const isUrl = file.startsWith('http://') || file.startsWith('https://')
-  const url = isUrl ? file : '/api/store/get?key=' + file
 
   useEffect(() => {
     async function loadContent() {
       try {
         const res = await fetch(url)
+        if (res.status == 401) {
+          const text = await res.text()
+          setError(new Error(text))
+          setContent(undefined)
+          return
+        }
         const arrayBuffer = await res.arrayBuffer()
         // base64 encode and display image
         const b64 = arrayBufferToBase64(arrayBuffer)
         const dataUri = `data:${contentType(url)};base64,${b64}`
         const fileSize = parseFileSize(res.headers)
         setContent({ dataUri, fileSize })
+        setError(undefined)
       } catch (error) {
+        setContent(undefined)
         setError(error as Error)
       } finally {
         setLoading(LoadingState.Loaded)
       }
     }
 
-    setLoading(loading => {
+    setLoading((loading) => {
       // use loading state to ensure we only load content once
       if (loading !== LoadingState.NotLoaded) return loading
-      loadContent()
+      loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [url, loading, setError])
+  }, [url, setError])
 
   return <ContentHeader content={content}>
     {content?.dataUri && <img
-      alt={file}
+      alt={url}
       className='image'
       src={content.dataUri} />}
+    
+    {loading && <Spinner className='center' />}
   </ContentHeader>
 }
 
@@ -75,16 +85,6 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 }
 
 function contentType(filename: string): string {
-  const ext = filename.split('.').pop() || ''
+  const ext = filename.split('.').pop() ?? ''
   return contentTypes[ext] || 'image/png'
 }
-
-const contentTypes: { [key: string]: string } = {
-  'png': 'image/png',
-  'jpg': 'image/jpeg',
-  'jpeg': 'image/jpeg',
-  'gif': 'image/gif',
-  'svg': 'image/svg+xml',
-}
-
-export const imageTypes = ['.png', '.jpg', '.jpeg', '.gif', '.svg']

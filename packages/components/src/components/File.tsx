@@ -17,6 +17,7 @@ export default function File({ file }: FileProps) {
   const path = file.split('/')
   const fileName = path.at(-1)
   const isUrl = file.startsWith('http://') || file.startsWith('https://')
+  const url = isUrl ? file : '/api/store/get?key=' + file
 
   return <Layout progress={progress} error={error} title={fileName}>
     <nav className='top-header'>
@@ -34,6 +35,6 @@ export default function File({ file }: FileProps) {
       </div>
     </nav>
 
-    <Viewer file={file} setProgress={setProgress} setError={setError} />
+    <Viewer url={url} setProgress={setProgress} setError={setError} />
   </Layout>
 }

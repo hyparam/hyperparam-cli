@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
-import Markdown from '../Markdown.js'
-import ContentHeader, { parseFileSize, TextContent } from './ContentHeader.js'
+import { Spinner } from '../Layout.tsx'
+import Markdown from '../Markdown.tsx'
+import ContentHeader, {TextContent} from './ContentHeader.tsx'
+import { parseFileSize } from '../../lib/files.ts'
 
 enum LoadingState {
   NotLoaded,
@@ -9,19 +11,17 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  file: string
-  setError: (error: Error) => void
+  url: string
+  setError: (error: Error | undefined) => void  
 }
 
 /**
  * Markdown viewer component.
  */
-export default function MarkdownView({ file, setError }: ViewerProps) {
+export default function MarkdownView({ url, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
-  const isUrl = file.startsWith('http://') || file.startsWith('https://')
-  const url = isUrl ? file : '/api/store/get?key=' + file
 
   useEffect(() => {
     async function loadContent() {
@@ -29,23 +29,32 @@ export default function MarkdownView({ file, setError }: ViewerProps) {
         const res = await fetch(url)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
+        if (res.status == 401) {
+          setError(new Error(text))
+          setContent(undefined)
+          return
+        }
+        setError(undefined)
         setContent({ text, fileSize })
       } catch (error) {
         setError(error as Error)
+        setContent(undefined)
       } finally {
         setLoading(LoadingState.Loaded)
       }
     }
 
-    setLoading(loading => {
+    setLoading((loading) => {
       // use loading state to ensure we only load content once
       if (loading !== LoadingState.NotLoaded) return loading
-      loadContent()
+      loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [url, loading, setError])
+  }, [url, setError])
 
   return <ContentHeader content={content}>
     <Markdown className='markdown' text={content?.text ?? ''} />
+
+    { loading === LoadingState.Loading && <Spinner className='center' /> }
   </ContentHeader>
 }

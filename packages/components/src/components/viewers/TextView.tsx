@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Spinner } from '../Layout.js'
-import ContentHeader, { parseFileSize, TextContent } from './ContentHeader.js'
+import { Spinner } from '../Layout.tsx'
+import ContentHeader, {TextContent} from './ContentHeader.tsx'
+import { parseFileSize } from '../../lib/files.ts'
 
 enum LoadingState {
   NotLoaded,
@@ -9,21 +10,18 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  file: string
-  setError: (error: Error) => void
-  setProgress: (progress: number) => void
+  url: string
+  setError: (error: Error | undefined) => void
+  setProgress: (progress: number | undefined) => void
 }
 
 /**
  * Text viewer component.
  */
-export default function TextView({ file, setError }: ViewerProps) {
+export default function TextView({ url, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
   const textRef = useRef<HTMLPreElement>(null)
-
-  const isUrl = file.startsWith('http://') || file.startsWith('https://')
-  const url = isUrl ? file : '/api/store/get?key=' + file
 
   // Load plain text content
   useEffect(() => {
@@ -32,21 +30,28 @@ export default function TextView({ file, setError }: ViewerProps) {
         const res = await fetch(url)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
+        if (res.status == 401) {
+          setError(new Error(text))
+          setContent(undefined)
+          return
+        }
+        setError(undefined)
         setContent({ text, fileSize })
       } catch (error) {
         setError(error as Error)
+        setContent(undefined)
       } finally {
         setLoading(LoadingState.Loaded)
       }
     }
 
-    setLoading(loading => {
+    setLoading((loading)=> {
       // use loading state to ensure we only load content once
       if (loading !== LoadingState.NotLoaded) return loading
-      loadContent()
+      loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [file, loading, setError])
+  }, [url, setError])
 
   const headers = <>
     <span>{newlines(content?.text ?? "")} lines</span>
@@ -64,8 +69,8 @@ export default function TextView({ file, setError }: ViewerProps) {
 
 function newlines(str: string): string {
   let count = 0
-  for (let i = 0; i < str.length; i++) {
-    if (str[i] === '\n') count++
+  for (const c of str) {
+    if (c === '\n') count++
   }
-  return count.toLocaleString()
+  return count.toLocaleString('en-US')
 }
