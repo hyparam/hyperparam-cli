@@ -35,19 +35,3 @@ export function readStreamToReadableStream(fsStream) {
     },
   })
 }
-
-// /**
-//  * Convert a web ReadableStream to ArrayBuffer.
-//  * @param {ReadableStream} input
-//  * @returns {Promise<ArrayBuffer>}
-//  */
-// export async function readableStreamToArrayBuffer(input) {
-//   const reader = input.getReader()
-//   const /** @type {Uint8Array[]} */ chunks = []
-//   while (true) {
-//     const { done, value } = await reader.read()
-//     if (done) break
-//     chunks.push(value)
-//   }
-//   return new Blob(chunks).arrayBuffer()
-// }
