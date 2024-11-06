@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "highlight.js": "11.10.0",
-    "@hyparam/components": "workspace:*"
+    "@hyparam/components": "0.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "28.0.1",
