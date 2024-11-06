@@ -1,6 +1,6 @@
+import { App } from '@hyparam/components'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './components/App.js'
 
 const app = document.getElementById('app')
 if (!app) throw new Error('missing app element')

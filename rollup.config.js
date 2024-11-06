@@ -2,7 +2,6 @@ import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import terser from '@rollup/plugin-terser'
-import typescript from '@rollup/plugin-typescript'
 import postcss from 'rollup-plugin-postcss'
 
 
@@ -25,27 +24,9 @@ export default [
       }),
       resolve({ browser: true }),
       terser(),
-      typescript({
-        exclude: ['test/**'],
-      }),
       postcss({
         extensions: ['.css'],
       }),
-    ],
-  },
-  // web worker
-  {
-    input: 'src/workers/parquetWorker.ts',
-    output: {
-      file: 'public/build/worker.min.js',
-      format: 'umd',
-      sourcemap: true,
-    },
-    plugins: [
-      commonjs(),
-      resolve({ browser: true }),
-      terser(),
-      typescript(),
     ],
   },
 ]
