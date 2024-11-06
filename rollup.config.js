@@ -2,7 +2,6 @@ import commonjs from '@rollup/plugin-commonjs'
 import resolve from '@rollup/plugin-node-resolve'
 import replace from '@rollup/plugin-replace'
 import terser from '@rollup/plugin-terser'
-import typescript from '@rollup/plugin-typescript'
 import postcss from 'rollup-plugin-postcss'
 
 
@@ -25,9 +24,6 @@ export default [
       }),
       resolve({ browser: true }),
       terser(),
-      typescript({
-        exclude: ['test/**'],
-      }),
       postcss({
         extensions: ['.css'],
       }),
