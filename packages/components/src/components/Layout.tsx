@@ -38,7 +38,7 @@ export default function Layout({ children, className, progress, error, title }: 
     </div>
     {progress !== undefined && progress < 1 &&
       <div className={'progress-bar'} role='progressbar'>
-        <div style={{ width: `${(100 * progress).toString()}%` }} />
+        <div style={{ width: `${100 * progress}%` }} />
       </div>
     }
   </main>

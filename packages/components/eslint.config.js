@@ -71,6 +71,8 @@ export default tseslint.config(
       }],
 
       'space-infix-ops': 'error',
+
+      "@typescript-eslint/restrict-template-expressions": "off"
     },
   },
   {

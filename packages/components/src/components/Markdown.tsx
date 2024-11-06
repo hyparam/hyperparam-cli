@@ -23,7 +23,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
       // Code blocks
       if (line.startsWith('```')) {
         if (inCodeBlock) {
-          elements.push(<pre key={`code-${i.toString()}`}>{codeBlock.join('\n')}</pre>)
+          elements.push(<pre key={`code-${i}`}>{codeBlock.join('\n')}</pre>)
           inCodeBlock = false
           codeBlock = []
         } else {
@@ -62,7 +62,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
       if (line.startsWith('#')) {
         const level = line.split(' ')[0].length
         const text = line.slice(level + 1)
-        const HeaderTag = `h${level.toString()}` as keyof JSX.IntrinsicElements
+        const HeaderTag = `h${level}` as keyof JSX.IntrinsicElements
         elements.push(<HeaderTag key={i}>{text}</HeaderTag>)
         continue
       }
@@ -77,7 +77,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
 
       // Links
       if (line.includes('[') && line.includes(']') && line.includes('(') && line.includes(')')) {
-        const linkedLine = line.replace(/\[(.*?)\]\((.*?)\)/g, (_, linkText: string, url: string) => {
+        const linkedLine = line.replace(/\[(.*?)\]\((.*?)\)/g, (_, linkText, url) => {
           return `<a href="${url}">${linkText}</a>`
         })
         elements.push(<p dangerouslySetInnerHTML={{ __html: linkedLine }} key={i}></p>)
@@ -87,13 +87,13 @@ export default function Markdown({ text, className }: MarkdownProps) {
       // Lists
       if (line.startsWith('-') || line.startsWith('*') || line.startsWith('+')) {
         const listItem = line.slice(1).trim()
-        listItems.push(<li key={`list-item-${i.toString()}`}>{listItem}</li>)
+        listItems.push(<li key={`list-item-${i}`}>{listItem}</li>)
         inList = true
         continue
       }
 
       if (inList && listItems.length > 0) {
-        elements.push(<ul key={`list-${i.toString()}`}>{listItems}</ul>)
+        elements.push(<ul key={`list-${i}`}>{listItems}</ul>)
         listItems = []
         inList = false
       }
@@ -104,12 +104,12 @@ export default function Markdown({ text, className }: MarkdownProps) {
 
     // Flush any remaining code block
     if (inCodeBlock && codeBlock.length > 0) {
-      elements.push(<pre key={`code-${lines.length.toString()}`}>{codeBlock.join('\n')}</pre>)
+      elements.push(<pre key={`code-${lines.length}`}>{codeBlock.join('\n')}</pre>)
     }
 
     // Flush any remaining list items
     if (inList && listItems.length > 0) {
-      elements.push(<ul key={`list-${lines.length.toString()}`}>{listItems}</ul>)
+      elements.push(<ul key={`list-${lines.length}`}>{listItems}</ul>)
     }
 
     return <div className={className}>{elements}</div>

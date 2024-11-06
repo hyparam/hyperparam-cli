@@ -25,7 +25,7 @@ export default function Folder({ folderKey }: FolderProps) {
   useEffect(() => {
     listFiles(prefix)
       .then(setFiles)
-      .catch((error:unknown) => {
+      .catch((error: unknown) => {
         setFiles([])
         setError(error)
       })

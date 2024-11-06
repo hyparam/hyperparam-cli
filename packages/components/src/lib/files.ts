@@ -29,7 +29,7 @@ export async function listFiles(prefix: string, recursive?: boolean): Promise<Fi
   if (res.ok) {
     return await res.json() as FileMetadata[]
   } else {
-    throw new Error(`file list error ${res.status.toString()} ${await res.text()}`)
+    throw new Error(`file list error ${res.status} ${await res.text()}`)
   }
 }
 
