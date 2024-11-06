@@ -15,10 +15,10 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     lib: {
-      entry: resolve(__dirname, 'src/main.ts'),
+      entry: resolve(__dirname, 'src/components/index.ts'),
       formats: ['es', 'umd'],
       name: 'Components',
-      fileName: (format) => `main.${format}.js`,
+      fileName: (format) => `index.${format}.js`,
     },
     rollupOptions: {
       external: ['react', 'react/jsx-runtime', 'react-dom'],

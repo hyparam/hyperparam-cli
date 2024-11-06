@@ -15,16 +15,16 @@
     "directory": "packages/components"
   },
   "type": "module",
-  "main": "dist/main.umd.js",
-  "module": "dist/main.es.js",
+  "main": "dist/index.umd.js",
+  "module": "dist/index.es.js",
   "exports": {
     ".": {
-      "import": "./dist/main.es.js",
-      "require": "./dist/main.umd.js",
-      "types": "./dist/main.d.ts"
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.umd.js",
+      "types": "./dist/index.d.ts"
     }
   },
-  "types": "dist/main.d.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
