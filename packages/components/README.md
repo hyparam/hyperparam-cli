@@ -1,3 +1,3 @@
 # React components for hyparam apps
 
-...(still to be done)
+This package contains the React components for the hyparam apps.
