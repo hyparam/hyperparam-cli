@@ -1,6 +1,13 @@
-name: CI
+name: CI in the components package
 on:
   push:
+    paths:
+      - 'packages/components/**'
+      - '.github/workflows/ci_components.yml'
+
+defaults:
+  run:
+    working-directory: ./packages/components
 
 jobs:
   lint:
