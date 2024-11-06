@@ -1,4 +1,4 @@
-import {UrlKey, FileKey} from '../lib/key.ts'
+import { FileKey, UrlKey } from '../lib/key.ts'
 
 interface BreadcrumbProps {
   parsedKey: UrlKey | FileKey
@@ -19,7 +19,7 @@ function FileBreadcrumb({ fileKey }: { fileKey: FileKey}) {
     <div className='path'>
       <a href='/files'>/</a>
       {path.slice(0, -1).map((sub, depth) =>
-        <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>
+        <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>,
       )}
       <a href={`/files?key=${fileKey.raw}`}>{fileKey.fileName}</a>
     </div>
@@ -29,8 +29,8 @@ function FileBreadcrumb({ fileKey }: { fileKey: FileKey}) {
 /**
  * Breadcrumb navigation
  */
-export default function Breadcrumb({ parsedKey }: BreadcrumbProps) {  
-  if (parsedKey.kind === "url") {
+export default function Breadcrumb({ parsedKey }: BreadcrumbProps) {
+  if (parsedKey.kind === 'url') {
     return <UrlBreadcrumb urlKey={parsedKey} />
   }
   return <FileBreadcrumb fileKey={parsedKey} />

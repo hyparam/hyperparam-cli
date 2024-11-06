@@ -1,50 +1,50 @@
-import ParquetWorker from "./parquetWorker?worker&inline";
+import ParquetWorker from './parquetWorker?worker&inline'
 /// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
 /// (no need to copy the worker file to the right place)
+import { AsyncBuffer, ColumnData } from 'hyparquet'
+import { asyncBufferFromUrl } from '../lib/utils.ts'
 import type {
   AsyncBufferFrom,
   ParquetMessage,
   ParquetReadWorkerOptions,
   Row,
-} from "./types.ts";
-import { AsyncBuffer, ColumnData } from "hyparquet";
-import { asyncBufferFromUrl } from "../lib/utils.ts";
+} from './types.ts'
 // import { asyncBufferFromUrl, cachedAsyncBuffer, AsyncBuffer } from 'hyparquet'
 
 
-let worker: Worker | undefined;
-let nextQueryId = 0;
+let worker: Worker | undefined
+let nextQueryId = 0
 interface QueryAgent {
   resolve: (value: Row[]) => void;
   reject: (error: Error) => void;
   onChunk?: (chunk: ColumnData) => void;
 }
-const pending = new Map<number, QueryAgent>();
+const pending = new Map<number, QueryAgent>()
 
 function getWorker() {
   if (!worker) {
-    worker = new ParquetWorker();
+    worker = new ParquetWorker()
     worker.onmessage = ({ data }: { data: ParquetMessage }) => {
-      const pendingQueryAgent = pending.get(data.queryId);
+      const pendingQueryAgent = pending.get(data.queryId)
       if (!pendingQueryAgent) {
         throw new Error(
-          `Unexpected: no pending promise found for queryId: ${data.queryId.toString()}`
-        );
+          `Unexpected: no pending promise found for queryId: ${data.queryId.toString()}`,
+        )
         // TODO(SL): should never happen. But if it does, I'm not sure if throwing an error here helps.
       }
-      const { resolve, reject, onChunk } = pendingQueryAgent;
-      if ("error" in data) {
-        reject(data.error);
-      } else if ("result" in data) {
-        resolve(data.result);
-      } else if ("chunk" in data) {
-        onChunk?.(data.chunk);
+      const { resolve, reject, onChunk } = pendingQueryAgent
+      if ('error' in data) {
+        reject(data.error)
+      } else if ('result' in data) {
+        resolve(data.result)
+      } else if ('chunk' in data) {
+        onChunk?.(data.chunk)
       } else {
-        reject(new Error("Unexpected message from worker"));
+        reject(new Error('Unexpected message from worker'))
       }
-    };
+    }
   }
-  return worker;
+  return worker
 }
 
 /**
@@ -62,12 +62,12 @@ export function parquetQueryWorker({
   onChunk,
 }: ParquetReadWorkerOptions): Promise<Row[]> {
   return new Promise((resolve, reject) => {
-    const queryId = nextQueryId++;
-    pending.set(queryId, { resolve, reject, onChunk });
-    const worker = getWorker();
+    const queryId = nextQueryId++
+    pending.set(queryId, { resolve, reject, onChunk })
+    const worker = getWorker()
 
     // If caller provided an onChunk callback, worker will send chunks as they are parsed
-    const chunks = onChunk !== undefined;
+    const chunks = onChunk !== undefined
     worker.postMessage({
       queryId,
       metadata,
@@ -76,24 +76,24 @@ export function parquetQueryWorker({
       rowEnd,
       orderBy,
       chunks,
-    });
-  });
+    })
+  })
 }
 
 /**
  * Convert AsyncBufferFrom to AsyncBuffer and cache results.
  */
-export async function asyncBufferFrom(
-  from: AsyncBufferFrom
+export function asyncBufferFrom(
+  from: AsyncBufferFrom,
 ): Promise<AsyncBuffer> {
-  const key = JSON.stringify(from);
-  const cached = cache.get(key);
-  if (cached) return cached;
-  const asyncBuffer = asyncBufferFromUrl(from).then(cachedAsyncBuffer);
-  cache.set(key, asyncBuffer);
-  return asyncBuffer;
+  const key = JSON.stringify(from)
+  const cached = cache.get(key)
+  if (cached) return cached
+  const asyncBuffer = asyncBufferFromUrl(from).then(cachedAsyncBuffer)
+  cache.set(key, asyncBuffer)
+  return asyncBuffer
 }
-const cache = new Map<string, Promise<AsyncBuffer>>();
+const cache = new Map<string, Promise<AsyncBuffer>>()
 
 export function compare<T>(a: T, b: T): number {
   if (a < b) return -1
@@ -105,8 +105,8 @@ export function compare<T>(a: T, b: T): number {
 type Awaitable<T> = T | Promise<T>;
 
 function cachedAsyncBuffer(asyncBuffer: AsyncBuffer): AsyncBuffer {
-  const cache = new Map<string, Awaitable<ArrayBuffer>>();
-  const byteLength = asyncBuffer.byteLength;
+  const cache = new Map<string, Awaitable<ArrayBuffer>>()
+  const { byteLength } = asyncBuffer
   return {
     byteLength,
     /**
@@ -115,15 +115,15 @@ function cachedAsyncBuffer(asyncBuffer: AsyncBuffer): AsyncBuffer {
      * @returns {Awaitable<ArrayBuffer>}
      */
     slice(start: number, end?: number): Awaitable<ArrayBuffer> {
-      const key = cacheKey(start, end, byteLength);
-      const cached = cache.get(key);
-      if (cached) return cached;
+      const key = cacheKey(start, end, byteLength)
+      const cached = cache.get(key)
+      if (cached) return cached
       // cache miss, read from file
-      const promise = asyncBuffer.slice(start, end);
-      cache.set(key, promise);
-      return promise;
+      const promise = asyncBuffer.slice(start, end)
+      cache.set(key, promise)
+      return promise
     },
-  };
+  }
 }
 
 /**
@@ -139,19 +139,19 @@ function cacheKey(start: number, end?: number, size?: number): string {
   if (start < 0) {
     if (end !== undefined)
       throw new Error(
-        `invalid suffix range [${start.toString()}, ${end.toString()}]`
-      );
-    if (size === undefined) return `${start.toString()},`;
-    return `${(size + start).toString()},${size.toString()}`;
+        `invalid suffix range [${start.toString()}, ${end.toString()}]`,
+      )
+    if (size === undefined) return `${start.toString()},`
+    return `${(size + start).toString()},${size.toString()}`
   } else if (end !== undefined) {
     if (start > end)
       throw new Error(
-        `invalid empty range [${start.toString()}, ${end.toString()}]`
-      );
-    return `${start.toString()},${end.toString()}`;
+        `invalid empty range [${start.toString()}, ${end.toString()}]`,
+      )
+    return `${start.toString()},${end.toString()}`
   } else if (size === undefined) {
-    return `${start.toString()},`;
+    return `${start.toString()},`
   } else {
-    return `${start.toString()},${size.toString()}`;
+    return `${start.toString()},${size.toString()}`
   }
 }

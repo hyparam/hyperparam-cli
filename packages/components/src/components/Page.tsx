@@ -1,7 +1,7 @@
+import { parseKey } from '../lib/key.ts'
 import Cell from './Cell.tsx'
 import File from './File.tsx'
 import Folder from './Folder.tsx'
-import { parseKey } from '../lib/key.ts'
 
 export default function Page() {
   const search = new URLSearchParams(location.search)
@@ -14,7 +14,7 @@ export default function Page() {
   const row = search.get('row')
   const col = search.get('col')
 
-  if (parsedKey.kind === "folder") {
+  if (parsedKey.kind === 'folder') {
     return <Folder folderKey={parsedKey} />
   } else if (row !== null && col !== null) {
     // cell view

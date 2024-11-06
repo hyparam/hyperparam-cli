@@ -2,8 +2,7 @@ import { render, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
 import { FileMetadata, listFiles } from '../../src/lib/files.js'
-import React from 'react'
-import { parseKey, FolderKey } from '../../src/lib/key.js'
+import { FolderKey, parseKey } from '../../src/lib/key.js'
 
 vi.mock('../../src/lib/files.js', () => ({
   listFiles: vi.fn(),

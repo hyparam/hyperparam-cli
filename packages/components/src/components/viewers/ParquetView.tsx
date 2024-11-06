@@ -1,11 +1,11 @@
-import HighTable, { DataFrame, rowCache } from "hightable";
-import { useCallback, useEffect, useState } from "react";
-import { parquetDataFrame } from "../../lib/tableProvider.ts";
-import { Spinner } from "../Layout.tsx";
-import ContentHeader, {ContentSize} from "./ContentHeader.tsx";
-import { parquetMetadataAsync } from "hyparquet";
-import { asyncBufferFromUrl } from "../../lib/utils.ts";
-import {FileKey, UrlKey} from '../../lib/key.ts'
+import HighTable, { DataFrame, rowCache } from 'hightable'
+import { parquetMetadataAsync } from 'hyparquet'
+import React, { useCallback, useEffect, useState } from 'react'
+import { FileKey, UrlKey } from '../../lib/key.ts'
+import { parquetDataFrame } from '../../lib/tableProvider.ts'
+import { asyncBufferFromUrl } from '../../lib/utils.ts'
+import { Spinner } from '../Layout.tsx'
+import ContentHeader, { ContentSize } from './ContentHeader.tsx'
 
 enum LoadingState {
   NotLoaded,
@@ -30,12 +30,12 @@ export default function ParquetView({ parsedKey, setProgress, setError }: Viewer
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
 
-  const {resolveUrl, raw} = parsedKey
+  const { resolveUrl, raw } = parsedKey
   useEffect(() => {
     async function loadParquetDataFrame() {
       try {
         setProgress(0.33)
-        const asyncBuffer = await asyncBufferFromUrl({url: resolveUrl, headers: {}})
+        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, headers: {} })
         const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, headers: {} }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
@@ -52,9 +52,9 @@ export default function ParquetView({ parsedKey, setProgress, setError }: Viewer
     }
     if (loading === LoadingState.NotLoaded) {
       setLoading(LoadingState.Loading)
-      loadParquetDataFrame().catch(() => undefined);
+      loadParquetDataFrame().catch(() => undefined)
     }
-  }, [loading, resolveUrl, setError, setProgress]);
+  }, [loading, resolveUrl, setError, setProgress])
 
   const onDoubleClickCell = useCallback((col: number, row: number) => {
     location.href = '/files?key=' + raw + '&row=' + row + '&col=' + col

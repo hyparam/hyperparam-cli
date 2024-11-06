@@ -1,7 +1,7 @@
-import Page from "./Page.tsx";
+import Page from './Page.tsx'
 
 export default function App() {
   return (
     <Page />
-  );
+  )
 }

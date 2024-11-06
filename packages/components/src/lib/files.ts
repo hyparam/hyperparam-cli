@@ -66,7 +66,7 @@ export function getFileDate(file?: { lastModified?: string }): string {
  * @returns formatted file size string
  */
 export function getFileSize(file?: { fileSize?: number }): string {
-  return file?.fileSize !== undefined ? formatFileSize(file.fileSize) : "";
+  return file?.fileSize !== undefined ? formatFileSize(file.fileSize) : ''
 }
 
 /**
@@ -76,16 +76,16 @@ export function getFileSize(file?: { fileSize?: number }): string {
  * @returns formatted file size string
  */
 export function formatFileSize(bytes: number): string {
-  const sizes = ["b", "kb", "mb", "gb", "tb"];
-  if (bytes === 0) return "0 b";
-  const i = Math.floor(Math.log2(bytes) / 10);
-  if (i === 0) return bytes.toLocaleString("en-US") + " b";
-  const base = bytes / Math.pow(1024, i);
+  const sizes = ['b', 'kb', 'mb', 'gb', 'tb']
+  if (bytes === 0) return '0 b'
+  const i = Math.floor(Math.log2(bytes) / 10)
+  if (i === 0) return bytes.toLocaleString('en-US') + ' b'
+  const base = bytes / Math.pow(1024, i)
   return (
-    (base < 10 ? base.toFixed(1) : Math.round(base)).toLocaleString("en-US") +
-    " " +
+    (base < 10 ? base.toFixed(1) : Math.round(base)).toLocaleString('en-US') +
+    ' ' +
     sizes[i]
-  );
+  )
 }
 
 /**
@@ -95,18 +95,18 @@ export function formatFileSize(bytes: number): string {
  * @returns content length in bytes or undefined if not found
  */
 export function parseFileSize(headers: Headers): number | undefined {
-  const contentLength = headers.get("content-length");
-  return contentLength ? Number(contentLength) : undefined;
+  const contentLength = headers.get('content-length')
+  return contentLength ? Number(contentLength) : undefined
 }
 
 export const contentTypes: Record<string, string> = {
-  png: "image/png",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  gif: "image/gif",
-  svg: "image/svg+xml",
-  tiff: "image/tiff",
-  webp: "image/webp",
-};
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  svg: 'image/svg+xml',
+  tiff: 'image/tiff',
+  webp: 'image/webp',
+}
 
-export const imageTypes = [".png", ".jpg", ".jpeg", ".gif", ".svg", ".tiff", ".webp"];
+export const imageTypes = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.tiff', '.webp']

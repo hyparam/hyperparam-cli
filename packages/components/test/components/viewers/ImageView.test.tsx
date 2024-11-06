@@ -1,8 +1,7 @@
 import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import ImageView from '../../../src/components/viewers/ImageView.js'
-import React from 'react'
-import { parseKey, FileKey } from '../../../src/lib/key.js'
+import { FileKey, parseKey } from '../../../src/lib/key.js'
 
 global.fetch = vi.fn()
 
@@ -16,7 +15,7 @@ describe('ImageView Component', () => {
     const parsedKey = parseKey('test.png') as FileKey
 
     const { findByRole, findByText } = render(
-      <ImageView parsedKey={parsedKey} setError={console.error} />
+      <ImageView parsedKey={parsedKey} setError={console.error} />,
     )
 
     // wait for asynchronous image loading

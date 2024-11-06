@@ -1,4 +1,5 @@
 import { ReactNode } from 'react'
+import { JSX } from 'react/jsx-runtime'
 
 interface MarkdownProps {
   className?: string
@@ -41,7 +42,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
         elements.push(
           <p key={i}>
             {parts.map((part, index) => index % 2 ? <strong key={index}>{part}</strong> : part)}
-          </p>
+          </p>,
         )
         continue
       }
@@ -52,7 +53,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
         elements.push(
           <p key={i}>
             {parts.map((part, index) => index % 2 ? <em key={index}>{part}</em> : part)}
-          </p>
+          </p>,
         )
         continue
       }

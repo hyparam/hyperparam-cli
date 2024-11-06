@@ -1,8 +1,8 @@
-import { DataFrame, ResolvablePromise, resolvablePromise } from "hightable";
+import { DataFrame, ResolvablePromise, resolvablePromise } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
-import { parquetQueryWorker } from "../workers/parquetWorkerClient.ts";
-import { parquetSortIndexWorker } from "../workers/sortParquetWorkerClient.ts";
-import type { AsyncBufferFrom } from "../workers/types.ts";
+import { parquetQueryWorker } from '../workers/parquetWorkerClient.ts'
+import { parquetSortIndexWorker } from '../workers/sortParquetWorkerClient.ts'
+import type { AsyncBufferFrom } from '../workers/types.ts'
 
 type ResolvableRow = Record<string, ResolvablePromise<unknown>>;
 
@@ -13,7 +13,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
   const { children } = parquetSchema(metadata)
   const header = children.map(child => child.element.name)
   const sortCache = new Map<string, Promise<number[]>>()
-  const data = new Array<ResolvableRow>(Number(metadata.num_rows));
+  const data = new Array<ResolvableRow>(Number(metadata.num_rows))
   // TODO(SL) ^ isn't this too big?
   // TODO(SL) ^ the type is currently a lie, because all rows are undefined for now
   const groups = new Array(metadata.row_groups.length).fill(false)
@@ -22,14 +22,14 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
   function fetchRowGroup(groupIndex: number) {
     if (!groups[groupIndex]) {
-      const rowStart = groupEnds[groupIndex - 1] || 0;
-      const rowEnd = groupEnds[groupIndex];
+      const rowStart = groupEnds[groupIndex - 1] || 0
+      const rowEnd = groupEnds[groupIndex]
       // Initialize with resolvable promises
       for (let i = rowStart; i < rowEnd; i++) {
         data[i] = Object.fromEntries(
-          header.map((key) => [key, resolvablePromise<unknown>()])
+          header.map((key) => [key, resolvablePromise<unknown>()]),
           // ^ for type: resolvableRow uses any, not unknown
-        );
+        )
       }
       parquetQueryWorker({
         from,
@@ -40,16 +40,16 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
         .then((groupData) => {
           for (let i = rowStart; i < rowEnd; i++) {
             for (const [key, value] of Object.entries(
-              groupData[i - rowStart]
+              groupData[i - rowStart],
             )) {
-              data[i]?.[key].resolve(value);
+              data[i]?.[key].resolve(value)
             }
           }
         })
         .catch((error: unknown) => {
-          console.error("Error fetching row group", error);
-        });
-      groups[groupIndex] = true;
+          console.error('Error fetching row group', error)
+        })
+      groups[groupIndex] = true
     }
   }
 
@@ -81,25 +81,25 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           // Re-assemble data in sorted order into wrapped
           for (let i = rowStart; i < rowEnd; i++) {
             for (const key of header) {
-              const row = data[indices[i]];
+              const row = data[indices[i]]
               if (key in row) {
-                const cell = row[key];
+                const cell = row[key]
                 cell
                   .then((value: unknown) => {
-                    wrapped[i - rowStart]?.[key].resolve(value);
+                    wrapped[i - rowStart]?.[key].resolve(value)
                   })
                   .catch((error: unknown) => {
-                    console.error("Error resolving sorted row", error);
-                  });
+                    console.error('Error resolving sorted row', error)
+                  })
               }
             }
           }
         }).catch((error: unknown) => {
           console.error(
-            "Error fetching sort index or resolving sorted rows",
-            error
-          );
-        });
+            'Error fetching sort index or resolving sorted rows',
+            error,
+          )
+        })
 
         return wrapped
       } else {

@@ -1,9 +1,9 @@
-import { imageTypes } from "../lib/files.ts";
-import ImageView from "./viewers/ImageView.tsx";
-import MarkdownView from "./viewers/MarkdownView.tsx";
-import TableView from "./viewers/ParquetView.tsx";
-import TextView from "./viewers/TextView.tsx";
-import {FileKey, UrlKey} from '../lib/key.ts'
+import { imageTypes } from '../lib/files.ts'
+import { FileKey, UrlKey } from '../lib/key.ts'
+import ImageView from './viewers/ImageView.tsx'
+import MarkdownView from './viewers/MarkdownView.tsx'
+import TableView from './viewers/ParquetView.tsx'
+import TextView from './viewers/TextView.tsx'
 
 interface ViewerProps {
   parsedKey: FileKey | UrlKey;
@@ -20,23 +20,23 @@ export default function Viewer({
   setError,
   setProgress,
 }: ViewerProps) {
-  const { fileName } = parsedKey;
-  if (fileName.endsWith(".md")) {
-    return <MarkdownView parsedKey={parsedKey} setError={setError} />;
-  } else if (fileName.endsWith(".parquet")) {
+  const { fileName } = parsedKey
+  if (fileName.endsWith('.md')) {
+    return <MarkdownView parsedKey={parsedKey} setError={setError} />
+  } else if (fileName.endsWith('.parquet')) {
     return (
       <TableView
         parsedKey={parsedKey}
         setError={setError}
         setProgress={setProgress}
       />
-    );
+    )
   } else if (imageTypes.some((type) => fileName.endsWith(type))) {
-    return <ImageView parsedKey={parsedKey} setError={setError} />;
+    return <ImageView parsedKey={parsedKey} setError={setError} />
   }
 
   // Default to text viewer
   return (
     <TextView parsedKey={parsedKey} setError={setError} setProgress={setProgress} />
-  );
+  )
 }

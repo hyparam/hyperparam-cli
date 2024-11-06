@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
+import { contentTypes, parseFileSize } from '../../lib/files.ts'
+import { FileKey, UrlKey } from '../../lib/key.ts'
 import { Spinner } from '../Layout.tsx'
 import ContentHeader from './ContentHeader.tsx'
-import { contentTypes, parseFileSize } from "../../lib/files.ts"
-import {FileKey, UrlKey} from '../../lib/key.ts'
 
 enum LoadingState {
   NotLoaded,
@@ -27,13 +27,13 @@ export default function ImageView({ parsedKey, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
 
-  const {fileName, resolveUrl} = parsedKey
-  
+  const { fileName, resolveUrl } = parsedKey
+
   useEffect(() => {
     async function loadContent() {
       try {
         const res = await fetch(resolveUrl)
-        if (res.status == 401) {
+        if (res.status === 401) {
           const text = await res.text()
           setError(new Error(text))
           setContent(undefined)
@@ -67,7 +67,7 @@ export default function ImageView({ parsedKey, setError }: ViewerProps) {
       alt={parsedKey.raw}
       className='image'
       src={content.dataUri} />}
-    
+
     {loading && <Spinner className='center' />}
   </ContentHeader>
 }

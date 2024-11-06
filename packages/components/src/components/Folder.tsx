@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../lib/files.ts'
-import Layout, { Spinner } from './Layout.tsx'
 import type { FolderKey } from '../lib/key.ts'
-import { cn } from "../lib/utils.ts";
+import { cn } from '../lib/utils.ts'
+import Layout, { Spinner } from './Layout.tsx'
 
 interface FolderProps {
   folderKey: FolderKey
@@ -18,7 +18,7 @@ export default function Folder({ folderKey }: FolderProps) {
   const listRef = useRef<HTMLUListElement>(null)
 
   // Folder path from url
-  const {prefix} = folderKey
+  const { prefix } = folderKey
   const path = prefix.split('/')
 
   // Fetch files on component mount
@@ -40,7 +40,7 @@ export default function Folder({ folderKey }: FolderProps) {
       <div className='path'>
         <a href='/files'>/</a>
         {prefix && prefix.split('/').map((sub, depth) =>
-          <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>
+          <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>,
         )}
       </div>
     </nav>
@@ -61,7 +61,7 @@ export default function Folder({ folderKey }: FolderProps) {
               </span>
             </>}
           </a>
-        </li>
+        </li>,
       )}
     </ul>}
     {files?.length === 0 && <div className='center'>No files</div>}
