@@ -5,7 +5,7 @@ interface LayoutProps {
   children: ReactNode
   className?: string
   progress?: number
-  error?: unknown
+  error?: Error
   title?: string
 }
 
