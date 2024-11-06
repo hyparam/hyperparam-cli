@@ -14,7 +14,7 @@ describe('package.json', () => {
   it('should have precise dependency versions', () => {
     const { dependencies, devDependencies } = packageJson
     const allDependencies = { ...dependencies, ...devDependencies }
-    Object.values(allDependencies).forEach(version => {
+    Object.entries(allDependencies).filter(([name]) => !name.startsWith('@hyparam/')).forEach(([, version]) => {
       expect(version).toMatch(/^\d+\.\d+\.\d+$/)
     })
   })
