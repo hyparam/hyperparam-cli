@@ -1,9 +1,5 @@
 name: CI in the components package
 on:
-  pull_request:
-    paths:
-      - 'packages/components/**'
-      - '.github/workflows/ci_components.yml'
   push:
     paths:
       - 'packages/components/**'
