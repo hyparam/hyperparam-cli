@@ -5,10 +5,10 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
-  { ignores: ['coverage', 'dist'] },
+  { ignores: ['coverage/', 'dist/'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
-    files: ['**/*.{ts,tsx}'],
+    files: ['**/*.{ts,tsx,js}'],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
@@ -38,8 +38,8 @@ export default tseslint.config(
       'no-extra-parens': 'error',
       'no-multi-spaces': 'error',
       'no-trailing-spaces': 'error',
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": 'warn',
+      'no-unused-vars': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
       'no-useless-concat': 'error',
       'no-useless-rename': 'error',
       'no-useless-return': 'error',
@@ -65,11 +65,13 @@ export default tseslint.config(
     },
   },
   {
-    files: ['test/**/*.{ts,tsx}', '*.ts'],
+    files: ['test/**/*.{ts,tsx}', '*.{js,ts}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
-      globals: globals.node,
-    }
-  }
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
 )

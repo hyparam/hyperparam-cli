@@ -185,7 +185,7 @@ async function handleListing(prefix) {
   try {
     const stat = await fs.stat(prefix)
     if (!stat.isDirectory()) return { status: 400, content: 'not a directory' }
-  } catch (error) {
+  } catch {
     return { status: 404, content: 'not found' }
   }
 
@@ -232,7 +232,8 @@ function startServer(port, path) {
       } catch (err) {
         console.error('error handling request', err)
       }
-      let { status, content } = result
+      const { status } = result
+      let { content } = result
 
       // write http header
       /** @type {http.OutgoingHttpHeaders} */

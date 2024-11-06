@@ -1,6 +1,6 @@
 import javascript from '@eslint/js'
-import typescript from 'typescript-eslint'
 import globals from 'globals'
+import typescript from 'typescript-eslint'
 
 export default [
   {
@@ -8,7 +8,7 @@ export default [
       typescript,
     },
 
-    ignores: ['public/build/*'],
+    ignores: ['public/build/*', 'packages/components/dist/*'],
 
     languageOptions: {
       globals: {

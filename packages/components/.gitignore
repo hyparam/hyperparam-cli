@@ -23,3 +23,9 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+package-lock.json
+*.tgz
+.vscode
+*.parquet
+/coverage/
