@@ -39,7 +39,7 @@ export default function Folder({ folderKey }: FolderProps) {
     <nav className='top-header'>
       <div className='path'>
         <a href='/files'>/</a>
-        {path.map((sub, depth) =>
+        {prefix.length > 0 && prefix.split('/').map((sub, depth) =>
           <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>,
         )}
       </div>

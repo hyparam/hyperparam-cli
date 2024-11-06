@@ -5,7 +5,7 @@ import Folder from './Folder.tsx'
 
 export default function Page() {
   const search = new URLSearchParams(location.search)
-  const key = decodeURIComponent(search.get('key') ?? '')
+  const key = search.get('key')
   if (Array.isArray(key)) throw new Error('key must be a string')
 
   const parsedKey = parseKey(key)
