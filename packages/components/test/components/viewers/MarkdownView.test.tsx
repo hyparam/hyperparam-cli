@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import MarkdownView from '../../../src/components/viewers/MarkdownView.js'
 import React from 'react'
+import { parseKey, FileKey} from '../../../src/lib/key.js'
 
 global.fetch = vi.fn()
 
@@ -12,9 +13,10 @@ describe('MarkdownView Component', () => {
       text: () => Promise.resolve(text),
       headers: new Map([['content-length', text.length]]),
     } as unknown as Response)
+    const parsedKey = parseKey('test.md') as FileKey
 
     const { findByText } = render(
-      <MarkdownView file='test.md' setError={console.error} />
+      <MarkdownView parsedKey={parsedKey} setError={console.error} />
     )
     expect(fetch).toHaveBeenCalled()
     expect(findByText('Markdown')).resolves.toBeDefined()

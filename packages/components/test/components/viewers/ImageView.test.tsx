@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import ImageView from '../../../src/components/viewers/ImageView.js'
 import React from 'react'
+import { parseKey, FileKey } from '../../../src/lib/key.js'
 
 global.fetch = vi.fn()
 
@@ -12,9 +13,10 @@ describe('ImageView Component', () => {
       arrayBuffer: () => Promise.resolve(body),
       headers: new Map([['content-length', body.byteLength]]),
     } as unknown as Response)
+    const parsedKey = parseKey('test.png') as FileKey
 
     const { findByRole, findByText } = render(
-      <ImageView file={'test.png'} setError={console.error} />
+      <ImageView parsedKey={parsedKey} setError={console.error} />
     )
 
     // wait for asynchronous image loading

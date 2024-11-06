@@ -2,6 +2,7 @@ import { render } from '@testing-library/react'
 import { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import File from '../../src/components/File.js'
+import { parseKey, FileKey, UrlKey } from '../../src/lib/key.js'
 import React from 'react'
 
 // Mock fetch
@@ -9,9 +10,11 @@ global.fetch = vi.fn(() => Promise.resolve({ text: vi.fn() } as unknown as Respo
 
 describe('File Component', () => {
   it('renders a local file path', async () => {
+    const parsedKey = parseKey('folder/subfolder/test.txt') as FileKey
+
     const { getByText } = await act(() => render(
-      <File file="folder/subfolder/test.txt" />
-    ))
+      <File parsedKey={parsedKey} />
+    )) 
 
     expect(getByText('/')).toBeDefined()
     expect(getByText('folder/')).toBeDefined()
@@ -21,14 +24,17 @@ describe('File Component', () => {
 
   it('renders a URL', async () => {
     const url = 'https://example.com/test.txt'
-    const { getByText } = await act(() => render(<File file={url} />))
+    const parsedKey = parseKey(url) as UrlKey
+
+    const { getByText } = await act(() => render(<File parsedKey={parsedKey} />))
 
     expect(getByText(url)).toBeDefined()
   })
 
   it('renders correct breadcrumbs for nested folders', async () => {
+    const parsedKey = parseKey('folder1/folder2/folder3/test.txt') as FileKey
     const { getAllByRole } = await act(() => render(
-      <File file="folder1/folder2/folder3/test.txt" />
+      <File parsedKey={parsedKey} />
     ))
 
     const links = getAllByRole('link')
