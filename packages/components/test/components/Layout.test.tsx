@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react'
+import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import Layout, { Spinner } from '../../src/components/Layout.js'
 import { cn } from '../../src/lib/utils.js'

@@ -57,14 +57,14 @@ export default function ParquetView({ parsedKey, setProgress, setError }: Viewer
   }, [loading, resolveUrl, setError, setProgress])
 
   const onDoubleClickCell = useCallback((col: number, row: number) => {
-    location.href = '/files?key=' + raw + '&row=' + row + '&col=' + col
+    location.href = '/files?key=' + raw + '&row=' + row.toString() + '&col=' + col.toString()
   }, [raw])
 
   const onMouseDownCell = useCallback((event: React.MouseEvent, col: number, row: number) => {
     if (event.button === 1) {
       // Middle click open in new tab
       event.preventDefault()
-      window.open('/files?key=' + raw + '&row=' + row + '&col=' + col, '_blank')
+      window.open('/files?key=' + raw + '&row=' + row.toString() + '&col=' + col.toString(), '_blank')
     }
   }, [raw])
 

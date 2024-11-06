@@ -27,9 +27,9 @@ export async function listFiles(prefix: string, recursive?: boolean): Promise<Fi
   prefix = encodeURIComponent(prefix)
   const res = await fetch(`/api/store/list?prefix=${prefix}${rec}`)
   if (res.ok) {
-    return await res.json()
+    return await res.json() as FileMetadata[]
   } else {
-    throw new Error(`file list error ${res.status} ${await res.text()}`)
+    throw new Error(`file list error ${res.status.toString()} ${await res.text()}`)
   }
 }
 

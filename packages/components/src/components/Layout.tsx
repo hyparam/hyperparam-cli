@@ -5,7 +5,7 @@ interface LayoutProps {
   children: ReactNode
   className?: string
   progress?: number
-  error?: Error
+  error?: unknown
   title?: string
 }
 
@@ -34,11 +34,11 @@ export default function Layout({ children, className, progress, error, title }: 
       <div className={cn('content', className)}>
         {children}
       </div>
-      <div className={cn('error-bar', error && 'show-error')}>{errorMessage}</div>
+      <div className={cn('error-bar', error !== undefined && 'show-error')}>{errorMessage}</div>
     </div>
     {progress !== undefined && progress < 1 &&
       <div className={'progress-bar'} role='progressbar'>
-        <div style={{ width: `${100 * progress}%` }} />
+        <div style={{ width: `${(100 * progress).toString()}%` }} />
       </div>
     }
   </main>

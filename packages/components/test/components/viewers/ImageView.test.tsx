@@ -1,4 +1,5 @@
 import { render } from '@testing-library/react'
+import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import ImageView from '../../../src/components/viewers/ImageView.js'
 import { FileKey, parseKey } from '../../../src/lib/key.js'
@@ -24,7 +25,7 @@ describe('ImageView Component', () => {
     expect(image).toBeDefined()
     expect(image.getAttribute('src')).not.toBeNull()
     expect(image.getAttribute('alt')).toBe('test.png')
-    expect(findByText('8 b')).resolves.toBeDefined()
+    await expect(findByText('8 b')).resolves.toBeDefined()
   })
 
   // TODO: test error handling

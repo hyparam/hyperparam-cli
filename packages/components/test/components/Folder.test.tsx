@@ -1,4 +1,5 @@
 import { render, waitFor } from '@testing-library/react'
+import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
 import { FileMetadata, listFiles } from '../../src/lib/files.js'
@@ -6,9 +7,9 @@ import { FolderKey, parseKey } from '../../src/lib/key.js'
 
 vi.mock('../../src/lib/files.js', () => ({
   listFiles: vi.fn(),
-  getFileDate: vi.fn(f => f.lastModified),
-  getFileDateShort: vi.fn(f => f.lastModified),
-  getFileSize: vi.fn(f => f.fileSize),
+  getFileDate: vi.fn((f: FileMetadata) => f.lastModified),
+  getFileDateShort: vi.fn((f: FileMetadata) => f.lastModified),
+  getFileSize: vi.fn((f: FileMetadata) => f.fileSize),
 }))
 
 const mockFiles: FileMetadata[] = [
@@ -22,7 +23,7 @@ describe('Folder Component', () => {
     const folderKey = parseKey('') as FolderKey
     const { getByText } = render(<Folder folderKey={folderKey} />)
 
-    await waitFor(() => expect(listFiles).toHaveBeenCalledWith(''))
+    await waitFor(() => {expect(listFiles).toHaveBeenCalledWith('')})
 
     expect(getByText('/')).toBeDefined()
 
@@ -36,7 +37,7 @@ describe('Folder Component', () => {
   })
 
   it('displays the spinner while loading', () => {
-    vi.mocked(listFiles).mockReturnValue(new Promise(() => {}))
+    vi.mocked(listFiles).mockReturnValue(new Promise(() => []))
     const folderKey = parseKey('test-prefix/') as FolderKey
     const { container } = render(<Folder folderKey={folderKey} />)
     expect(container.querySelector('.spinner')).toBeDefined()
@@ -48,7 +49,7 @@ describe('Folder Component', () => {
     const folderKey = parseKey('test-prefix/') as FolderKey
     const { getByText, queryByText } = render(<Folder folderKey={folderKey} />)
 
-    await waitFor(() => expect(listFiles).toHaveBeenCalled())
+    await waitFor(() => { expect(listFiles).toHaveBeenCalled() })
 
     expect(queryByText('file1.txt')).toBeNull()
     expect(queryByText('folder1/')).toBeNull()
@@ -59,7 +60,7 @@ describe('Folder Component', () => {
     vi.mocked(listFiles).mockResolvedValue(mockFiles)
     const folderKey = parseKey('subdir1/subdir2/') as FolderKey
     const { getByText } = render(<Folder folderKey={folderKey} />)
-    await waitFor(() => expect(listFiles).toHaveBeenCalled())
+    await waitFor(() => { expect(listFiles).toHaveBeenCalled() })
 
     const subdir1Link = getByText('subdir1/')
     expect(subdir1Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/')

@@ -37,7 +37,7 @@ export async function asyncBufferFromUrl({
   headers,
 }: AsyncBufferFromUrlOptions): Promise<AsyncBuffer> {
   // byte length from HEAD request
-  byteLength ||= await byteLengthFromUrl(url, { headers })
+  byteLength ??= await byteLengthFromUrl(url, { headers })
   return {
     byteLength,
     async slice(start, end) {

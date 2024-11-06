@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import { act } from 'react'
+import React, { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import File from '../../src/components/File.js'
 import { FileKey, UrlKey, parseKey } from '../../src/lib/key.js'

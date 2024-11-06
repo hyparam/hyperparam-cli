@@ -14,7 +14,7 @@ interface FolderProps {
 export default function Folder({ folderKey }: FolderProps) {
   // State to hold file listing
   const [files, setFiles] = useState<FileMetadata[]>()
-  const [error, setError] = useState<Error>()
+  const [error, setError] = useState<unknown>()
   const listRef = useRef<HTMLUListElement>(null)
 
   // Folder path from url
@@ -25,7 +25,7 @@ export default function Folder({ folderKey }: FolderProps) {
   useEffect(() => {
     listFiles(prefix)
       .then(setFiles)
-      .catch(error => {
+      .catch((error:unknown) => {
         setFiles([])
         setError(error)
       })
@@ -39,7 +39,7 @@ export default function Folder({ folderKey }: FolderProps) {
     <nav className='top-header'>
       <div className='path'>
         <a href='/files'>/</a>
-        {prefix && prefix.split('/').map((sub, depth) =>
+        {path.map((sub, depth) =>
           <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>,
         )}
       </div>
@@ -53,9 +53,9 @@ export default function Folder({ folderKey }: FolderProps) {
               {file.key}
             </span>
             {!file.key.endsWith('/') && <>
-              <span className='file-size' title={file.fileSize?.toLocaleString() + ' bytes'}>
+              {file.fileSize !== undefined && <span className='file-size' title={file.fileSize.toLocaleString() + ' bytes'}>
                 {getFileSize(file)}
-              </span>
+              </span>}
               <span className='file-date' title={getFileDate(file)}>
                 {getFileDateShort(file)}
               </span>
