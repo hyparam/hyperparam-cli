@@ -10,7 +10,7 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(__dirname, 'src/components/index.ts'),
       formats: ['es', 'umd'],
       name: 'Components',
       fileName: (format) => `index.${format}.js`,
