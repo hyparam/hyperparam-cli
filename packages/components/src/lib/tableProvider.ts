@@ -1,6 +1,7 @@
 import { DataFrame, ResolvablePromise, resolvablePromise } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
-import { AsyncBufferFrom, parquetQueryWorker, parquetSortIndexWorker } from '../workers/parquetWorkerClient.ts'
+import { parquetQueryWorker, parquetSortIndexWorker } from '../workers/parquetWorkerClient.ts'
+import type { AsyncBufferFrom } from '../workers/types.d.ts'
 
 type ResolvableRow = Record<string, ResolvablePromise<unknown>>;
 
