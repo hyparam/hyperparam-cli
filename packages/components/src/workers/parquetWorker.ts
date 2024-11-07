@@ -1,14 +1,14 @@
-import { ColumnData, parquetQuery } from 'hyparquet'
+import { AsyncBuffer, ColumnData, asyncBufferFromUrl, cachedAsyncBuffer, parquetQuery } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-import {
+// import { asyncBufferFromUrl } from '../lib/utils.ts'
+import type {
+  AsyncBufferFromUrl,
   ChunkMessage,
   ErrorMessage,
   IndicesMessage,
   ParquetReadWorkerOptions,
   ResultMessage,
-  asyncBufferFrom,
-  compare,
-} from './parquetWorkerClient.ts'
+} from './types.d.ts'
 
 function postChunkMessage ({ chunk, queryId }: ChunkMessage) {
   self.postMessage({ chunk, queryId })
@@ -22,6 +22,9 @@ function postErrorMessage ({ error, queryId }: ErrorMessage) {
 function postIndicesMessage ({ indices, queryId }: IndicesMessage) {
   self.postMessage({ indices, queryId })
 }
+
+// Cache for AsyncBuffers
+const cache = new Map<string, Promise<AsyncBuffer>>()
 
 self.onmessage = async ({
   data,
@@ -82,4 +85,24 @@ self.onmessage = async ({
       postErrorMessage({ error: error as Error, queryId })
     }
   }
+}
+
+function compare<T>(a: T, b: T): number {
+  if (a < b) return -1
+  if (a > b) return 1
+  return 1 // TODO: how to handle nulls?
+}
+
+/**
+ * Convert AsyncBufferFrom to AsyncBuffer and cache results.
+ */
+function asyncBufferFrom(
+  from: AsyncBufferFromUrl,
+): Promise<AsyncBuffer> {
+  const key = JSON.stringify(from)
+  const cached = cache.get(key)
+  if (cached) return cached
+  const asyncBuffer = asyncBufferFromUrl(from.url, from.byteLength).then(cachedAsyncBuffer)
+  cache.set(key, asyncBuffer)
+  return asyncBuffer
 }

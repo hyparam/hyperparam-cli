@@ -1,9 +1,8 @@
 import { asyncRows } from 'hightable'
-import { parquetMetadataAsync } from 'hyparquet'
+import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
 import { FileKey, UrlKey } from '../lib/key.ts'
 import { parquetDataFrame } from '../lib/tableProvider.js'
-import { asyncBufferFromUrl } from '../lib/utils.ts'
 import Breadcrumb from './Breadcrumb.tsx'
 import Layout from './Layout.tsx'
 
@@ -37,15 +36,8 @@ export default function CellView({ parsedKey, row, col }: CellProps) {
       try {
         // TODO: handle first row > 100kb
         setProgress(0.25)
-        const asyncBuffer = await asyncBufferFromUrl({
-          url: resolveUrl,
-          headers: {},
-        })
-        const from = {
-          url: resolveUrl,
-          byteLength: asyncBuffer.byteLength,
-          headers: {},
-        }
+        const asyncBuffer = await asyncBufferFromUrl(resolveUrl)
+        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength }
         setProgress(0.5)
         const metadata = await parquetMetadataAsync(asyncBuffer)
         setProgress(0.75)
