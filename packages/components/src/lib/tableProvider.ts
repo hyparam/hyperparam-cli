@@ -1,14 +1,14 @@
 import { DataFrame, ResolvablePromise, resolvablePromise } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
 import { parquetQueryWorker, parquetSortIndexWorker } from '../workers/parquetWorkerClient.ts'
-import type { AsyncBufferFrom } from '../workers/types.d.ts'
+import type { AsyncBufferFromUrl } from '../workers/types.d.ts'
 
 type ResolvableRow = Record<string, ResolvablePromise<unknown>>;
 
 /**
  * Convert a parquet file into a dataframe.
  */
-export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData): DataFrame {
+export function parquetDataFrame(from: AsyncBufferFromUrl, metadata: FileMetaData): DataFrame {
   const { children } = parquetSchema(metadata)
   const header = children.map(child => child.element.name)
   const sortCache = new Map<string, Promise<number[]>>()

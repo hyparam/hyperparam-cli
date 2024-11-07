@@ -1,9 +1,8 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
-import { parquetMetadataAsync } from 'hyparquet'
+import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
 import { FileKey, UrlKey } from '../../lib/key.ts'
 import { parquetDataFrame } from '../../lib/tableProvider.ts'
-import { asyncBufferFromUrl } from '../../lib/utils.ts'
 import { Spinner } from '../Layout.tsx'
 import ContentHeader, { ContentSize } from './ContentHeader.tsx'
 
@@ -35,8 +34,8 @@ export default function ParquetView({ parsedKey, setProgress, setError }: Viewer
     async function loadParquetDataFrame() {
       try {
         setProgress(0.33)
-        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, headers: {} })
-        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, headers: {} }
+        const asyncBuffer = await asyncBufferFromUrl(resolveUrl)
+        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
         let dataframe = parquetDataFrame(from, metadata)
