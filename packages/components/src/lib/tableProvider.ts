@@ -14,7 +14,6 @@ export function parquetDataFrame(from: AsyncBufferFromUrl, metadata: FileMetaDat
   const sortCache = new Map<string, Promise<number[]>>()
   const data = new Array<ResolvableRow>(Number(metadata.num_rows))
   /// ^ warning: the type is a lie at that point, because all rows are undefined for now
-  /// TODO(SL): improve the type safety
   const groups = new Array(metadata.row_groups.length).fill(false)
   let groupStart = 0
   const groupEnds = metadata.row_groups.map(group => groupStart += Number(group.num_rows))
