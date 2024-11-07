@@ -27,10 +27,10 @@ function getWorker() {
     worker.onmessage = ({ data }: { data: ParquetMessage | SortParquetMessage }) => {
       const pendingQueryAgent = pending.get(data.queryId)
       if (!pendingQueryAgent) {
-        throw new Error(
+        console.warn(
           `Unexpected: no pending promise found for queryId: ${data.queryId.toString()}`,
         )
-        // TODO(SL): should never happen. But if it does, I'm not sure if throwing an error here helps.
+        return
       }
       if (pendingQueryAgent.kind === 'query') {
         const { resolve, reject, onChunk } = pendingQueryAgent
