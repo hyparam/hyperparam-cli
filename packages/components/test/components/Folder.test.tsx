@@ -23,14 +23,14 @@ describe('Folder Component', () => {
     vi.mocked(listFiles).mockResolvedValueOnce(mockFiles)
     const folderKey = parseKey('')
     assert(folderKey.kind === 'folder')
-    const { getByText } = render(<Folder folderKey={folderKey} />)
+    const { findByText, getByText } = render(<Folder folderKey={folderKey} />)
 
     await waitFor(() => {expect(listFiles).toHaveBeenCalledWith('')})
 
-    expect(getByText('/')).toBeDefined()
-
-    const folderLink = getByText('folder1/')
+    const folderLink = await findByText('folder1/')
     expect(folderLink.closest('a')?.getAttribute('href')).toBe('/files?key=folder1/')
+
+    expect(getByText('/')).toBeDefined()
 
     const fileLink = getByText('file1.txt')
     expect(fileLink.closest('a')?.getAttribute('href')).toBe('/files?key=file1.txt')
@@ -51,23 +51,23 @@ describe('Folder Component', () => {
     vi.mocked(listFiles).mockRejectedValue(new Error(errorMessage))
     const folderKey = parseKey('test-prefix/')
     assert(folderKey.kind === 'folder')
-    const { getByText, queryByText } = render(<Folder folderKey={folderKey} />)
+    const { findByText, queryByText } = render(<Folder folderKey={folderKey} />)
 
     await waitFor(() => { expect(listFiles).toHaveBeenCalled() })
 
+    await findByText('Error: ' + errorMessage)
     expect(queryByText('file1.txt')).toBeNull()
     expect(queryByText('folder1/')).toBeNull()
-    expect(getByText('Error: ' + errorMessage)).toBeDefined()
   })
 
   it('renders breadcrumbs correctly', async () => {
     vi.mocked(listFiles).mockResolvedValue(mockFiles)
     const folderKey = parseKey('subdir1/subdir2/')
     assert(folderKey.kind === 'folder')
-    const { getByText } = render(<Folder folderKey={folderKey} />)
+    const { findByText, getByText } = render(<Folder folderKey={folderKey} />)
     await waitFor(() => { expect(listFiles).toHaveBeenCalled() })
 
-    const subdir1Link = getByText('subdir1/')
+    const subdir1Link = await findByText('subdir1/')
     expect(subdir1Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/')
 
     const subdir2Link = getByText('subdir2/')
