@@ -1,10 +1,10 @@
 import { asyncRows } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
-import { FileKey, UrlKey } from '../lib/key.ts'
+import { FileKey, UrlKey } from '../lib/key.js'
 import { parquetDataFrame } from '../lib/tableProvider.js'
-import Breadcrumb from './Breadcrumb.tsx'
-import Layout from './Layout.tsx'
+import Breadcrumb from './Breadcrumb.js'
+import Layout from './Layout.js'
 
 interface CellProps {
   parsedKey: FileKey | UrlKey;

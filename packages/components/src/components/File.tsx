@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { FileKey, UrlKey } from '../lib/key.ts'
-import Breadcrumb from './Breadcrumb.tsx'
-import Layout from './Layout.tsx'
-import Viewer from './Viewer.tsx'
+import { FileKey, UrlKey } from '../lib/key.js'
+import Breadcrumb from './Breadcrumb.js'
+import Layout from './Layout.js'
+import Viewer from './Viewer.js'
 
 interface FileProps {
   parsedKey: UrlKey | FileKey

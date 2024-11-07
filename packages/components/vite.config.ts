@@ -2,18 +2,18 @@
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
 import { defineConfig } from 'vite'
-import dts from 'vite-plugin-dts'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react(), dts()],
+  plugins: [react()],
   build: {
+    outDir: resolve(__dirname, 'dist'),
     copyPublicDir: false,
     lib: {
       entry: resolve(__dirname, 'src/components/index.ts'),
       formats: ['es', 'umd'],
-      name: 'Components',
-      fileName: (format) => `index.${format}.js`,
+      name: 'HyparamComponents',
+      fileName: (format) => `index.${format}.min.js`,
     },
     rollupOptions: {
       external: ['react', 'react/jsx-runtime', 'react-dom'],

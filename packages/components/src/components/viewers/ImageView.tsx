@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { contentTypes, parseFileSize } from '../../lib/files.ts'
-import { FileKey, UrlKey } from '../../lib/key.ts'
-import { Spinner } from '../Layout.tsx'
-import ContentHeader from './ContentHeader.tsx'
+import { contentTypes, parseFileSize } from '../../lib/files.js'
+import { FileKey, UrlKey } from '../../lib/key.js'
+import { Spinner } from '../Layout.js'
+import ContentHeader from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,

@@ -15,18 +15,26 @@
     "directory": "packages/components"
   },
   "type": "module",
-  "main": "dist/index.umd.js",
-  "module": "dist/index.es.js",
+  "main": "dist/index.umd.min.js",
+  "unpkg": "dist/index.umd.min.js",
+  "module": "dist/index.es.min.js",
+  "types": "es/components/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.es.js",
-      "require": "./dist/index.umd.js",
-      "types": "./dist/components/index.d.ts"
-    }
+      "import": "./es/components/index.js",
+      "require": "./dist/index.umd.min.js",
+      "types": "./es/components/index.d.ts"
+    },
+    "./components/*": "./es/components/*.js",
+    "./components/*.js": "./es/components/*.js",
+    "./lib/*": "./es/lib/*.js",
+    "./lib/*.js": "./es/lib/*.js",
+    "./workers/*": "./es/workers/*.js",
+    "./workers/*.js": "./es/workers/*.js"
   },
-  "types": "dist/components/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "es"
   ],
   "scripts": {
     "build": "tsc && vite build",
@@ -61,7 +69,6 @@
     "typescript": "5.6.3",
     "typescript-eslint": "8.13.0",
     "vite": "5.4.10",
-    "vite-plugin-dts": "4.3.0",
     "vitest": "2.1.4"
   }
 }
