@@ -1,4 +1,4 @@
-import Page from './Page.tsx'
+import Page from './Page.js'
 
 export default function App() {
   return (

@@ -1,6 +1,5 @@
 import { AsyncBuffer, ColumnData, asyncBufferFromUrl, cachedAsyncBuffer, parquetQuery } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-// import { asyncBufferFromUrl } from '../lib/utils.ts'
 import type {
   AsyncBufferFromUrl,
   ChunkMessage,

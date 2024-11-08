@@ -1,9 +1,9 @@
-import { imageTypes } from '../lib/files.ts'
-import { FileKey, UrlKey } from '../lib/key.ts'
-import ImageView from './viewers/ImageView.tsx'
-import MarkdownView from './viewers/MarkdownView.tsx'
-import TableView from './viewers/ParquetView.tsx'
-import TextView from './viewers/TextView.tsx'
+import { imageTypes } from '../lib/files.js'
+import { FileKey, UrlKey } from '../lib/key.js'
+import ImageView from './viewers/ImageView.js'
+import MarkdownView from './viewers/MarkdownView.js'
+import TableView from './viewers/ParquetView.js'
+import TextView from './viewers/TextView.js'
 
 interface ViewerProps {
   parsedKey: FileKey | UrlKey;

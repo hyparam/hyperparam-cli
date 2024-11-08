@@ -1,10 +1,10 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { FileKey, UrlKey } from '../../lib/key.ts'
-import { parquetDataFrame } from '../../lib/tableProvider.ts'
-import { Spinner } from '../Layout.tsx'
-import ContentHeader, { ContentSize } from './ContentHeader.tsx'
+import { FileKey, UrlKey } from '../../lib/key.js'
+import { parquetDataFrame } from '../../lib/tableProvider.js'
+import { Spinner } from '../Layout.js'
+import ContentHeader, { ContentSize } from './ContentHeader.js'
 
 enum LoadingState {
   NotLoaded,

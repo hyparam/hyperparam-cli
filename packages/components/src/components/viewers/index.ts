@@ -1,6 +1,6 @@
-import ContentHeader from './ContentHeader.tsx'
-import ImageView from './ImageView.tsx'
-import MarkdownView from './MarkdownView.tsx'
-import ParquetView from './ParquetView.tsx'
-import TextView from './TextView.tsx'
+import ContentHeader from './ContentHeader.js'
+import ImageView from './ImageView.js'
+import MarkdownView from './MarkdownView.js'
+import ParquetView from './ParquetView.js'
+import TextView from './TextView.js'
 export { ContentHeader, ImageView, MarkdownView, ParquetView, TextView }

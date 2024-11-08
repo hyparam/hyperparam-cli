@@ -1,7 +1,7 @@
-import { parseKey } from '../lib/key.ts'
-import Cell from './Cell.tsx'
-import File from './File.tsx'
-import Folder from './Folder.tsx'
+import { parseKey } from '../lib/key.js'
+import Cell from './Cell.js'
+import File from './File.js'
+import Folder from './Folder.js'
 
 export default function Page() {
   const search = new URLSearchParams(location.search)
