@@ -26,11 +26,8 @@
       "types": "./es/components/index.d.ts"
     },
     "./components/*": "./es/components/*.js",
-    "./components/*.js": "./es/components/*.js",
     "./lib/*": "./es/lib/*.js",
-    "./lib/*.js": "./es/lib/*.js",
-    "./workers/*": "./es/workers/*.js",
-    "./workers/*.js": "./es/workers/*.js"
+    "./workers/*": "./es/workers/*.js"
   },
   "files": [
     "dist",
