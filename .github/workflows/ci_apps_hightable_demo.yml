@@ -1,4 +1,4 @@
-name: CI in the hightable-demo app
+name: apps/hightable-demo
 on:
   push:
     paths:

@@ -1,4 +1,4 @@
-name: CI in the components package
+name: packages/components
 on:
   push:
     paths:

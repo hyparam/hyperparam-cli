@@ -1,4 +1,4 @@
-name: CI in the cli app
+name: apps/cli
 on:
   push:
     paths:
