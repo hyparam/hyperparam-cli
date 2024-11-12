@@ -5,9 +5,9 @@ function lorem(rand: number, length: number): string {
   const str = Array.from({ length }, (_, i) => words[Math.floor(i + rand * 8) % 8]).join(' ')
   return str[0].toUpperCase() + str.slice(1)
 }
-  
+
 function delay<T>(value: T, ms: number): Promise<T> {
-  return new Promise(resolve => setTimeout(() => { resolve(value);}, ms))
+  return new Promise(resolve => setTimeout(() => { resolve(value) }, ms))
 }
 
 const header = ['ID', 'Name', 'Age', 'UUID', 'Text', 'JSON']
