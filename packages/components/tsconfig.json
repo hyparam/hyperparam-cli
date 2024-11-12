@@ -19,6 +19,7 @@
     "noUncheckedSideEffectImports": true,
 
     "outDir": "./es",
+    "emitDeclarationOnly": true,
     "declaration": true,
   },
   "include": ["src"]
