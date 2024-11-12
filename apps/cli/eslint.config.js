@@ -4,7 +4,7 @@ import typescript from 'typescript-eslint'
 
 export default [
   {
-    ignores: ['public/build/', 'packages/', 'coverage/'],
+    ignores: ['public/build/', 'coverage/'],
   },
   {
     plugins: {

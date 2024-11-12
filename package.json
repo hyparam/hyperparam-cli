@@ -1,55 +1,10 @@
 {
-  "name": "hyperparam",
-  "version": "0.1.18",
-  "description": "Hyperparam CLI",
+  "name": "hyperparam-monorepo",
+  "private": true,
+  "description": "Hyperparam apps and packages",
   "license": "MIT",
-  "main": "src/cli.js",
-  "type": "module",
-  "bin": {
-    "hyp": "src/cli.js",
-    "hyperparam": "src/cli.js"
-  },
-  "files": [
-    "public",
-    "src"
-  ],
-  "scripts": {
-    "build": "rollup -c",
-    "coverage": "vitest run --coverage --coverage.include=src",
-    "lint": "eslint",
-    "serve": "node src/cli.js",
-    "url": "node src/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet",
-    "test": "vitest run --dir test"
-  },
-  "dependencies": {
-    "highlight.js": "11.10.0",
-    "@hyparam/components": "file:packages/components"
-  },
-  "devDependencies": {
-    "@rollup/plugin-commonjs": "28.0.1",
-    "@rollup/plugin-node-resolve": "15.3.0",
-    "@rollup/plugin-replace": "6.0.1",
-    "@rollup/plugin-terser": "0.4.4",
-    "@rollup/plugin-typescript": "12.1.1",
-    "@testing-library/react": "16.0.1",
-    "@types/node": "22.8.4",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
-    "@vitejs/plugin-react": "4.3.3",
-    "@vitest/coverage-v8": "2.1.4",
-    "eslint": "9.13.0",
-    "globals": "15.11.0",
-    "jsdom": "25.0.1",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
-    "rollup": "4.24.3",
-    "rollup-plugin-postcss": "4.0.2",
-    "tslib": "2.8.0",
-    "typescript": "5.6.3",
-    "typescript-eslint": "8.12.2",
-    "vitest": "2.1.4"
-  },
   "workspaces": [
+    "apps/cli",
     "packages/components"
   ]
 }
