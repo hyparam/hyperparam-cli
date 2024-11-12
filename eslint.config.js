@@ -4,11 +4,12 @@ import typescript from 'typescript-eslint'
 
 export default [
   {
+    ignores: ['public/build/', 'packages/', 'coverage/'],
+  },
+  {
     plugins: {
       typescript,
     },
-
-    ignores: ['public/build/*', 'packages/components/dist/*'],
 
     languageOptions: {
       globals: {
