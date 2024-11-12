@@ -4,6 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
+import { sharedJsRules, sharedTsRules } from '../../shared.eslint.config.js'
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -26,15 +27,17 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
+      ...react.configs.recommended.rules,
+      ...react.configs['jsx-runtime'].rules,
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
       ],
-      ...react.configs.recommended.rules,
-      ...react.configs['jsx-runtime'].rules,
-
-      '@typescript-eslint/restrict-template-expressions': 'off',
+      ...js.configs.recommended.rules,
+      ...tseslint.configs.recommended.rules,
+      ...sharedJsRules,
+      ...sharedTsRules,
     },
   },
 )

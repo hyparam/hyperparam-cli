@@ -3,6 +3,7 @@
   "private": true,
   "description": "Hyperparam apps and packages",
   "license": "MIT",
+  "type": "module",
   "workspaces": [
     "apps/cli",
     "apps/hightable-demo",
