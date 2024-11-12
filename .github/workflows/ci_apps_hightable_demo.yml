@@ -1,13 +1,13 @@
-name: CI in the components package
+name: apps/hightable-demo
 on:
   push:
     paths:
-      - 'packages/components/**'
-      - '.github/workflows/ci_components.yml'
+      - 'apps/hightable-demo/**'
+      - '.github/workflows/ci_apps_hightable_demo.yml'
 
 defaults:
   run:
-    working-directory: ./packages/components
+    working-directory: ./apps/hightable-demo
 
 jobs:
   lint:
@@ -23,13 +23,6 @@ jobs:
       - uses: actions/checkout@v4
       - run: npm i
       - run: tsc
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm i
-      - run: npm run coverage
 
   buildcheck:
     runs-on: ubuntu-latest

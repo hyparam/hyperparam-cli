@@ -1,14 +1,13 @@
-name: CI in the cli app
+name: packages/components
 on:
   push:
     paths:
       - 'packages/components/**'
-      - 'apps/cli/**'
-      - '.github/workflows/ci_cli.yml'
+      - '.github/workflows/ci_packages_components.yml'
 
 defaults:
   run:
-    working-directory: ./apps/cli
+    working-directory: ./packages/components
 
 jobs:
   lint:
@@ -20,16 +19,10 @@ jobs:
 
   typecheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/components
       - run: tsc
-        working-directory: ./apps/cli
 
   test:
     runs-on: ubuntu-latest
@@ -40,13 +33,7 @@ jobs:
 
   buildcheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
     steps:
       - uses: actions/checkout@v4
       - run: npm i
       - run: npm run build
-        working-directory: ./packages/components
-      - run: npm run build
-        working-directory: ./apps/cli

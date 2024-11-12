@@ -5,6 +5,7 @@
   "license": "MIT",
   "workspaces": [
     "apps/cli",
+    "apps/hightable-demo",
     "packages/components"
   ]
 }
