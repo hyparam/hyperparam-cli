@@ -7,7 +7,7 @@ function lorem(rand: number, length: number): string {
 }
   
 function delay<T>(value: T, ms: number): Promise<T> {
-  return new Promise(resolve => setTimeout(() => resolve(value), ms))
+  return new Promise(resolve => setTimeout(() => { resolve(value);}, ms))
 }
 
 const header = ['ID', 'Name', 'Age', 'UUID', 'Text', 'JSON']
@@ -15,13 +15,13 @@ const mockData = {
   header,
   numRows: 10000,
   rows(start: number, end: number) {
-    const arr: Array<Record<string, ReturnType<typeof wrapPromise<string | number>>>> = []
+    const arr: Record<string, ReturnType<typeof wrapPromise<string | number>>>[] = []
     for (let i = start; i < end; i++) {
       const rand = Math.abs(Math.sin(i + 1))
       const uuid = rand.toString(16).substring(2)
       const partial = {
         ID: i + 1,
-        Name: 'Name' + i,
+        Name: `Name${i}`,
         Age: 20 + i % 80,
         UUID: uuid,
         Text: lorem(rand, 100),
