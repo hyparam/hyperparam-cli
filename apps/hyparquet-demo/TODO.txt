@@ -1,0 +1,3 @@
+- the rows are not resolved from URL or File
+- move the index.html to a component?
+- move the common code from this demo and from components to a new package?

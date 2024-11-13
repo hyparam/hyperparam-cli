@@ -8,3 +8,4 @@ It contains the following package:
 It also contains the following applications:
 - [`hyperparam`](./apps/cli): a cli tool for viewing arbitrarily large datasets in the browser.
 - [`hightable-demo`](./apps/hightable-demo): an example project showing how to use [hightable](https://github.com/hyparam/hightable).
+- [`hyparquet-demo`](./apps/hyparquet-demo): an example project showing how to use [hyparquet](https://github.com/hyparam/hyparquet).
