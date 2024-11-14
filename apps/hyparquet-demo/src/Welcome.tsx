@@ -14,10 +14,7 @@ export default function Welcome(): ReactNode {
 
   return <div id="welcome">
     <h1>hyparquet</h1>
-    <sub>img
-          /haɪ pɑːrˈkeɪ/
-    <img src={audioSvg} alt="play hyparquet pronunciation" height="18" width="18" onClick={playAudio} />
-    </sub>
+    <sub>/haɪ pɑːrˈkeɪ/<img src={audioSvg} alt="play hyparquet pronunciation" height="18" width="18" onClick={playAudio} /></sub>
     <audio ref={audio} id="audio" src={hyparquetMp3}></audio>
     <h2>in-browser parquet file reader</h2>
     <p>
