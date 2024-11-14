@@ -6,11 +6,17 @@ import hyparquetMp3 from './assets/hyparquet.mp3'
 export default function Welcome(): ReactNode {
   const audio = useRef<HTMLAudioElement>(null)
 
+  function playAudio() {
+    audio.current?.play().catch(() => {
+      console.warn('Failed to play audio')
+    })
+  }
+
   return <div id="welcome">
     <h1>hyparquet</h1>
     <sub>img
           /haɪ pɑːrˈkeɪ/
-    <img src={audioSvg} alt="play hyparquet pronunciation" height="18" width="18" onClick={() => {audio.current?.play().catch(() => { return undefined})}} />
+    <img src={audioSvg} alt="play hyparquet pronunciation" height="18" width="18" onClick={playAudio} />
     </sub>
     <audio ref={audio} id="audio" src={hyparquetMp3}></audio>
     <h2>in-browser parquet file reader</h2>
