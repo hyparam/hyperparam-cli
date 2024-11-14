@@ -1,7 +1,6 @@
 import { FileMetaData } from 'hyparquet'
 import { ReactNode } from 'react'
 
-
 interface LayoutProps {
   byteLength: number
   metadata: FileMetaData
@@ -56,44 +55,43 @@ function RowGroups({ metadata }: { metadata: FileMetaData }) {
   return <>
     {metadata.row_groups.map((rowGroup, i) =>
       <Group key={i} name={`RowGroup ${i}`} bytes={rowGroup.total_byte_size}>
-        <div>Columns parsing is not implemented</div>
-        {
-        /*
-        /// TODO(SL): expose getColumnRange and ColumnChunk frim hyparquet, then re-enable this code
-
         {rowGroup.columns.map((column, j) =>
           <Column key={j} column={column} />,
         )}
-        */}
       </Group>,
     )}
   </>
 }
 
-// function Column({ key, column }: { key: number, column: ColumnChunk }) {
-//   if (!column.meta_data) return null
-//   const end = getColumnRange(column.meta_data)[1]
-//   const pages = [
-//     { name: 'Dictionary', offset: column.meta_data.dictionary_page_offset },
-//     { name: 'Data', offset: column.meta_data.data_page_offset },
-//     { name: 'Index', offset: column.meta_data.index_page_offset },
-//     { name: 'End', offset: end },
-//   ]
-//     .filter(({ offset }) => offset !== undefined)
-//     .sort((a, b) => Number(a.offset) - Number(b.offset))
+type ColumnChunk = FileMetaData['row_groups'][number]['columns'][number]
+type ColumnMetadata = NonNullable<ColumnChunk['meta_data']>
 
-//   const children = pages.slice(0, -1).map(({ name, offset }, index) =>
-//     <Cell key={name} name={name} start={offset} end={pages[index + 1].offset} />,
-//   )
+function Column({ key, column }: { key: number, column: ColumnChunk }) {
 
+  if (!column.meta_data) return null
+  const { meta_data } = column
+  const { dictionary_page_offset, data_page_offset, index_page_offset } = meta_data
+  const end = getColumnRange(column.meta_data)[1]
+  const pages = [
+    { name: 'Dictionary', offset: dictionary_page_offset },
+    { name: 'Data', offset: data_page_offset },
+    { name: 'Index', offset: index_page_offset },
+    { name: 'End', offset: end },
+  ]
+    .filter((page): page is {name: string, offset: bigint} => page.offset !== undefined)
+    .sort((a, b) => Number(a.offset) - Number(b.offset))
 
-//   return <Group
-//     key={key}
-//     name={`Column ${column.meta_data?.path_in_schema.join('.')}`}
-//     bytes={column.meta_data?.total_compressed_size}>
-//     {children}
-//   </Group>
-// }
+  const children = pages.slice(0, -1).map(({ name, offset }, index) =>
+    <Cell key={name} name={name} start={offset} end={pages[index + 1].offset} />,
+  )
+
+  return <Group
+    key={key}
+    name={`Column ${column.meta_data.path_in_schema.join('.')}`}
+    bytes={column.meta_data.total_compressed_size}>
+    {children}
+  </Group>
+}
 
 function ColumnIndexes({ metadata }: { metadata: FileMetaData }) {
   const indexPages = []
@@ -122,4 +120,20 @@ function ColumnIndexes({ metadata }: { metadata: FileMetaData }) {
       <Cell key={index} name={name} start={start} end={end} />,
     )}
   </Group>
+}
+
+
+/**
+ * Find the start byte offset for a column chunk.
+ *
+ * @param {ColumnMetaData} columnMetadata
+ * @returns {[bigint, bigint]} byte offset range
+ */
+function getColumnRange({ dictionary_page_offset, data_page_offset, total_compressed_size }: ColumnMetadata): [bigint, bigint] {
+  /// Copied from hyparquet because it's not exported
+  let columnOffset = dictionary_page_offset
+  if (!columnOffset || data_page_offset < columnOffset) {
+    columnOffset = data_page_offset
+  }
+  return [columnOffset, columnOffset + total_compressed_size]
 }
