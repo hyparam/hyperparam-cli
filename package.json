@@ -8,6 +8,7 @@
     "apps/cli",
     "apps/hightable-demo",
     "apps/hyparquet-demo",
-    "packages/components"
+    "packages/components",
+    "packages/utils"
   ]
 }

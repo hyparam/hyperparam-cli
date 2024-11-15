@@ -1,13 +1,13 @@
-name: packages/components
+name: packages/utils
 on:
   push:
     paths:
-      - 'packages/components/**'
-      - '.github/workflows/ci_packages_components.yml'
+      - 'packages/utils/**'
+      - '.github/workflows/ci_packages_utils.yml'
 
 defaults:
   run:
-    working-directory: ./packages/components
+    working-directory: ./packages/utils
 
 jobs:
   lint:
@@ -15,8 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: npm run lint
 
   typecheck:
@@ -24,8 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: tsc
 
   test:
@@ -33,8 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: npm run coverage
 
   buildcheck:
@@ -42,6 +36,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: npm run build

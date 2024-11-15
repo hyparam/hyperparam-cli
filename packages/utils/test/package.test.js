@@ -3,7 +3,7 @@ import packageJson from '../package.json'
 
 describe('package.json', () => {
   it('should have the correct name', () => {
-    expect(packageJson.name).toBe('@hyparam/components')
+    expect(packageJson.name).toBe('@hyparam/utils')
   })
   it('should have a valid version', () => {
     expect(packageJson.version).toMatch(/^\d+\.\d+\.\d+$/)
@@ -15,7 +15,7 @@ describe('package.json', () => {
     const { dependencies, devDependencies } = packageJson
     const allDependencies = { ...dependencies, ...devDependencies }
     /// peer dependencies are not checked, because the user might have different versions
-    Object.entries(allDependencies).filter(([name]) => !name.startsWith('@hyparam/')).forEach(([, version]) => {
+    Object.values(allDependencies).forEach(version => {
       expect(version).toMatch(/^\d+\.\d+\.\d+$/)
     })
   })

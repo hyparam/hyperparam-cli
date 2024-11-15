@@ -2,14 +2,12 @@ import { ReactNode } from 'react'
 import Page, { PageProps } from './Page.js'
 import Welcome from './Welcome.js'
 
+import { AsyncBufferFrom, Row, asyncBufferFrom, parquetQueryWorker } from '@hyparam/utils'
 import { DataFrame, rowCache } from 'hightable'
 import { FileMetaData, byteLengthFromUrl, parquetMetadataAsync, parquetSchema } from 'hyparquet'
 import { useCallback, useEffect, useState } from 'react'
 import Dropzone from './Dropzone.js'
 import Layout from './Layout.js'
-import { asyncBufferFrom } from './utils.js'
-import { parquetQueryWorker } from './workers/parquetWorkerClient.js'
-import { AsyncBufferFrom, Row } from './workers/types.js'
 
 export default function App(): ReactNode {
   const params = new URLSearchParams(location.search)
