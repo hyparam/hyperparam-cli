@@ -1,11 +1,11 @@
-# HighTable demo
+# Hyparquet demo
 
-This is an example project showing how to use [hightable](https://github.com/hyparam/hightable).
+This is an example project showing how to use [hyparquet](https://github.com/hyparam/hyparquet).
 
 ## Build
 
 ```bash
-cd apps/hightable-demo
+cd apps/hyparquet-demo
 npm i
 npm run build
 ```
