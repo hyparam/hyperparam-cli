@@ -22,6 +22,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
+      - run: npm run build
+        working-directory: ./packages/utils
       - run: tsc
 
   buildcheck:
@@ -29,4 +31,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
+      - run: npm run build
+        working-directory: ./packages/utils
       - run: npm run build

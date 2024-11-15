@@ -1,5 +1,5 @@
+import { cn } from '@hyparam/utils'
 import { ReactNode, useEffect } from 'react'
-import { cn } from './utils.js'
 
 interface LayoutProps {
   children: ReactNode

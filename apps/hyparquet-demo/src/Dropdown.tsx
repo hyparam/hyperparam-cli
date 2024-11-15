@@ -1,5 +1,5 @@
+import { cn } from '@hyparam/utils'
 import { ReactNode, useEffect, useRef, useState } from 'react'
-import { cn } from './utils.js'
 
 interface DropdownProps {
   label?: string

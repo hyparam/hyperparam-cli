@@ -1,4 +1,3 @@
-
 /**
  * Helper function to join class names
  */

@@ -1,29 +1,27 @@
 {
-  "name": "@hyparam/components",
+  "name": "@hyparam/utils",
   "version": "0.1.0",
-  "description": "React components for hyparam apps",
+  "description": "Utils for hyparam apps",
   "keywords": [
-    "component",
     "data",
-    "javascript",
-    "react"
+    "javascript"
   ],
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hyparam/hyperparam-cli.git",
-    "directory": "packages/components"
+    "directory": "packages/utils"
   },
   "type": "module",
   "main": "dist/index.umd.min.js",
   "unpkg": "dist/index.umd.min.js",
   "module": "dist/index.es.min.js",
-  "types": "es/components/index.d.ts",
+  "types": "es/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.es.min.js",
       "require": "./dist/index.umd.min.js",
-      "types": "./es/components/index.d.ts"
+      "types": "./es/index.d.ts"
     }
   },
   "files": [
@@ -38,27 +36,15 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hyparam/utils": "file:../utils",
     "hightable": "0.6.3",
     "hyparquet": "1.5.0",
     "hyparquet-compressors": "0.1.4"
   },
-  "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
   "devDependencies": {
     "@eslint/js": "9.14.0",
-    "@testing-library/react": "16.0.1",
     "@types/node": "22.9.0",
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
-    "@vitejs/plugin-react": "4.3.3",
     "@vitest/coverage-v8": "2.1.4",
     "eslint": "9.14.0",
-    "eslint-plugin-react": "7.37.2",
-    "eslint-plugin-react-hooks": "5.0.0",
-    "eslint-plugin-react-refresh": "0.4.14",
     "globals": "15.11.0",
     "typescript": "5.6.3",
     "typescript-eslint": "8.13.0",

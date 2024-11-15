@@ -1,8 +1,8 @@
+import { cn } from '@hyparam/utils'
 import { render } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import Layout, { Spinner } from '../../src/components/Layout.js'
-import { cn } from '../../src/lib/utils.js'
 
 vi.mock('next-auth/react', () => ({ signOut: vi.fn(), useSession: vi.fn() }))
 vi.mock('next/link', () => ({ default: vi.fn() }))
