@@ -1,3 +1,3 @@
-# Utilitary functions for hyparam apps
+# Utility functions for hyparam apps
 
-This package contains utilitary functions for the hyparam apps.
+This package contains utility functions for the hyparam apps.
