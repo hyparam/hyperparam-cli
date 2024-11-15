@@ -1,7 +1,7 @@
 {
   "name": "@hyparam/utils",
   "version": "0.1.0",
-  "description": "Utils for hyparam apps",
+  "description": "Utilitary functions for hyparam apps",
   "keywords": [
     "data",
     "javascript"

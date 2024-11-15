@@ -1,3 +1,3 @@
-# React components for hyparam apps
+# Utilitary functions for hyparam apps
 
-This package contains the React components for the hyparam apps.
+This package contains utilitary functions for the hyparam apps.
