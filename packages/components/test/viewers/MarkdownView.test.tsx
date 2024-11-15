@@ -1,8 +1,8 @@
+import { FileKey, parseKey } from '@hyparam/utils'
 import { render } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import MarkdownView from '../../../src/components/viewers/MarkdownView.js'
-import { FileKey, parseKey } from '../../../src/lib/key.js'
+import MarkdownView from '../../src/viewers/MarkdownView.js'
 
 global.fetch = vi.fn()
 

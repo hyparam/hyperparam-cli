@@ -1,6 +1,5 @@
+import { FileKey, UrlKey, contentTypes, parseFileSize } from '@hyparam/utils'
 import { useEffect, useState } from 'react'
-import { contentTypes, parseFileSize } from '../../lib/files.js'
-import { FileKey, UrlKey } from '../../lib/key.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'
 

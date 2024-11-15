@@ -1,13 +1,19 @@
 import { ColumnData, FileMetaData, ParquetReadOptions } from 'hyparquet'
 
-// Serializable constructor for AsyncBuffers
-export interface AsyncBufferFromUrl {
+// Serializable constructors for AsyncBuffers
+interface AsyncBufferFromFile {
+  file: File
+  byteLength: number
+}
+interface AsyncBufferFromUrl {
   url: string
   byteLength: number
 }
+export type AsyncBufferFrom = AsyncBufferFromFile | AsyncBufferFromUrl
+
 // Same as ParquetReadOptions, but AsyncBufferFrom instead of AsyncBuffer
 export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'file'> {
-  from: AsyncBufferFromUrl
+  from: AsyncBufferFrom
   orderBy?: string
   sortIndex?: boolean
 }
@@ -35,6 +41,6 @@ export type SortParquetMessage = IndicesMessage | ErrorMessage
 
 export interface ParquetSortIndexOptions {
   metadata: FileMetaData
-  from: AsyncBufferFromUrl
+  from: AsyncBufferFrom
   orderBy: string
 }

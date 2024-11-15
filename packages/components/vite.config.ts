@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: resolve(__dirname, 'dist'),
     copyPublicDir: false,
     lib: {
-      entry: resolve(__dirname, 'src/components/index.ts'),
+      entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es', 'umd'],
       name: 'HyparamComponents',
       fileName: (format) => `index.${format}.min.js`,

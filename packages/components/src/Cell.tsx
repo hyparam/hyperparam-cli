@@ -1,8 +1,7 @@
+import { FileKey, UrlKey, parquetDataFrame } from '@hyparam/utils'
 import { asyncRows } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
-import { FileKey, UrlKey } from '../lib/key.js'
-import { parquetDataFrame } from '../lib/tableProvider.js'
 import Breadcrumb from './Breadcrumb.js'
 import Layout from './Layout.js'
 

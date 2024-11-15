@@ -1,7 +1,5 @@
-import { cn } from '@hyparam/utils'
+import { FileMetadata, FolderKey, cn, getFileDate, getFileDateShort, getFileSize, listFiles } from '@hyparam/utils'
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../lib/files.js'
-import type { FolderKey } from '../lib/key.js'
 import Layout, { Spinner } from './Layout.js'
 
 interface FolderProps {

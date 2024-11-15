@@ -1,8 +1,8 @@
+import { FileKey, parseKey } from '@hyparam/utils'
 import { render } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import ImageView from '../../../src/components/viewers/ImageView.js'
-import { FileKey, parseKey } from '../../../src/lib/key.js'
+import ImageView from '../../src/viewers/ImageView.js'
 
 global.fetch = vi.fn()
 

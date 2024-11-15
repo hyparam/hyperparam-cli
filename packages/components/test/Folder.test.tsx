@@ -1,10 +1,9 @@
+import { FileMetadata, listFiles, parseKey } from '@hyparam/utils'
 import { render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import Folder from '../../src/components/Folder.js'
-import { FileMetadata, listFiles } from '../../src/lib/files.js'
-import { parseKey } from '../../src/lib/key.js'
+import Folder from '../src/Folder.js'
 
 vi.mock('../../src/lib/files.js', () => ({
   listFiles: vi.fn(),

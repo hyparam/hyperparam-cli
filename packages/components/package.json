@@ -18,12 +18,12 @@
   "main": "dist/index.umd.min.js",
   "unpkg": "dist/index.umd.min.js",
   "module": "dist/index.es.min.js",
-  "types": "es/components/index.d.ts",
+  "types": "es/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.es.min.js",
       "require": "./dist/index.umd.min.js",
-      "types": "./es/components/index.d.ts"
+      "types": "./es/index.d.ts"
     }
   },
   "files": [
