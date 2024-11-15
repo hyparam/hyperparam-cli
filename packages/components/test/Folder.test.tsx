@@ -5,12 +5,19 @@ import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import Folder from '../src/Folder.js'
 
-vi.mock('../../src/lib/files.js', () => ({
-  listFiles: vi.fn(),
-  getFileDate: vi.fn((f: FileMetadata) => f.lastModified),
-  getFileDateShort: vi.fn((f: FileMetadata) => f.lastModified),
-  getFileSize: vi.fn((f: FileMetadata) => f.fileSize),
-}))
+vi.mock('@hyparam/utils', async (importOriginal) => {
+  const actual = await importOriginal()
+  if (typeof actual === 'object') {
+    return {
+      ...actual,
+      // your mocked methods
+      listFiles: vi.fn(),
+      getFileDate: vi.fn((f: FileMetadata) => f.lastModified),
+      getFileDateShort: vi.fn((f: FileMetadata) => f.lastModified),
+      getFileSize: vi.fn((f: FileMetadata) => f.fileSize),
+    }
+  }
+})
 
 const mockFiles: FileMetadata[] = [
   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
