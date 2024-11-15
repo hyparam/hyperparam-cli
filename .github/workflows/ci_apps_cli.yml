@@ -16,6 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
+      - run: npm run build
+        working-directory: ./packages/utils
+      - run: npm run build
+        working-directory: ./packages/components
       - run: npm run lint
 
   typecheck:
@@ -38,6 +42,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
+      - run: npm run build
+        working-directory: ./packages/utils
+      - run: npm run build
+        working-directory: ./packages/components
       - run: npm run coverage
 
   buildcheck:
