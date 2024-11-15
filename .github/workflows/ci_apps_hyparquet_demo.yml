@@ -1,0 +1,32 @@
+name: apps/hyparquet-demo
+on:
+  push:
+    paths:
+      - 'apps/hyparquet-demo/**'
+      - '.github/workflows/ci_apps_hyparquet_demo.yml'
+
+defaults:
+  run:
+    working-directory: ./apps/hyparquet-demo
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i
+      - run: npm run lint
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i
+      - run: tsc
+
+  buildcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i
+      - run: npm run build

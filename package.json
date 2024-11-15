@@ -7,6 +7,7 @@
   "workspaces": [
     "apps/cli",
     "apps/hightable-demo",
+    "apps/hyparquet-demo",
     "packages/components"
   ]
 }
