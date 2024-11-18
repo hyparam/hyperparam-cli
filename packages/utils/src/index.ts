@@ -5,5 +5,5 @@ export type { FileKey, FolderKey, ParsedKey, UrlKey } from './key.js'
 export { parquetDataFrame } from './tableProvider.js'
 export { asyncBufferFrom, cn } from './utils.js'
 export { parquetQueryWorker } from './workers/parquetWorkerClient.js'
-export type { AsyncBufferFrom, Row } from './workers/types.js'
+export type { AsyncBufferFrom } from './workers/types.js'
 

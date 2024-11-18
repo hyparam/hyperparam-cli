@@ -1,4 +1,5 @@
 import { ColumnData, FileMetaData, ParquetReadOptions } from 'hyparquet'
+import type { Row } from '../dataframe.js'
 
 // Serializable constructors for AsyncBuffers
 interface AsyncBufferFromFile {
@@ -17,8 +18,6 @@ export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'file
   orderBy?: string
   sortIndex?: boolean
 }
-// Row is defined in hightable, but not exported + we change any to unknown
-export type Row = Record<string, unknown> ;
 
 interface Message {
   queryId: number

@@ -8,12 +8,12 @@ type WrappedPromise<T> = Promise<T> & {
  * The promise must be wrapped with `wrapPromise` so that HighTable can render
  * the state synchronously.
  */
-export type AsyncRow = Record<string, WrappedPromise<any>>
+export type AsyncRow = Record<string, WrappedPromise<unknown>>
 
 /**
  * A row where each cell is a resolved value.
  */
-export type Row = Record<string, any>
+export type Row = Record<string, unknown>
 
 /**
  * Streamable row data
@@ -26,8 +26,8 @@ export interface DataFrame {
   sortable?: boolean
 }
 
-export function resolvableRow(header: string[]): { [key: string]: ResolvablePromise<any> } {
-  return Object.fromEntries(header.map(key => [key, resolvablePromise<any>()]))
+export function resolvableRow(header: string[]): Record<string, ResolvablePromise<unknown>> {
+  return Object.fromEntries(header.map(key => [key, resolvablePromise<unknown>()]))
 }
 
 /**
@@ -38,7 +38,7 @@ export function resolvableRow(header: string[]): { [key: string]: ResolvableProm
 export function asyncRows(rows: AsyncRow[] | Promise<Row[]>, numRows: number, header: string[]): AsyncRow[] {
   if (Array.isArray(rows)) return rows
   // Make grid of resolvable promises
-  const wrapped = new Array(numRows).fill(null).map(_ => resolvableRow(header))
+  const wrapped = new Array(numRows).fill(null).map(() => resolvableRow(header))
   rows.then(rows => {
     if (rows.length !== numRows) {
       console.warn(`Expected ${numRows} rows, got ${rows.length}`)
@@ -49,11 +49,12 @@ export function asyncRows(rows: AsyncRow[] | Promise<Row[]>, numRows: number, he
         wrapped[i][key].resolve(row[key])
       }
     }
-  }).catch(error => {
+  }).catch((error: unknown) => {
+    const rejected = error instanceof Error ? error : new Error(String(error))
     // Reject all promises on error
     for (let i = 0; i < numRows; i++) {
       for (const key of header) {
-        wrapped[i][key].reject(error)
+        wrapped[i][key].reject(rejected)
       }
     }
   })
@@ -71,9 +72,9 @@ export function wrapPromise<T>(promise: Promise<T> | T): WrappedPromise<T> {
   const wrapped: WrappedPromise<T> = promise.then(resolved => {
     wrapped.resolved = resolved
     return resolved
-  }).catch(rejected => {
-    wrapped.rejected = rejected
-    throw rejected
+  }).catch((error: unknown) => {
+    wrapped.rejected = error instanceof Error ? error : new Error(String(error))
+    throw error
   })
   return wrapped
 }
@@ -105,7 +106,7 @@ export function resolvablePromise<T>(): ResolvablePromise<T> {
 export function sortableDataFrame(data: DataFrame): DataFrame {
   if (data.sortable) return data // already sortable
   // Fetch all rows and add __index__ column
-  let all: Promise<Row[]>
+  let all: Promise<Row[]> | undefined
   return {
     ...data,
     rows(start: number, end: number, orderBy?: string): AsyncRow[] | Promise<Row[]> {

@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
-  DataFrame, Row, arrayDataFrame, awaitRows, resolvablePromise, sortableDataFrame, wrapPromise,
+  AsyncRow,
+  DataFrame,
+  arrayDataFrame, awaitRows, resolvablePromise, sortableDataFrame, wrapPromise,
 } from '../src/dataframe.js'
 
-function wrapObject(obj: Record<string, any>): Row {
+function wrapObject(obj: Record<string, unknown>): AsyncRow {
   return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [key, wrapPromise(value)])
+    Object.entries(obj).map(([key, value]) => [key, wrapPromise(value)]),
   )
 }
 
@@ -41,7 +43,7 @@ describe('sortableDataFrame', () => {
   const dataFrame: DataFrame = {
     header: ['id', 'name', 'age'],
     numRows: data.length,
-    rows(start: number, end: number): Row[] {
+    rows(start: number, end: number): AsyncRow[] {
       // Return the slice of data between start and end indices
       return data.slice(start, end).map(wrapObject)
     },
@@ -110,11 +112,12 @@ describe('arrayDataFrame', () => {
     expect(df.numRows).toBe(3)
   })
 
-  it('should handle empty data array', () => {
+  it('should handle empty data array', async () => {
     const df = arrayDataFrame([])
     expect(df.header).toEqual([])
     expect(df.numRows).toBe(0)
-    expect(df.rows(0, 1)).resolves.toEqual([])
+    const rows = await df.rows(0, 1)
+    expect(rows).toEqual([])
   })
 
   it('should return correct rows for given range', async () => {
