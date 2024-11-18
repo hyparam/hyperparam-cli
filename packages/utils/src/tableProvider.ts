@@ -1,5 +1,5 @@
-import { DataFrame, ResolvablePromise, resolvablePromise } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
+import { DataFrame, ResolvablePromise, resolvablePromise } from './dataframe.js'
 import { parquetQueryWorker, parquetSortIndexWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
