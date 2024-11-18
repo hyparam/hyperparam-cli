@@ -2,7 +2,8 @@ import ParquetWorker from './parquetWorker?worker&inline'
 /// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
 /// (no need to copy the worker file to the right place)
 import { ColumnData } from 'hyparquet'
-import type { ParquetMessage, ParquetReadWorkerOptions, ParquetSortIndexOptions, Row, SortParquetMessage } from './types.js'
+import type { Row } from '../dataframe.js'
+import type { ParquetMessage, ParquetReadWorkerOptions, ParquetSortIndexOptions, SortParquetMessage } from './types.js'
 
 let worker: Worker | undefined
 let nextQueryId = 0

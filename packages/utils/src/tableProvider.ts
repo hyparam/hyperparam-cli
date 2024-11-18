@@ -26,7 +26,6 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       for (let i = rowStart; i < rowEnd; i++) {
         data[i] = Object.fromEntries(
           header.map((key) => [key, resolvablePromise<unknown>()]),
-          // ^ for type: resolvableRow uses any, not unknown
         )
       }
       parquetQueryWorker({ from, metadata, rowStart, rowEnd })
