@@ -1,5 +1,5 @@
-import { FileKey, UrlKey, parquetDataFrame } from '@hyparam/utils'
-import HighTable, { DataFrame, rowCache } from 'hightable'
+import { DataFrame, FileKey, UrlKey, parquetDataFrame, rowCache } from '@hyparam/utils'
+import HighTable from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Spinner } from '../Layout.js'

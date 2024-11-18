@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm i
       - run: npm run build
         working-directory: ./packages/utils
@@ -29,6 +32,9 @@ jobs:
         working-directory: ./
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm i
       - run: npm run build
         working-directory: ./packages/utils
@@ -41,6 +47,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm i
       - run: npm run build
         working-directory: ./packages/utils
@@ -55,6 +64,9 @@ jobs:
         working-directory: ./
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
       - run: npm i
       - run: npm run build
         working-directory: ./packages/utils
