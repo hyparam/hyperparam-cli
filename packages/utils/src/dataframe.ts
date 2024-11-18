@@ -122,8 +122,13 @@ export function sortableDataFrame(data: DataFrame): DataFrame {
         }
         const sorted = all.then(all => {
           return all.sort((a, b) => {
-            if (a[orderBy] < b[orderBy]) return -1
-            if (a[orderBy] > b[orderBy]) return 1
+            /// TODO(SL): rewrite the function, handling every case
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const valueA: any = a[orderBy]
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const valueB: any = b[orderBy]
+            if (valueA < valueB) return -1
+            if (valueA > valueB) return 1
             return 0
           }).slice(start, end)
         })
