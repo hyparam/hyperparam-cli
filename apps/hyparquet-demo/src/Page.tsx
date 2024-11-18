@@ -1,4 +1,5 @@
-import HighTable, { DataFrame } from 'hightable'
+import { DataFrame } from '@hyparam/utils'
+import HighTable from 'hightable'
 import { FileMetaData } from 'hyparquet'
 import { ReactNode, useState } from 'react'
 import Dropdown from './Dropdown.js'
