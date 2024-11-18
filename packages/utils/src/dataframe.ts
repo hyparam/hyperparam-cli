@@ -85,18 +85,19 @@ export type ResolvablePromise<T> = Promise<T> & {
 }
 
 /**
- * Create a promise that can be resolved or rejected later.
+ * Create a promise that can be resolved or rejected later using the resolve and reject methods.
+ * It's also a wrapped promise, with resolved and rejected properties.
  */
-export function resolvablePromise<T>(): ResolvablePromise<T> {
-  let resolve: (value: T) => void
-  let reject: (error: Error) => void
-  const promise = wrapPromise(new Promise<T>((res, rej) => {
-    resolve = res
-    reject = rej
-  })) as ResolvablePromise<T>
-  promise.resolve = resolve!
-  promise.reject = reject!
-  return promise
+export function resolvablePromise<T>(): ResolvablePromise<T> & WrappedPromise<T> {
+  const promise = Promise.withResolvers<T>()
+  const wrapped = Object.assign(
+    wrapPromise(promise.promise),
+    {
+      resolve: promise.resolve,
+      reject : promise.reject,
+    },
+  )
+  return wrapped
 }
 
 /**

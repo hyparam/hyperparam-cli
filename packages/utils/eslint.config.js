@@ -9,7 +9,7 @@ export default tseslint.config(
     extends: [js.configs.recommended, ...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
     files: ['**/*.{ts,js}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: globals.esnext,
       globals: globals.browser,
       parserOptions: {
         project: ['./tsconfig.json', './tsconfig.eslint.json'],
@@ -26,7 +26,7 @@ export default tseslint.config(
   {
     files: ['test/**/*.{ts}', '*.{js,ts}'],
     languageOptions: {
-      ecmaVersion: 2020,
+      ecmaVersion: globals.esnext,
       globals: {
         ...globals.node,
         ...globals.browser,
