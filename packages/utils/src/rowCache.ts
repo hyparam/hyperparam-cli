@@ -7,7 +7,7 @@ import { AsyncRow, DataFrame, asyncRows } from './dataframe.js'
  */
 export function rowCache(df: DataFrame): DataFrame {
   // Row cache is stored as a sorted array of RowGroups, per sort order
-  const caches: {[key: string]: AsyncRow[]} = {}
+  const caches: Record<string, AsyncRow[] | undefined> = {}
 
   let hits = 0
   let misses = 0
@@ -16,7 +16,7 @@ export function rowCache(df: DataFrame): DataFrame {
     ...df,
     rows(start: number, end: number, orderBy?: string): AsyncRow[] {
       // Cache per sort order
-      const cache = caches[orderBy || ''] ||= new Array(df.numRows)
+      const cache = caches[orderBy ?? ''] ??= new Array<AsyncRow>(df.numRows)
       const n = hits + misses
       if (n && !(n % 10)) {
         console.log(`Cache hits: ${hits} / ${hits + misses} (${(100 * hits / (hits + misses)).toFixed(1)}%)`)
