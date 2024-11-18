@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { Row, awaitRows } from '../src/dataframe.js'
+import { AsyncRow, awaitRows } from '../src/dataframe.js'
 import { rowCache } from '../src/rowCache.js'
 
 // Mock DataFrame
@@ -7,9 +7,9 @@ function makeDf() {
   return {
     header: ['id'],
     numRows: 10,
-    rows: vi.fn((start: number, end: number): Row[] => {
+    rows: vi.fn((start: number, end: number): AsyncRow[] => {
       return new Array(end - start).fill(null)
-        .map((_, index) => ({ id: start + index }))
+        .map((_, index) => ({ id: Promise.resolve(start + index) }))
     }),
   }
 }
@@ -45,10 +45,10 @@ describe('rowCache', () => {
     const dfCached = rowCache(df)
 
     // Cache first block
-    dfCached.rows(0, 3)
+    await dfCached.rows(0, 3)
     expect(df.rows).toHaveBeenCalledTimes(1)
     // Cache adjacent block
-    dfCached.rows(3, 6)
+    await dfCached.rows(3, 6)
     expect(df.rows).toHaveBeenCalledTimes(2)
     // Fetch combined block
     const adjacentRows = await awaitRows(dfCached.rows(0, 6))
@@ -64,9 +64,9 @@ describe('rowCache', () => {
     const dfCached = rowCache(df)
 
     // Cache first block
-    dfCached.rows(0, 2)
+    await dfCached.rows(0, 2)
     // Cache second block
-    dfCached.rows(4, 6)
+    await dfCached.rows(4, 6)
     // Fetch combined block
     const gapRows = await awaitRows(dfCached.rows(0, 6))
     expect(gapRows).toEqual([
@@ -81,7 +81,7 @@ describe('rowCache', () => {
     const dfCached = rowCache(df)
 
     // Cache first block
-    dfCached.rows(6, 9)
+    await dfCached.rows(6, 9)
 
     // Fetch overlapping block
     const overlappingRows = await awaitRows(dfCached.rows(8, 11))
