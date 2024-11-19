@@ -35,10 +35,16 @@ jobs:
       - name: Move the build outputs to a folder
         run: |
           mkdir -p build_outputs_folder/apps
-          echo "# Hyparam" > build_outputs_folder/index.md
-          echo "" >> build_outputs_folder/index.md
-          echo "- [hyparquet demo](./apps/hyparquet-demo)" >> build_outputs_folder/index.md
-          echo "- [hightable demo](./apps/hightable-demo)" >> build_outputs_folder/index.md
+          echo "<h1 id="hyparam">Hyparam</h1>" > build_outputs_folder/index.html
+          echo "<ul>" >> build_outputs_folder/index.html
+          echo "<li><a href="./apps/hyparquet-demo">hyparquet demo</a></li>" >> build_outputs_folder/index.html
+          echo "<li><a href="./apps/hightable-demo">hightable demo</a></li>" >> build_outputs_folder/index.html
+          echo "</ul>" >> build_outputs_folder/index.html
+          echo "<h1 id="hyparam">Hyparam</h1>" > build_outputs_folder/apps/index.html
+          echo "<ul>" >> build_outputs_folder/apps/index.html
+          echo "<li><a href="./hyparquet-demo">hyparquet demo</a></li>" >> build_outputs_folder/apps/index.html
+          echo "<li><a href="./hightable-demo">hightable demo</a></li>" >> build_outputs_folder/apps/index.html
+          echo "</ul>" >> build_outputs_folder/apps/index.html
           mv apps/hyparquet-demo/dist build_outputs_folder/apps/hyparquet-demo
           mv apps/hightable-demo/dist build_outputs_folder/apps/hightable-demo
       - name: Upload static files as artifact
