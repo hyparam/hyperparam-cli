@@ -1,0 +1,69 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "packages/utils/**"
+      - "apps/hyparquet-demo/**"
+      - "apps/hightable-demo/**"
+      - ".github/workflows/deploy_pages.yml"
+  workflow_dispatch:
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm i
+      - name: Build @hyparam/utils package
+        run: npm run build
+        working-directory: ./packages/utils
+      - name: Build hyparquet demo
+        run: npm run build
+        working-directory: ./apps/hyparquet-demo
+      - name: Build hightable demo
+        run: npm run build
+        working-directory: ./apps/hightable-demo
+      - name: Create index file content
+        run: |
+
+        id: index_content
+      - name: Move the build outputs to a folder
+        run: |
+          mkdir -p build_outputs_folder/apps
+          echo "<h1 id="hyparam">Hyparam</h1>" > build_outputs_folder/index.html
+          echo "<ul>" >> build_outputs_folder/index.html
+          echo "<li><a href="./apps/hyparquet-demo">hyparquet demo</a></li>" >> build_outputs_folder/index.html
+          echo "<li><a href="./apps/hightable-demo">hightable demo</a></li>" >> build_outputs_folder/index.html
+          echo "</ul>" >> build_outputs_folder/index.html
+          echo "<h1 id="hyparam">Hyparam</h1>" > build_outputs_folder/apps/index.html
+          echo "<ul>" >> build_outputs_folder/apps/index.html
+          echo "<li><a href="./hyparquet-demo">hyparquet demo</a></li>" >> build_outputs_folder/apps/index.html
+          echo "<li><a href="./hightable-demo">hightable demo</a></li>" >> build_outputs_folder/apps/index.html
+          echo "</ul>" >> build_outputs_folder/apps/index.html
+          mv apps/hyparquet-demo/dist build_outputs_folder/apps/hyparquet-demo
+          mv apps/hightable-demo/dist build_outputs_folder/apps/hightable-demo
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build_outputs_folder/
+
+  # Deploy job
+  deploy:
+    needs: build
+    permissions:
+      pages: write # to deploy to Pages
+      id-token: write # to verify the deployment originates from an appropriate source
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
