@@ -2,6 +2,7 @@ name: apps/hyparquet-demo
 on:
   push:
     paths:
+      - 'packages/utils/**'
       - 'apps/hyparquet-demo/**'
       - '.github/workflows/ci_apps_hyparquet_demo.yml'
 

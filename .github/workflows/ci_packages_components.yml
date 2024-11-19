@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'packages/components/**'
+      - 'packages/utils/**'
       - '.github/workflows/ci_packages_components.yml'
 
 defaults:
