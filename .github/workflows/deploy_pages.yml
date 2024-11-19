@@ -1,0 +1,52 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "packages/utils/**"
+      - "apps/hyparquet-demo/**"
+      - "apps/hightable-demo/**"
+      - ".github/workflows/deploy_pages.yml"
+  workflow_dispatch:
+
+jobs:
+  # Build job
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm i
+      - name: Build @hyparam/utils package
+        run: npm run build
+        working-directory: ./packages/utils
+      - name: Build hyparquet demo
+        run: npm run build
+        working-directory: ./apps/hyparquet-demo
+      - name: Build hightable demo
+        run: npm run build
+        working-directory: ./apps/hightable-demo
+      - name: Move the build outputs to a folder
+        run: |
+          mkdir build_outputs_folder
+          mv ./apps/hyparquet-demo/dist build_outputs_folder/hyparquet-demo
+          mv ./apps/hightable-demo/dist build_outputs_folder/hightable-demo
+      - name: Upload static files as artifact
+        id: deployment
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build_outputs_folder/
+
+  # Deploy job
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
