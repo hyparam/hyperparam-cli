@@ -28,17 +28,19 @@ jobs:
       - name: Build hightable demo
         run: npm run build
         working-directory: ./apps/hightable-demo
+      - name: Create index file content
+        run: |
+
+        id: index_content
       - name: Move the build outputs to a folder
         run: |
           mkdir -p build_outputs_folder/apps
-          cat > build_outputs_folder/index.md<< EOF
-# Hyparam
-
-- [hyparquet demo](./apps/hyparquet-demo)
-- [hightable demo](./apps/hightable-demo)
-EOF
-          mv ./apps/hyparquet-demo/dist build_outputs_folder/apps/hyparquet-demo
-          mv ./apps/hightable-demo/dist build_outputs_folder/apps/hightable-demo
+          cat "# Hyparam" > build_outputs_folder/index.md
+          cat "" >> build_outputs_folder/index.md
+          cat "- [hyparquet demo](./apps/hyparquet-demo)" >> build_outputs_folder/index.md
+          cat "- [hightable demo](./apps/hightable-demo)" >> build_outputs_folder/index.md
+          mv apps/hyparquet-demo/dist build_outputs_folder/apps/hyparquet-demo
+          mv apps/hightable-demo/dist build_outputs_folder/apps/hightable-demo
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
