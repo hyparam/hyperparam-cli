@@ -30,9 +30,15 @@ jobs:
         working-directory: ./apps/hightable-demo
       - name: Move the build outputs to a folder
         run: |
-          mkdir build_outputs_folder
-          mv ./apps/hyparquet-demo/dist build_outputs_folder/hyparquet-demo
-          mv ./apps/hightable-demo/dist build_outputs_folder/hightable-demo
+          mkdir -p build_outputs_folder/apps
+          cat > build_outputs_folder/index.md<< EOF
+# Hyparam
+
+- [hyparquet demo](./apps/hyparquet-demo)
+- [hightable demo](./apps/hightable-demo)
+EOF
+          mv ./apps/hyparquet-demo/dist build_outputs_folder/apps/hyparquet-demo
+          mv ./apps/hightable-demo/dist build_outputs_folder/apps/hightable-demo
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v3
