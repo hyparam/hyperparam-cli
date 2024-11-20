@@ -4,6 +4,7 @@ on:
     paths:
       - 'apps/hightable-demo/**'
       - '.github/workflows/ci_apps_hightable_demo.yml'
+      - 'shared.eslint.config.js'
 
 defaults:
   run:

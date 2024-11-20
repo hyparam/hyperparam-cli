@@ -3,9 +3,9 @@ on:
   push:
     paths:
       - 'packages/components/**'
-      - 'packages/utils/**'
       - 'apps/cli/**'
       - '.github/workflows/ci_apps_cli.yml'
+      - 'shared.eslint.config.js'
 
 defaults:
   run:
@@ -17,49 +17,41 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: npm run lint
 
   typecheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: tsc
-        working-directory: ./apps/cli
 
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: npm run coverage
 
   buildcheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: npm run build
-        working-directory: ./apps/cli

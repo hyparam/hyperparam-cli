@@ -38,7 +38,7 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hyparam/utils": "file:../utils",
+    "@hyparam/utils": "0.1.0",
     "hightable": "0.6.3",
     "hyparquet": "1.5.0",
     "hyparquet-compressors": "0.1.4"
@@ -60,6 +60,7 @@
     "eslint-plugin-react-hooks": "5.0.0",
     "eslint-plugin-react-refresh": "0.4.14",
     "globals": "15.11.0",
+    "jsdom": "25.0.1",
     "typescript": "5.6.3",
     "typescript-eslint": "8.13.0",
     "vite": "5.4.10",
