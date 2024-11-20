@@ -7,6 +7,9 @@ on:
         type: string
 jobs:
   lint:
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -14,6 +17,9 @@ jobs:
       - run: npm run lint
   
   typecheck:
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,6 +27,9 @@ jobs:
       - run: tsc
   
   test:
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -28,6 +37,9 @@ jobs:
       - run: npm run coverage
   
   buildcheck:
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
