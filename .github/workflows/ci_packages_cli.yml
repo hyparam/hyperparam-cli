@@ -1,0 +1,12 @@
+name: apps/cli
+on:
+  push:
+    paths:
+      - 'packages/cli/**'
+      - '.github/workflows/ci_packages_cli.yml'
+      - 'shared.eslint.config.js'
+jobs:
+  ci:
+    uses: ./.github/workflows/_common_jobs.yml
+    with:
+      working-directory: packages/cli
