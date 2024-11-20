@@ -2,7 +2,6 @@ name: apps/hyparquet-demo
 on:
   push:
     paths:
-      - 'packages/utils/**'
       - 'apps/hyparquet-demo/**'
       - '.github/workflows/ci_apps_hyparquet_demo.yml'
 
@@ -16,8 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: npm run lint
 
   typecheck:
@@ -25,8 +22,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: tsc
 
   test:
@@ -34,8 +29,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: npm run coverage
 
   buildcheck:
@@ -43,6 +36,4 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
       - run: npm run build

@@ -3,7 +3,6 @@ on:
   push:
     paths:
       - 'packages/components/**'
-      - 'packages/utils/**'
       - 'apps/cli/**'
       - '.github/workflows/ci_apps_cli.yml'
 
@@ -17,9 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: npm run lint
 
@@ -31,9 +30,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: tsc
         working-directory: ./apps/cli
@@ -43,9 +42,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: npm run coverage
 
@@ -57,9 +56,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
-        working-directory: ./packages/utils
-      - run: npm run build
+      - run: |
+          npm i
+          npm run build
         working-directory: ./packages/components
       - run: npm run build
         working-directory: ./apps/cli
