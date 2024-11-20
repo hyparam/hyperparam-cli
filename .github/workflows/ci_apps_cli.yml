@@ -5,6 +5,7 @@ on:
       - 'packages/components/**'
       - 'apps/cli/**'
       - '.github/workflows/ci_apps_cli.yml'
+      - 'shared.eslint.config.js'
 
 defaults:
   run:

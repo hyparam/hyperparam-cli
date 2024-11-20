@@ -4,6 +4,7 @@ on:
     paths:
       - 'apps/hyparquet-demo/**'
       - '.github/workflows/ci_apps_hyparquet_demo.yml'
+      - 'shared.eslint.config.js'
 
 defaults:
   run:

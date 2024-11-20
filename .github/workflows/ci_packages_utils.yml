@@ -4,6 +4,7 @@ on:
     paths:
       - 'packages/utils/**'
       - '.github/workflows/ci_packages_utils.yml'
+      - 'shared.eslint.config.js'
 
 defaults:
   run:
