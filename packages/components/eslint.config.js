@@ -4,7 +4,8 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
-import { sharedJsRules, sharedTsRules } from '../../shared.eslint.config.js'
+import sharedEslintRules from '../../shared.eslint.config.js'
+const { sharedJsRules, sharedTsRules } = sharedEslintRules
 
 export default tseslint.config(
   { ignores: ['coverage/', 'dist/', 'es/'] },

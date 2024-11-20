@@ -1,4 +1,4 @@
-export const sharedJsRules = {
+const sharedJsRules = {
   'arrow-spacing': 'error',
   camelcase: 'off',
   'comma-spacing': 'error',
@@ -36,7 +36,9 @@ export const sharedJsRules = {
   'space-infix-ops': 'error',
 }
 
-export const sharedTsRules = {
+const sharedTsRules = {
   '@typescript-eslint/restrict-template-expressions': 'off',
   '@typescript-eslint/no-unused-vars': 'warn',
 }
+
+export default { sharedJsRules, sharedTsRules }
