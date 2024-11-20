@@ -41,4 +41,4 @@ const sharedTsRules = {
   '@typescript-eslint/no-unused-vars': 'warn',
 }
 
-export default { sharedJsRules, sharedTsRules }
+module.exports = { sharedJsRules, sharedTsRules }
