@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'packages/utils/**'
+      - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_packages_utils.yml'
       - 'shared.eslint.config.js'
 jobs:

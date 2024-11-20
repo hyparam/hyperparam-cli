@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - 'apps/hightable-demo/**'
+      - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_apps_hightable_demo.yml'
       - 'shared.eslint.config.js'
 jobs:
