@@ -4,7 +4,6 @@ on:
   push:
     branches: ["master"]
     paths:
-      - "packages/utils/**"
       - "apps/hyparquet-demo/**"
       - "apps/hightable-demo/**"
       - ".github/workflows/deploy_pages.yml"

@@ -1,13 +1,13 @@
-name: packages/components
+name: apps/cli
 on:
   push:
     paths:
-      - 'packages/components/**'
+      - 'packages/cli/**'
       - '.github/workflows/_common_jobs.yml'
-      - '.github/workflows/ci_packages_components.yml'
+      - '.github/workflows/ci_packages_cli.yml'
       - 'shared.eslint.config.js'
 jobs:
   ci:
     uses: ./.github/workflows/_common_jobs.yml
     with:
-      working-directory: packages/components
+      working-directory: packages/cli
