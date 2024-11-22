@@ -17,6 +17,7 @@
     "build": "rollup -c",
     "coverage": "vitest run --coverage --coverage.include=src",
     "lint": "eslint",
+    "prepublishOnly": "npm run build",
     "serve": "node src/cli.js",
     "url": "node src/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet",
     "test": "vitest run --dir test"
