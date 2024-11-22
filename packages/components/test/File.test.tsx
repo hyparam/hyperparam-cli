@@ -10,7 +10,7 @@ global.fetch = vi.fn(() => Promise.resolve({ text: vi.fn() } as unknown as Respo
 
 describe('File Component', () => {
   it('renders a local file path', async () => {
-    const parsedKey = parseKey('folder/subfolder/test.txt')
+    const parsedKey = parseKey('folder/subfolder/test.txt', { apiBaseUrl: 'http://localhost:3000' })
     assert(parsedKey.kind === 'file')
 
     const { getByText } = await act(() => render(
@@ -34,7 +34,7 @@ describe('File Component', () => {
   })
 
   it('renders correct breadcrumbs for nested folders', async () => {
-    const parsedKey = parseKey('folder1/folder2/folder3/test.txt')
+    const parsedKey = parseKey('folder1/folder2/folder3/test.txt', { apiBaseUrl: 'http://localhost:3000' })
     assert(parsedKey.kind === 'file')
     const { getAllByRole } = await act(() => render(
       <File parsedKey={parsedKey} />,

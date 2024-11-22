@@ -3,12 +3,16 @@ import Cell from './Cell.js'
 import File from './File.js'
 import Folder from './Folder.js'
 
-export default function Page() {
+interface PageProps {
+  apiBaseUrl: string
+}
+
+export default function Page({ apiBaseUrl }: PageProps) {
   const search = new URLSearchParams(location.search)
   const key = search.get('key')
   if (Array.isArray(key)) throw new Error('key must be a string')
 
-  const parsedKey = parseKey(key)
+  const parsedKey = parseKey(key, { apiBaseUrl } )
 
   // row, col from url
   const row = search.get('row')

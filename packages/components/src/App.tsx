@@ -1,7 +1,11 @@
 import Page from './Page.js'
 
-export default function App() {
+interface AppProps {
+  apiBaseUrl: string
+}
+
+export default function App(props: AppProps) {
   return (
-    <Page />
+    <Page {...props} />
   )
 }
