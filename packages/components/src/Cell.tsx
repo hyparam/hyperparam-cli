@@ -35,7 +35,7 @@ export default function CellView({ parsedKey, row, col }: CellProps) {
       try {
         // TODO: handle first row > 100kb
         setProgress(0.25)
-        const asyncBuffer = await asyncBufferFromUrl(resolveUrl)
+        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl })
         const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength }
         setProgress(0.5)
         const metadata = await parquetMetadataAsync(asyncBuffer)
