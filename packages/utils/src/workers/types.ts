@@ -8,6 +8,7 @@ interface AsyncBufferFromFile {
 interface AsyncBufferFromUrl {
   url: string
   byteLength: number
+  requestInit?: RequestInit
 }
 export type AsyncBufferFrom = AsyncBufferFromFile | AsyncBufferFromUrl
 

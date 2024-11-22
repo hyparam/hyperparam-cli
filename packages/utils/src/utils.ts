@@ -17,7 +17,7 @@ export function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
     const key = JSON.stringify(from)
     const cached = cache.get(key)
     if (cached) return cached
-    const asyncBuffer = asyncBufferFromUrl(from.url, from.byteLength).then(cachedAsyncBuffer)
+    const asyncBuffer = asyncBufferFromUrl(from).then(cachedAsyncBuffer)
     cache.set(key, asyncBuffer)
     return asyncBuffer
   } else {

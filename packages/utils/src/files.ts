@@ -22,9 +22,10 @@ export interface FileContent<T> {
  * List user files from server
  *
  * @param url API URL to fetch folder files from
+ * @param [requestInit] fetch request options
  */
-export async function listFiles(url: string): Promise<FileMetadata[]> {
-  const res = await fetch(url)
+export async function listFiles(url: string, requestInit?: RequestInit): Promise<FileMetadata[]> {
+  const res = await fetch(url, requestInit)
   if (res.ok) {
     return await res.json() as FileMetadata[]
   } else {
