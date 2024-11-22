@@ -1,5 +1,5 @@
 import { FileMetadata, FolderKey, cn, getFileDate, getFileDateShort, getFileSize, listFiles } from '@hyparam/utils'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import Layout, { Spinner } from './Layout.js'
 
 interface FolderProps {
@@ -13,21 +13,20 @@ export default function Folder({ folderKey }: FolderProps) {
   // State to hold file listing
   const [files, setFiles] = useState<FileMetadata[]>()
   const [error, setError] = useState<Error>()
-  const listRef = useRef<HTMLUListElement>(null)
 
   // Folder path from url
-  const { prefix } = folderKey
+  const { prefix, listFilesUrl } = folderKey
   const path = prefix.split('/')
 
   // Fetch files on component mount
   useEffect(() => {
-    listFiles(prefix)
+    listFiles(listFilesUrl)
       .then(setFiles)
       .catch((error: unknown) => {
         setFiles([])
         setError(error instanceof Error ? error : new Error(`Failed to fetch files - ${error}`))
       })
-  }, [prefix])
+  }, [listFilesUrl])
 
   const fileUrl = useCallback((file: FileMetadata) => {
     return prefix ? `/files?key=${prefix}/${file.key}` : `/files?key=${file.key}`
@@ -43,7 +42,7 @@ export default function Folder({ folderKey }: FolderProps) {
       </div>
     </nav>
 
-    {files && files.length > 0 && <ul className='file-list' ref={listRef}>
+    {files && files.length > 0 && <ul className='file-list'>
       {files.map((file, index) =>
         <li key={index}>
           <a href={fileUrl(file)}>
