@@ -1,5 +1,5 @@
 import { FileKey, UrlKey, parseFileSize } from '@hyparam/utils'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Spinner } from '../Layout.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
 
@@ -21,7 +21,6 @@ interface ViewerProps {
 export default function TextView({ parsedKey, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
-  const textRef = useRef<HTMLPreElement>(null)
 
   const { resolveUrl } = parsedKey
 
@@ -61,7 +60,7 @@ export default function TextView({ parsedKey, setError }: ViewerProps) {
 
   // Simple text viewer
   return <ContentHeader content={content} headers={headers}>
-    <code className='text' ref={textRef}>
+    <code className='text'>
       {content?.text}
     </code>
 
