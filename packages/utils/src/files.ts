@@ -17,15 +17,14 @@ export interface FileContent<T> {
   contentRange?: string
 }
 
+
 /**
  * List user files from server
  *
- * @param prefix file path prefix
+ * @param url API URL to fetch folder files from
  */
-export async function listFiles(prefix: string, recursive?: boolean): Promise<FileMetadata[]> {
-  const rec = recursive ? '&recursive=true' : ''
-  prefix = encodeURIComponent(prefix)
-  const res = await fetch(`/api/store/list?prefix=${prefix}${rec}`)
+export async function listFiles(url: string): Promise<FileMetadata[]> {
+  const res = await fetch(url)
   if (res.ok) {
     return await res.json() as FileMetadata[]
   } else {
