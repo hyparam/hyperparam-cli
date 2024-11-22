@@ -33,7 +33,7 @@ export default function ParquetView({ parsedKey, setProgress, setError }: Viewer
     async function loadParquetDataFrame() {
       try {
         setProgress(0.33)
-        const asyncBuffer = await asyncBufferFromUrl(resolveUrl)
+        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl })
         const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
