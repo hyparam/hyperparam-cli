@@ -1,5 +1,6 @@
-import { FileKey, parseKey } from '@hyparam/utils'
+import { parseKey } from '@hyparam/utils'
 import { render } from '@testing-library/react'
+import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import MarkdownView from '../../src/viewers/MarkdownView.js'
@@ -13,7 +14,8 @@ describe('MarkdownView Component', () => {
       text: () => Promise.resolve(text),
       headers: new Map([['content-length', text.length]]),
     } as unknown as Response)
-    const parsedKey = parseKey('test.md') as FileKey
+    const parsedKey = parseKey('test.md', { apiBaseUrl: 'http://localhost:3000' })
+    assert(parsedKey.kind === 'file')
 
     const { findByText } = render(
       <MarkdownView parsedKey={parsedKey} setError={console.error} />,
