@@ -8,7 +8,7 @@ import sharedEslintRules from '../../shared.eslint.config.js'
 const { sharedJsRules, sharedTsRules } = sharedEslintRules
 
 export default tseslint.config(
-  { ignores: ['dist'] },
+  { ignores: ['dist', 'coverage'] },
   {
     extends: [js.configs.recommended, ...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
     // Set the react version
