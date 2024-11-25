@@ -1,14 +1,17 @@
-import { imageTypes } from '../lib/files.js'
-import { FileKey, UrlKey } from '../lib/key.js'
-import ImageView from './viewers/ImageView.js'
-import MarkdownView from './viewers/MarkdownView.js'
-import TableView from './viewers/ParquetView.js'
-import TextView from './viewers/TextView.js'
+import { imageTypes } from '../../lib/files.js'
+import { FileKey, UrlKey } from '../../lib/key.js'
+import ImageView from './ImageView.js'
+import MarkdownView from './MarkdownView.js'
+import TableView, { ParquetViewConfig } from './ParquetView.js'
+import TextView from './TextView.js'
+
+export type ViewerConfig = ParquetViewConfig
 
 interface ViewerProps {
   parsedKey: FileKey | UrlKey;
   setError: (error: Error | undefined) => void;
   setProgress: (progress: number | undefined) => void;
+  config?: ViewerConfig;
 }
 
 /**
@@ -19,6 +22,7 @@ export default function Viewer({
   parsedKey,
   setError,
   setProgress,
+  config,
 }: ViewerProps) {
   const { fileName } = parsedKey
   if (fileName.endsWith('.md')) {
@@ -29,6 +33,7 @@ export default function Viewer({
         parsedKey={parsedKey}
         setError={setError}
         setProgress={setProgress}
+        config={config}
       />
     )
   } else if (imageTypes.some((type) => fileName.endsWith(type))) {
