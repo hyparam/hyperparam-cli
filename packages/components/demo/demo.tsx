@@ -11,4 +11,6 @@ const app = document.getElementById('app')
 if (!app) throw new Error('missing app element')
 
 const root = ReactDOM.createRoot(app)
-root.render(React.createElement(App, { apiBaseUrl: location.origin }))
+root.render(React.createElement(App, { apiBaseUrl: location.origin, config: {
+  slidePanel: { minWidth: 250, maxWidth: 750 } },
+}))

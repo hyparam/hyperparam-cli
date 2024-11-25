@@ -6,7 +6,7 @@ import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
-import { SlidePanel } from './SlidePanel.js'
+import { SlidePanel, SlidePanelConfig } from './SlidePanel.js'
 
 enum LoadingState {
   NotLoaded,
@@ -14,10 +14,13 @@ enum LoadingState {
   Loaded
 }
 
+export type ParquetViewConfig = SlidePanelConfig
+
 interface ViewerProps {
   parsedKey: UrlKey | FileKey
   setProgress: (progress: number | undefined) => void
-  setError: (error: Error | undefined) => void
+  setError: (error: Error | undefined) => void,
+  config?: ParquetViewConfig
 }
 
 interface Content extends ContentSize {
@@ -27,7 +30,7 @@ interface Content extends ContentSize {
 /**
  * Parquet file viewer
  */
-export default function ParquetView({ parsedKey, setProgress, setError }: ViewerProps) {
+export default function ParquetView({ parsedKey, setProgress, setError, config }: ViewerProps) {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
@@ -128,6 +131,7 @@ export default function ParquetView({ parsedKey, setProgress, setError }: Viewer
       isPanelOpen={!!(content?.dataframe && cell)}
       mainContent={mainContent}
       panelContent={panelContent}
+      config={config}
     />
   )
 }
