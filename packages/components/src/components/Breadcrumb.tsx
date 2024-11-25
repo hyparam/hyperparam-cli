@@ -1,4 +1,4 @@
-import { FileKey, UrlKey } from '@hyparam/utils'
+import { FileKey, UrlKey } from '../lib/key.js'
 
 interface BreadcrumbProps {
   parsedKey: UrlKey | FileKey

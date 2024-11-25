@@ -38,7 +38,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hyparam/utils": "0.1.2",
     "hightable": "0.7.2",
     "hyparquet": "1.6.1",
     "hyparquet-compressors": "0.1.4"

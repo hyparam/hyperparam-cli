@@ -15,7 +15,7 @@ describe('package.json', () => {
     const { dependencies, devDependencies } = packageJson
     const allDependencies = { ...dependencies, ...devDependencies }
     /// peer dependencies are not checked, because the user might have different versions
-    Object.entries(allDependencies).filter(([name]) => !name.startsWith('@hyparam/')).forEach(([, version]) => {
+    Object.values(allDependencies).forEach(version => {
       expect(version).toMatch(/^\d+\.\d+\.\d+$/)
     })
   })

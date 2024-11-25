@@ -1,5 +1,5 @@
-import { getFileSize } from '@hyparam/utils'
 import { ReactNode } from 'react'
+import { getFileSize } from '../../lib/files.js'
 
 export interface ContentSize {
   fileSize?: number

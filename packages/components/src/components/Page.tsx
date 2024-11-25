@@ -1,4 +1,4 @@
-import { parseKey } from '@hyparam/utils'
+import { parseKey } from '../lib/key.js'
 import Cell from './Cell.js'
 import File from './File.js'
 import Folder from './Folder.js'
