@@ -26,4 +26,3 @@ export default function ContentHeader({ content, headers, children }: ContentHea
     {children}
   </div>
 }
-
