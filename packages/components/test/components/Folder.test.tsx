@@ -6,7 +6,7 @@ import Folder from '../../src/components/Folder.js'
 import { FileMetadata, listFiles } from '../../src/lib/files.js'
 import { parseKey } from '../../src/lib/key.js'
 
-vi.mock('@hyparam/utils', async (importOriginal) => {
+vi.mock('../../src/lib/files.js', async (importOriginal) => {
   const actual = await importOriginal()
   if (typeof actual === 'object') {
     return {
