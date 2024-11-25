@@ -7,7 +7,7 @@ import Viewer, { ViewerConfig } from './viewers/Viewer.js'
 export type FileConfig = ViewerConfig
 
 interface FileProps {
-  parsedKey: UrlKey | FileKey,
+  parsedKey: UrlKey | FileKey
   config?: FileConfig
 }
 

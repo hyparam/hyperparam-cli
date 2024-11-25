@@ -19,7 +19,7 @@ export type ParquetViewConfig = SlidePanelConfig
 interface ViewerProps {
   parsedKey: UrlKey | FileKey
   setProgress: (progress: number | undefined) => void
-  setError: (error: Error | undefined) => void,
+  setError: (error: Error | undefined) => void
   config?: ParquetViewConfig
 }
 
