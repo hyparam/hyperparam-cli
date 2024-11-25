@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FileKey, UrlKey } from '../lib/key.js'
 import Breadcrumb from './Breadcrumb.js'
 import Layout from './Layout.js'
-import Viewer from './Viewer.js'
+import Viewer from './viewers/Viewer.js'
 
 interface FileProps {
   parsedKey: UrlKey | FileKey
