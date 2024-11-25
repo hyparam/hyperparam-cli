@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 import Page, { PageProps } from './Page.js'
 import Welcome from './Welcome.js'
 
-import { AsyncBufferFrom, Row, asyncBufferFrom, parquetQueryWorker } from '@hyparam/utils'
+import { AsyncBufferFrom, Row, asyncBufferFrom, parquetQueryWorker } from '@hyparam/components'
 import { DataFrame, rowCache } from 'hightable'
 import { FileMetaData, byteLengthFromUrl, parquetMetadataAsync, parquetSchema } from 'hyparquet'
 import { useCallback, useEffect, useState } from 'react'

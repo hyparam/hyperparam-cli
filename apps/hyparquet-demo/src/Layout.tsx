@@ -1,4 +1,4 @@
-import { cn } from '@hyparam/utils'
+import { cn } from '@hyparam/components'
 import { ReactNode, useEffect } from 'react'
 
 interface LayoutProps {
