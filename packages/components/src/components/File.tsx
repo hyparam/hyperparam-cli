@@ -1,5 +1,5 @@
-import { FileKey, UrlKey } from '@hyparam/utils'
 import { useState } from 'react'
+import { FileKey, UrlKey } from '../lib/key.js'
 import Breadcrumb from './Breadcrumb.js'
 import Layout from './Layout.js'
 import Viewer from './Viewer.js'

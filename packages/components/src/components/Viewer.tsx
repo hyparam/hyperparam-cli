@@ -1,4 +1,5 @@
-import { FileKey, UrlKey, imageTypes } from '@hyparam/utils'
+import { imageTypes } from '../lib/files.js'
+import { FileKey, UrlKey } from '../lib/key.js'
 import ImageView from './viewers/ImageView.js'
 import MarkdownView from './viewers/MarkdownView.js'
 import TableView from './viewers/ParquetView.js'

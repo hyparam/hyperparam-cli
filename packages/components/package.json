@@ -1,6 +1,6 @@
 {
   "name": "@hyparam/components",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "React components for hyparam apps",
   "keywords": [
     "component",
@@ -38,7 +38,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@hyparam/utils": "0.1.2",
     "hightable": "0.7.2",
     "hyparquet": "1.6.1",
     "hyparquet-compressors": "0.1.4"
