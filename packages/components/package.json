@@ -1,6 +1,6 @@
 {
   "name": "@hyparam/components",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "React components for hyparam apps",
   "keywords": [
     "component",

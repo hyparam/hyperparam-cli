@@ -6,8 +6,4 @@ It depends on [hyparquet](https://github.com/hyparam/hyparquet), [hyparquet-comp
 
 It is used in [hyperparam](https://github.com/hyparam/hyperparam-cli/tree/master/packages/cli).
 
-It also contains utilities, in the lib/ subdirectory, that can be used without React. They are used in:
-- [hyperparam](https://github.com/hyparam/hyperparam-cli/tree/master/packages/cli)
-- [hyparquet-demo](https://github.com/hyparam/hyperparam-cli/tree/master/apps/hyparquet-demo)
-- [hightable-demo](https://github.com/hyparam/hyperparam-cli/tree/master/apps/hightable-demo)
-- [@hyparam/components](https://github.com/hyparam/hyperparam-cli/tree/master/packages/components)
+It also contains utilities, in the lib/ subdirectory, that can be used without React. They are used in [hyparquet-demo](https://github.com/hyparam/hyperparam-cli/tree/master/apps/hyparquet-demo).
