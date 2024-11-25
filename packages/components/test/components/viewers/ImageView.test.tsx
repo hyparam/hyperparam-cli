@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import ImageView from '../../src/viewers/ImageView.js'
+import ImageView from '../../../src/components/viewers/ImageView.js'
 
 global.fetch = vi.fn()
 

@@ -1,11 +1,1 @@
-import App from './App.js'
-import Breadcrumb from './Breadcrumb.js'
-import Cell from './Cell.js'
-import File from './File.js'
-import Folder from './Folder.js'
-import Layout from './Layout.js'
-import Markdown from './Markdown.js'
-import Page from './Page.js'
-import Viewer from './Viewer.js'
-export * from './viewers/index.js'
-export { App, Breadcrumb, Cell, File, Folder, Layout, Markdown, Page, Viewer }
+export * from './components/index.js'

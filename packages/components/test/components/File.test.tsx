@@ -3,7 +3,7 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React, { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import File from '../src/File.js'
+import File from '../../src/components/File.js'
 
 // Mock fetch
 global.fetch = vi.fn(() => Promise.resolve({ text: vi.fn() } as unknown as Response))
