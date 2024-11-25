@@ -110,7 +110,7 @@ export default function ParquetView({ parsedKey, setProgress, setError, config }
       onMouseDownCell={onMouseDownCell}
       onError={setError} />}
 
-    {loading && <Spinner className='center' />}
+    {loading === LoadingState.Loading && <Spinner className='center' />}
   </ContentHeader>
 
   let panelContent
