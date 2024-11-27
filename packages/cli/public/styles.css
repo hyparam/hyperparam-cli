@@ -313,3 +313,67 @@ main {
   margin-bottom: 8px;
   margin-top: 16px;
 }
+
+.slideContainer {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.slideMain {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: auto;
+}
+
+.slidePanel {
+  display: flex;
+  flex-direction: column;
+  width: 0;
+  transition: width 0.2s;
+}
+
+.resizer {
+  width: 5px;
+  cursor: col-resize;
+  background-color: #bfbbbb;
+  transition: background-color 0.2s;
+  user-select: none;
+}
+
+.resizer:hover {
+  background-color: #9f9999;
+}
+
+/* slide panel close button */
+.slideClose,
+.slideClose:active,
+.slideClose:focus,
+.slideClose:hover {
+  background: none;
+  border: none;
+  color: inherit;
+  margin-left: auto;
+  height: 24px;
+  outline: none;
+  padding: 0;
+}
+.slideClose::before {
+  content: "\27E9\27E9";
+}
+.slideClose:hover {
+  font-weight: bold;
+}
+
+/* viewers */
+.text {
+  background-color: #22222b;
+  color: #d6d6d6;
+  display: block;
+  flex: 1;
+  padding: 8px;
+  width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
