@@ -1,10 +1,10 @@
-import App from './App.js'
+import App, { AppConfig } from './App.js'
 import Breadcrumb from './Breadcrumb.js'
 import Cell from './Cell.js'
-import File from './File.js'
+import File, { FileConfig } from './File.js'
 import Folder from './Folder.js'
 import Layout from './Layout.js'
 import Markdown from './Markdown.js'
-import Page from './Page.js'
 export * from './viewers/index.js'
-export { App, Breadcrumb, Cell, File, Folder, Layout, Markdown, Page }
+export { App, Breadcrumb, Cell, File, Folder, Layout, Markdown }
+export type { AppConfig, FileConfig }

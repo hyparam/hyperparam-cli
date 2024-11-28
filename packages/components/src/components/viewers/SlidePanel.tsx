@@ -24,7 +24,7 @@ const WIDTH = {
 /**
  * Slide out panel component with resizing.
  */
-export function SlidePanel({
+export default function SlidePanel({
   mainContent, panelContent, isPanelOpen, config,
 }: SlidePanelProps) {
   const minWidth = config?.slidePanel?.minWidth && config.slidePanel.minWidth > 0 ? config.slidePanel.minWidth : WIDTH.MIN

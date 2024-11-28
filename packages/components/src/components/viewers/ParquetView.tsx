@@ -6,7 +6,7 @@ import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
-import { SlidePanel, SlidePanelConfig } from './SlidePanel.js'
+import SlidePanel, { SlidePanelConfig } from './SlidePanel.js'
 
 enum LoadingState {
   NotLoaded,
