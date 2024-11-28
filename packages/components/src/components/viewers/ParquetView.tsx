@@ -92,7 +92,8 @@ export default function ParquetView({ parsedKey, setProgress, setError, config }
     if (event.button === 1) {
       // Middle click open in new tab
       event.preventDefault()
-      const cellUrl = new URL( '/files', window.location.origin )
+      const cellUrl = new URL( window.location.href )
+      cellUrl.search = ''
       cellUrl.searchParams.set('key', raw)
       cellUrl.searchParams.set('row', row.toString())
       cellUrl.searchParams.set('col', col.toString())
