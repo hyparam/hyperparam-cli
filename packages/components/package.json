@@ -35,7 +35,7 @@
     "coverage": "vitest run --coverage --coverage.include=src",
     "dev": "vite ./demo",
     "lint": "eslint .",
-    "prepublishOnly": "npm run build",
+    "prepare": "npm run build",
     "test": "vitest run"
   },
   "dependencies": {
