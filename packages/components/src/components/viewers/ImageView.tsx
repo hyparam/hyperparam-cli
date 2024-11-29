@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { contentTypes, parseFileSize } from '../../lib/files.js'
-import { FileKey, UrlKey } from '../../lib/key.js'
+import { FileSource } from '../../lib/filesystem.js'
+import { contentTypes, parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'
 
@@ -11,7 +11,7 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  parsedKey: UrlKey | FileKey
+  source: FileSource
   setError: (error: Error | undefined) => void
 }
 
@@ -23,11 +23,11 @@ interface Content {
 /**
  * Image viewer component.
  */
-export default function ImageView({ parsedKey, setError }: ViewerProps) {
+export default function ImageView({ source, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
 
-  const { fileName, resolveUrl } = parsedKey
+  const { fileName, resolveUrl } = source
 
   useEffect(() => {
     async function loadContent() {
@@ -64,7 +64,7 @@ export default function ImageView({ parsedKey, setError }: ViewerProps) {
 
   return <ContentHeader content={content}>
     {content?.dataUri && <img
-      alt={parsedKey.raw}
+      alt={source.source}
       className='image'
       src={content.dataUri} />}
 

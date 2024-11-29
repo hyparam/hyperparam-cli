@@ -1,5 +1,5 @@
-import { imageTypes } from '../../lib/files.js'
-import { FileKey, UrlKey } from '../../lib/key.js'
+import { FileSource } from '../../lib/filesystem.js'
+import { imageTypes } from '../../lib/utils.js'
 import ImageView from './ImageView.js'
 import MarkdownView from './MarkdownView.js'
 import TableView, { ParquetViewConfig } from './ParquetView.js'
@@ -8,7 +8,7 @@ import TextView from './TextView.js'
 export type ViewerConfig = ParquetViewConfig
 
 interface ViewerProps {
-  parsedKey: FileKey | UrlKey;
+  source: FileSource;
   setError: (error: Error | undefined) => void;
   setProgress: (progress: number | undefined) => void;
   config?: ViewerConfig;
@@ -19,29 +19,29 @@ interface ViewerProps {
  * Chooses viewer based on content type.
  */
 export default function Viewer({
-  parsedKey,
+  source,
   setError,
   setProgress,
   config,
 }: ViewerProps) {
-  const { fileName } = parsedKey
+  const { fileName } = source
   if (fileName.endsWith('.md')) {
-    return <MarkdownView parsedKey={parsedKey} setError={setError} />
+    return <MarkdownView source={source} setError={setError} />
   } else if (fileName.endsWith('.parquet')) {
     return (
       <TableView
-        parsedKey={parsedKey}
+        source={source}
         setError={setError}
         setProgress={setProgress}
         config={config}
       />
     )
   } else if (imageTypes.some((type) => fileName.endsWith(type))) {
-    return <ImageView parsedKey={parsedKey} setError={setError} />
+    return <ImageView source={source} setError={setError} />
   }
 
   // Default to text viewer
   return (
-    <TextView parsedKey={parsedKey} setError={setError} setProgress={setProgress} />
+    <TextView source={source} setError={setError} setProgress={setProgress} />
   )
 }

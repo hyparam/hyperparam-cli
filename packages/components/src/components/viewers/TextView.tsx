@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { parseFileSize } from '../../lib/files.js'
-import { FileKey, UrlKey } from '../../lib/key.js'
+import { FileSource } from '../../lib/filesystem.js'
+import { parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
 
@@ -11,7 +11,7 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  parsedKey: UrlKey | FileKey
+  source: FileSource
   setError: (error: Error | undefined) => void
   setProgress: (progress: number | undefined) => void
 }
@@ -19,11 +19,11 @@ interface ViewerProps {
 /**
  * Text viewer component.
  */
-export default function TextView({ parsedKey, setError }: ViewerProps) {
+export default function TextView({ source, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
-  const { resolveUrl } = parsedKey
+  const { resolveUrl } = source
 
   // Load plain text content
   useEffect(() => {

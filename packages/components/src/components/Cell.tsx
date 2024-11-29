@@ -1,15 +1,18 @@
 import { asyncRows } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
-import { FileKey, UrlKey } from '../lib/key.js'
+import { FileSource } from '../lib/filesystem.js'
 import { parquetDataFrame } from '../lib/tableProvider.js'
-import Breadcrumb from './Breadcrumb.js'
+import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
 import Layout from './Layout.js'
 
+export type CellConfig = BreadcrumbConfig
+
 interface CellProps {
-  parsedKey: FileKey | UrlKey;
+  source: FileSource;
   row: number;
   col: number;
+  config?: CellConfig
 }
 
 enum LoadingState {
@@ -21,14 +24,14 @@ enum LoadingState {
 /**
  * Cell viewer displays a single cell from a table.
  */
-export default function CellView({ parsedKey, row, col }: CellProps) {
+export default function CellView({ source, row, col, config }: CellProps) {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [text, setText] = useState<string | undefined>()
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
 
   // File path from url
-  const { resolveUrl, fileName } = parsedKey
+  const { resolveUrl, fileName } = source
 
   // Load cell data
   useEffect(() => {
@@ -67,7 +70,7 @@ export default function CellView({ parsedKey, row, col }: CellProps) {
 
   return (
     <Layout progress={progress} error={error} title={fileName}>
-      <Breadcrumb parsedKey={parsedKey} />
+      <Breadcrumb source={source} config={config} />
 
       {/* <Highlight text={text || ''} /> */}
       <pre className="viewer text">{text}</pre>

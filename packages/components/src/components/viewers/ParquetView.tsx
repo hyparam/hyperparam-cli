@@ -1,7 +1,8 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { FileKey, UrlKey } from '../../lib/key.js'
+import { FileSource } from '../../lib/filesystem.js'
+import { RoutesConfig, appendSearchParams } from '../../lib/routes.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
@@ -14,10 +15,10 @@ enum LoadingState {
   Loaded
 }
 
-export type ParquetViewConfig = SlidePanelConfig
+export type ParquetViewConfig = SlidePanelConfig & RoutesConfig
 
 interface ViewerProps {
-  parsedKey: UrlKey | FileKey
+  source: FileSource
   setProgress: (progress: number | undefined) => void
   setError: (error: Error | undefined) => void
   config?: ParquetViewConfig
@@ -30,12 +31,12 @@ interface Content extends ContentSize {
 /**
  * Parquet file viewer
  */
-export default function ParquetView({ parsedKey, setProgress, setError, config }: ViewerProps) {
+export default function ParquetView({ source, setProgress, setError, config }: ViewerProps) {
   const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
 
-  const { resolveUrl, raw } = parsedKey
+  const { resolveUrl } = source
   useEffect(() => {
     async function loadParquetDataFrame() {
       try {
@@ -65,7 +66,7 @@ export default function ParquetView({ parsedKey, setProgress, setError, config }
   // Clear loading state on content change
   useEffect(() => {
     setLoading(LoadingState.NotLoaded)
-  }, [parsedKey])
+  }, [source])
 
   // Close cell view on escape key
   useEffect(() => {
@@ -81,6 +82,14 @@ export default function ParquetView({ parsedKey, setProgress, setError, config }
     return () => { window.removeEventListener('keydown', handleKeyDown) }
   }, [cell])
 
+  const getCellRouteUrl = useCallback(({ source, col, row }: {source: string, col: number, row: number}) => {
+    const url = config?.routes?.getCellRouteUrl?.({ source, col, row })
+    if (url) {
+      return url
+    }
+    return appendSearchParams({ col: col.toString(), row: row.toString() })
+  }, [config])
+
   const onDoubleClickCell = useCallback((col: number, row: number) => {
     if (cell?.col === col && cell.row === row) {
       setCell(undefined)
@@ -92,14 +101,9 @@ export default function ParquetView({ parsedKey, setProgress, setError, config }
     if (event.button === 1) {
       // Middle click open in new tab
       event.preventDefault()
-      const cellUrl = new URL( window.location.href )
-      cellUrl.search = ''
-      cellUrl.searchParams.set('key', raw)
-      cellUrl.searchParams.set('row', row.toString())
-      cellUrl.searchParams.set('col', col.toString())
-      window.open(cellUrl, '_blank')
+      window.open(getCellRouteUrl({ source: source.source, row, col }), '_blank')
     }
-  }, [raw])
+  }, [source.source, getCellRouteUrl])
 
   const headers = <span>{content?.dataframe.numRows.toLocaleString() ?? '...'} rows</span>
 

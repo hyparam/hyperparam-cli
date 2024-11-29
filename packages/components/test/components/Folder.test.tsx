@@ -3,36 +3,39 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
-import { FileMetadata, listFiles } from '../../src/lib/files.js'
-import { parseKey } from '../../src/lib/key.js'
+import { HyparamFileMetadata, HyparamFileSystem } from '../../src/lib/filesystem.js'
+import { RoutesConfig } from '../../src/lib/routes.js'
 
-vi.mock('../../src/lib/files.js', async (importOriginal) => {
-  const actual = await importOriginal()
-  if (typeof actual === 'object') {
-    return {
-      ...actual,
-      // your mocked methods
-      listFiles: vi.fn(),
-      getFileDate: vi.fn((f: FileMetadata) => f.lastModified),
-      getFileDateShort: vi.fn((f: FileMetadata) => f.lastModified),
-      getFileSize: vi.fn((f: FileMetadata) => f.fileSize),
-    }
-  }
-})
+const hyparamFileSystem = new HyparamFileSystem({ endpoint: 'http://localhost:3000' })
+// hyparamFileSystem._fetchFilesList = () => Promise.resolve([
+//   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
+//   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
+// ])
 
-const mockFiles: FileMetadata[] = [
+const mockFiles: HyparamFileMetadata[] = [
   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
 ]
 
+const config: RoutesConfig = {
+  routes: {
+    getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
+  },
+}
+
+global.fetch = vi.fn()
+
 describe('Folder Component', () => {
   it('fetches file data and displays files on mount', async () => {
-    vi.mocked(listFiles).mockResolvedValueOnce(mockFiles)
-    const folderKey = parseKey('', { apiBaseUrl: 'http://localhost:3000' })
-    assert(folderKey.kind === 'folder')
-    const { findByText, getByText } = render(<Folder folderKey={folderKey} />)
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockFiles),
+      ok: true,
+    } as Response)
 
-    await waitFor(() => {expect(listFiles).toHaveBeenCalledWith('http://localhost:3000/api/store/list?prefix=')})
+    const source = hyparamFileSystem.getSource('')
+    assert(source?.kind === 'directory')
+
+    const { findByText, getByText } = render(<Folder source={source} config={config} />)
 
     const folderLink = await findByText('folder1/')
     expect(folderLink.closest('a')?.getAttribute('href')).toBe('/files?key=folder1/')
@@ -41,26 +44,36 @@ describe('Folder Component', () => {
 
     const fileLink = getByText('file1.txt')
     expect(fileLink.closest('a')?.getAttribute('href')).toBe('/files?key=file1.txt')
-    expect(getByText('8196')).toBeDefined()
-    expect(getByText('2023-01-01T00:00:00Z')).toBeDefined()
+    expect(getByText('8.0 kb')).toBeDefined()
+    expect(getByText('1/1/2023')).toBeDefined()
   })
 
   it('displays the spinner while loading', () => {
-    vi.mocked(listFiles).mockReturnValue(new Promise(() => []))
-    const folderKey = parseKey('test-prefix/', { apiBaseUrl: 'http://localhost:3000' })
-    assert(folderKey.kind === 'folder')
-    const { container } = render(<Folder folderKey={folderKey} />)
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve([]),
+      ok: true,
+    } as Response)
+
+    const source = hyparamFileSystem.getSource('')
+    assert(source?.kind === 'directory')
+
+    const { container } = render(<Folder source={source} />)
     expect(container.querySelector('.spinner')).toBeDefined()
   })
 
   it('handles file listing errors', async () => {
     const errorMessage = 'Failed to fetch'
-    vi.mocked(listFiles).mockRejectedValue(new Error(errorMessage))
-    const folderKey = parseKey('test-prefix/', { apiBaseUrl: 'http://localhost:3000' })
-    assert(folderKey.kind === 'folder')
-    const { findByText, queryByText } = render(<Folder folderKey={folderKey} />)
+    vi.mocked(fetch).mockResolvedValueOnce({
+      text: () => Promise.resolve(errorMessage),
+      ok: false,
+    } as Response)
 
-    await waitFor(() => { expect(listFiles).toHaveBeenCalled() })
+    const source = hyparamFileSystem.getSource('test-prefix/')
+    assert(source?.kind === 'directory')
+
+    const { findByText, queryByText } = render(<Folder source={source} />)
+
+    await waitFor(() => { expect(fetch).toHaveBeenCalled() })
 
     await findByText('Error: ' + errorMessage)
     expect(queryByText('file1.txt')).toBeNull()
@@ -68,11 +81,16 @@ describe('Folder Component', () => {
   })
 
   it('renders breadcrumbs correctly', async () => {
-    vi.mocked(listFiles).mockResolvedValue(mockFiles)
-    const folderKey = parseKey('subdir1/subdir2/', { apiBaseUrl: 'http://localhost:3000' })
-    assert(folderKey.kind === 'folder')
-    const { findByText, getByText } = render(<Folder folderKey={folderKey} />)
-    await waitFor(() => { expect(listFiles).toHaveBeenCalled() })
+    vi.mocked(fetch).mockResolvedValueOnce({
+      json: () => Promise.resolve(mockFiles),
+      ok: true,
+    } as Response)
+
+    const source = hyparamFileSystem.getSource('subdir1/subdir2/')
+    assert(source?.kind === 'directory')
+
+    const { findByText, getByText } = render(<Folder source={source} config={config} />)
+    await waitFor(() => { expect(fetch).toHaveBeenCalled() })
 
     const subdir1Link = await findByText('subdir1/')
     expect(subdir1Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/')

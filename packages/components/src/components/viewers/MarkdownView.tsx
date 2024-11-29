@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import { parseFileSize } from '../../lib/files.js'
-import { FileKey, UrlKey } from '../../lib/key.js'
+import { FileSource } from '../../lib/filesystem.js'
+import { parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
@@ -12,18 +12,18 @@ enum LoadingState {
 }
 
 interface ViewerProps {
-  parsedKey: UrlKey | FileKey
+  source: FileSource
   setError: (error: Error | undefined) => void
 }
 
 /**
  * Markdown viewer component.
  */
-export default function MarkdownView({ parsedKey, setError }: ViewerProps) {
+export default function MarkdownView({ source, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
-  const { resolveUrl } = parsedKey
+  const { resolveUrl } = source
 
   useEffect(() => {
     async function loadContent() {

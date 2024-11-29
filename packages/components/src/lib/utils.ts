@@ -26,3 +26,81 @@ export function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
 }
 const cache = new Map<string, Promise<AsyncBuffer>>()
 // TODO(SL): do we really want a singleton?
+
+
+export function getFileDateShort(file?: { lastModified?: string }): string {
+  if (!file?.lastModified) return ''
+  const date = new Date(file.lastModified)
+  // time if within last 24 hours, date otherwise
+  const time = date.getTime()
+  const now = Date.now()
+  if (now - time < 86400000) {
+    return date.toLocaleTimeString()
+  }
+  return date.toLocaleDateString()
+}
+
+/**
+ * Parse date from lastModified field and format as locale string
+ *
+ * @param file file-like object with lastModified
+ * @param file.lastModified last modified date string
+ * @returns formatted date string
+ */
+export function getFileDate(file?: { lastModified?: string }): string {
+  if (!file?.lastModified) return ''
+  const date = new Date(file.lastModified)
+  return isFinite(date.getTime()) ? date.toLocaleString() : ''
+}
+
+/**
+ * Returns the file size in human readable format
+ *
+ * @param bytes file size in bytes
+ * @returns formatted file size string
+ */
+export function formatFileSize(bytes: number): string {
+  const sizes = ['b', 'kb', 'mb', 'gb', 'tb']
+  if (bytes === 0) return '0 b'
+  const i = Math.floor(Math.log2(bytes) / 10)
+  if (i === 0) return bytes.toLocaleString('en-US') + ' b'
+  const base = bytes / Math.pow(1024, i)
+  return (
+    (base < 10 ? base.toFixed(1) : Math.round(base)).toLocaleString('en-US') +
+    ' ' +
+    sizes[i]
+  )
+}
+
+/**
+ * Parse the content-length header from a fetch response.
+ *
+ * @param headers fetch response headers
+ * @returns content length in bytes or undefined if not found
+ */
+export function parseFileSize(headers: Headers): number | undefined {
+  const contentLength = headers.get('content-length')
+  return contentLength ? Number(contentLength) : undefined
+}
+
+/// utils
+export function getFileName(source: string): string {
+  const fileName = source
+    .replace(/\?.*$/, '') // remove query string
+    .split('/')
+    .at(-1)
+  if (!fileName) throw new Error('Cannot extract a filename')
+  return fileName
+}
+
+export const contentTypes: Record<string, string> = {
+  png: 'image/png',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  gif: 'image/gif',
+  svg: 'image/svg+xml',
+  tiff: 'image/tiff',
+  webp: 'image/webp',
+}
+
+export const imageTypes = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.tiff', '.webp']
