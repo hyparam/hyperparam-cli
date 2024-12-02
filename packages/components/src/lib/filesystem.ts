@@ -148,7 +148,7 @@ export class HyperparamFileSystem extends FileSystem {
   }
   getResolveUrl(source: string): string {
     const url = new URL('/api/store/get', this.endpoint)
-    url.searchParams.append('key', encodeURIComponent(source))
+    url.searchParams.append('key', source)
     return url.toString()
   }
   getSourceParts(source: string): SourcePart[] {
@@ -166,7 +166,7 @@ export class HyperparamFileSystem extends FileSystem {
   }
   async _fetchFilesList(prefix: string): Promise<HyperparamFileMetadata[]> {
     const url = new URL('/api/store/list', this.endpoint)
-    url.searchParams.append('prefix', encodeURIComponent(prefix))
+    url.searchParams.append('prefix', prefix)
     const res = await fetch(url)
     if (res.ok) {
       return await res.json() as HyperparamFileMetadata[]
