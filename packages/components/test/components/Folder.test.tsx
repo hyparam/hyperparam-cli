@@ -1,7 +1,7 @@
 import { render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, test, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
 import { HyperparamFileMetadata, HyperparamFileSystem } from '../../src/lib/filesystem.js'
 import { RoutesConfig } from '../../src/lib/routes.js'
@@ -26,24 +26,27 @@ const config: RoutesConfig = {
 global.fetch = vi.fn()
 
 describe('Folder Component', () => {
-  it('fetches file data and displays files on mount', async () => {
+  test.for([
+    '',
+    'subfolder/',
+  ])('fetches file data and displays files on mount', async (path) => {
     vi.mocked(fetch).mockResolvedValueOnce({
       json: () => Promise.resolve(mockFiles),
       ok: true,
     } as Response)
 
-    const source = hyparamFileSystem.getSource('')
+    const source = hyparamFileSystem.getSource(path)
     assert(source?.kind === 'directory')
 
     const { findByText, getByText } = render(<Folder source={source} config={config} />)
 
     const folderLink = await findByText('folder1/')
-    expect(folderLink.closest('a')?.getAttribute('href')).toBe('/files?key=folder1/')
+    expect(folderLink.closest('a')?.getAttribute('href')).toBe(`/files?key=${path}folder1/`)
 
     expect(getByText('/')).toBeDefined()
 
     const fileLink = getByText('file1.txt')
-    expect(fileLink.closest('a')?.getAttribute('href')).toBe('/files?key=file1.txt')
+    expect(fileLink.closest('a')?.getAttribute('href')).toBe(`/files?key=${path}file1.txt`)
     expect(getByText('8.0 kb')).toBeDefined()
     expect(getByText('1/1/2023')).toBeDefined()
   })
