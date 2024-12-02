@@ -8,12 +8,11 @@ const fileSystems = [
 
 export default function App() {
   const search = new URLSearchParams(location.search)
-  const url = search.get('key') ?? ""
-  const row = search.get('row') === null ? undefined: Number(search.get('row'))
-  const col = search.get('col') === null ? undefined: Number(search.get('col'))
+  const url = search.get('key') ?? ''
+  const row = search.get('row') === null ? undefined : Number(search.get('row'))
+  const col = search.get('col') === null ? undefined : Number(search.get('col'))
 
   let source = undefined
-  debugger
   for (const fileSystem of fileSystems) {
     const fsSource = fileSystem.getSource(url)
     if (fsSource) {
@@ -23,7 +22,7 @@ export default function App() {
   }
 
   if (!source) {
-    return React.createElement('div', { children: `Could not load a data source. You have to pass a valid source in the url.` })
+    return React.createElement('div', { children: 'Could not load a data source. You have to pass a valid source in the url.' })
   }
   return React.createElement(Page, {
     source,
@@ -34,7 +33,7 @@ export default function App() {
         getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
         getCellRouteUrl: ({ source, col, row }) => `/files?key=${source}&col=${col}&row=${row}`,
       },
-    }
+    },
   })
 }
 
