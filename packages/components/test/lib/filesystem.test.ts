@@ -1,4 +1,4 @@
-import { describe, expect, it, test } from 'vitest'
+import { assert, describe, expect, it, test } from 'vitest'
 import { HttpFileSystem, HyperparamFileSystem } from '../../src/lib/filesystem.js'
 
 describe('HyperparamFileSystem', () => {
@@ -26,6 +26,18 @@ describe('HyperparamFileSystem', () => {
   ])('does not support a heading slash', (key: string) => {
     const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
     expect(source?.kind).toBeUndefined()
+  })
+})
+
+describe('HyperparamFileSystem.getResolveUrl', () => {
+  test.for([
+    'test.txt',
+    'folder/subfolder/test.txt',
+  ])('encodes the parameters', (key: string) => {
+    const endpoint = 'http://localhost:3000'
+    const source = new HyperparamFileSystem({ endpoint }).getSource(key)
+    assert(source?.kind === 'file')
+    expect(source.resolveUrl).toBe(endpoint + '/api/store/get?key=' + encodeURIComponent(key))
   })
 })
 
