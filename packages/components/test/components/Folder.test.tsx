@@ -3,16 +3,16 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
-import { HyparamFileMetadata, HyparamFileSystem } from '../../src/lib/filesystem.js'
+import { HyperparamFileMetadata, HyperparamFileSystem } from '../../src/lib/filesystem.js'
 import { RoutesConfig } from '../../src/lib/routes.js'
 
-const hyparamFileSystem = new HyparamFileSystem({ endpoint: 'http://localhost:3000' })
+const hyparamFileSystem = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 // hyparamFileSystem._fetchFilesList = () => Promise.resolve([
 //   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
 //   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
 // ])
 
-const mockFiles: HyparamFileMetadata[] = [
+const mockFiles: HyperparamFileMetadata[] = [
   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
 ]

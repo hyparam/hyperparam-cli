@@ -1,13 +1,13 @@
 import { describe, expect, it, test } from 'vitest'
-import { HttpFileSystem, HyparamFileSystem } from '../../src/lib/filesystem.js'
+import { HttpFileSystem, HyperparamFileSystem } from '../../src/lib/filesystem.js'
 
-describe('HyparamFileSystem', () => {
+describe('HyperparamFileSystem', () => {
   test.for([
     'test.txt',
     'no-extension',
     'folder/subfolder/test.txt',
   ])('recognizes a local file path', (key: string) => {
-    const source = new HyparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
+    const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
     expect(source?.kind).toBe('file')
   })
 
@@ -16,7 +16,7 @@ describe('HyparamFileSystem', () => {
     'folder1/',
     'folder1/folder2/',
   ])('recognizes a folder', (key: string) => {
-    const source = new HyparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
+    const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
     expect(source?.kind).toBe('directory')
   })
 
@@ -24,7 +24,7 @@ describe('HyparamFileSystem', () => {
     '/',
     '////',
   ])('does not support a heading slash', (key: string) => {
-    const source = new HyparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
+    const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
     expect(source?.kind).toBeUndefined()
   })
 })

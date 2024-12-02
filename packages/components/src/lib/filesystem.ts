@@ -115,14 +115,14 @@ export class HttpFileSystem extends FileSystem {
   }
 }
 
-export interface HyparamFileMetadata {
+export interface HyperparamFileMetadata {
   key: string
   eTag?: string
   fileSize?: number
   lastModified: string
 }
 
-export class HyparamFileSystem extends FileSystem {
+export class HyperparamFileSystem extends FileSystem {
   fsId = 'hyparam' as const
   endpoint: string
   constructor({ endpoint }: {endpoint: string}) {
@@ -164,12 +164,12 @@ export class HyparamFileSystem extends FileSystem {
       }),
     ]
   }
-  async _fetchFilesList(prefix: string): Promise<HyparamFileMetadata[]> {
+  async _fetchFilesList(prefix: string): Promise<HyperparamFileMetadata[]> {
     const url = new URL('/api/store/list', this.endpoint)
     url.searchParams.append('prefix', encodeURIComponent(prefix))
     const res = await fetch(url)
     if (res.ok) {
-      return await res.json() as HyparamFileMetadata[]
+      return await res.json() as HyperparamFileMetadata[]
     } else {
       throw new Error(await res.text())
     }
@@ -186,12 +186,3 @@ export class HyparamFileSystem extends FileSystem {
     }))
   }
 }
-
-
-
-
-// TODO
-// add tests
-// select the class by looping until one of the classes can parse the URL
-// pass the Url to the components
-

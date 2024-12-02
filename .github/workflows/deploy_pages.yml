@@ -29,12 +29,12 @@ jobs:
       - name: Move the build outputs to a folder
         run: |
           mkdir -p build_outputs_folder/apps
-          echo "<h1 id="hyparam">Hyparam</h1>" > build_outputs_folder/index.html
+          echo "<h1 id="hyparam">Hyperparam</h1>" > build_outputs_folder/index.html
           echo "<ul>" >> build_outputs_folder/index.html
           echo "<li><a href="./apps/hyparquet-demo">hyparquet demo</a></li>" >> build_outputs_folder/index.html
           echo "<li><a href="./apps/hightable-demo">hightable demo</a></li>" >> build_outputs_folder/index.html
           echo "</ul>" >> build_outputs_folder/index.html
-          echo "<h1 id="hyparam">Hyparam</h1>" > build_outputs_folder/apps/index.html
+          echo "<h1 id="hyparam">Hyperparam</h1>" > build_outputs_folder/apps/index.html
           echo "<ul>" >> build_outputs_folder/apps/index.html
           echo "<li><a href="./hyparquet-demo">hyparquet demo</a></li>" >> build_outputs_folder/apps/index.html
           echo "<li><a href="./hightable-demo">hightable demo</a></li>" >> build_outputs_folder/apps/index.html

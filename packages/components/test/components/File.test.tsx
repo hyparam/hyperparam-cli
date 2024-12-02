@@ -3,10 +3,10 @@ import { strict as assert } from 'assert'
 import React, { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import File from '../../src/components/File.js'
-import { HttpFileSystem, HyparamFileSystem } from '../../src/lib/filesystem.js'
+import { HttpFileSystem, HyperparamFileSystem } from '../../src/lib/filesystem.js'
 import { RoutesConfig } from '../../src/lib/routes.js'
 
-const hyparamFileSystem = new HyparamFileSystem({ endpoint: 'http://localhost:3000' })
+const hyparamFileSystem = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 const httpFileSystem = new HttpFileSystem()
 
 
