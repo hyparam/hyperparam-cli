@@ -1,59 +1,47 @@
-import { useCallback, useEffect, useState } from 'react'
-import { FileMetadata, getFileDate, getFileDateShort, getFileSize, listFiles } from '../lib/files.js'
-import { FolderKey } from '../lib/key.js'
-import { cn } from '../lib/utils.js'
+import { useEffect, useState } from 'react'
+import { DirSource, FileMetadata } from '../lib/filesystem.js'
+import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
+import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
 import Layout, { Spinner } from './Layout.js'
 
+export type FolderConfig = BreadcrumbConfig
+
 interface FolderProps {
-  folderKey: FolderKey
+  source: DirSource
+  config?: FolderConfig
 }
 
 /**
  * Folder browser page
  */
-export default function Folder({ folderKey }: FolderProps) {
+export default function Folder({ source, config }: FolderProps) {
   // State to hold file listing
   const [files, setFiles] = useState<FileMetadata[]>()
   const [error, setError] = useState<Error>()
 
-  // Folder path from url
-  const { prefix, listFilesUrl } = folderKey
-  const path = prefix.split('/')
-
   // Fetch files on component mount
   useEffect(() => {
-    listFiles(listFilesUrl)
+    source.listFiles()
       .then(setFiles)
       .catch((error: unknown) => {
         setFiles([])
         setError(error instanceof Error ? error : new Error(`Failed to fetch files - ${error}`))
       })
-  }, [listFilesUrl])
+  }, [source])
 
-  const fileUrl = useCallback((file: FileMetadata) => {
-    return prefix ? `/files?key=${prefix}/${file.key}` : `/files?key=${file.key}`
-  }, [prefix])
-
-  return <Layout error={error} title={prefix}>
-    <nav className='top-header'>
-      <div className='path'>
-        <a href='/files'>/</a>
-        {prefix.length > 0 && prefix.split('/').map((sub, depth) =>
-          <a href={`/files?key=${path.slice(0, depth + 1).join('/')}/`} key={depth}>{sub}/</a>,
-        )}
-      </div>
-    </nav>
+  return <Layout error={error} title={source.prefix}>
+    <Breadcrumb source={source} config={config} />
 
     {files && files.length > 0 && <ul className='file-list'>
       {files.map((file, index) =>
         <li key={index}>
-          <a href={fileUrl(file)}>
-            <span className={cn('file-name', 'file', file.key.endsWith('/') && 'folder')}>
-              {file.key}
+          <a href={config?.routes?.getSourceRouteUrl?.({ source: file.source }) ?? location.href}>
+            <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
+              {file.name}
             </span>
-            {!file.key.endsWith('/') && <>
-              {file.fileSize !== undefined && <span className='file-size' title={file.fileSize.toLocaleString() + ' bytes'}>
-                {getFileSize(file)}
+            {file.kind === 'file' && <>
+              {file.size !== undefined && <span className='file-size' title={file.size.toLocaleString() + ' bytes'}>
+                {formatFileSize(file.size)}
               </span>}
               <span className='file-date' title={getFileDate(file)}>
                 {getFileDateShort(file)}

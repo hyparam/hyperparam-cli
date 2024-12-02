@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { getFileSize } from '../../lib/files.js'
+import { formatFileSize } from '../../lib/utils.js'
 
 export interface ContentSize {
   fileSize?: number
@@ -19,7 +19,7 @@ export default function ContentHeader({ content, headers, children }: ContentHea
   return <div className='viewer'>
     <div className='view-header'>
       {content?.fileSize && <span title={content.fileSize.toLocaleString('en-US') + ' bytes'}>
-        {getFileSize(content)}
+        {formatFileSize(content.fileSize)}
       </span>}
       {headers}
     </div>

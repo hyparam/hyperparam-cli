@@ -3,7 +3,9 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import ImageView from '../../../src/components/viewers/ImageView.js'
-import { parseKey } from '../../../src/lib/key.js'
+import { HyperparamFileSystem } from '../../../src/lib/filesystem.js'
+
+const hyparamFileSystem = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 
 global.fetch = vi.fn()
 
@@ -14,11 +16,12 @@ describe('ImageView Component', () => {
       arrayBuffer: () => Promise.resolve(body),
       headers: new Map([['content-length', body.byteLength]]),
     } as unknown as Response)
-    const parsedKey = parseKey('test.png', { apiBaseUrl: 'http://localhost:3000' })
-    assert(parsedKey.kind === 'file')
+
+    const source = hyparamFileSystem.getSource('test.png')
+    assert(source?.kind === 'file')
 
     const { findByRole, findByText } = render(
-      <ImageView parsedKey={parsedKey} setError={console.error} />,
+      <ImageView source={source} setError={console.error} />,
     )
 
     // wait for asynchronous image loading

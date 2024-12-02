@@ -226,14 +226,14 @@ main {
 
 /* file icons */
 .file {
-  background: url(/public/file.svg);
+  background: url(file.svg);
   background-position: left center;
   background-repeat: no-repeat;
   background-size: 12px;
   padding-left: 22px;
 }
 .folder {
-  background-image: url(/public/folder.svg);
+  background-image: url(folder.svg);
 }
 
 /* viewer */

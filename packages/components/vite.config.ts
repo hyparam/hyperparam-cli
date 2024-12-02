@@ -12,7 +12,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es', 'umd'],
-      name: 'HyparamComponents',
+      name: 'HyperparamComponents',
       fileName: (format) => `index.${format}.min.js`,
     },
     rollupOptions: {
