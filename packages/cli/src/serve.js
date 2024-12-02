@@ -95,13 +95,13 @@ function handleRequest(req, serveDirectory) {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
     if (Array.isArray(prefix)) return { status: 400, content: 'bad request' }
-    const perfixPath = `${serveDirectory}/${prefix}`
+    const perfixPath = `${serveDirectory}/${decodeURIComponent(prefix)}`
     return handleListing(perfixPath)
   } else if (serveDirectory && pathname === '/api/store/get') {
     // serve file content
     const key = parsedUrl.query.key || ''
     if (Array.isArray(key)) return { status: 400, content: 'bad request' }
-    const filePath = `${serveDirectory}/${key}`
+    const filePath = `${serveDirectory}/${decodeURIComponent(key)}`
     if (req.method === 'HEAD') {
       return handleHead(filePath)
     }
