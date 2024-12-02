@@ -27,7 +27,6 @@ export function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
 const cache = new Map<string, Promise<AsyncBuffer>>()
 // TODO(SL): do we really want a singleton?
 
-
 export function getFileDateShort(file?: { lastModified?: string }): string {
   if (!file?.lastModified) return ''
   const date = new Date(file.lastModified)
@@ -83,7 +82,6 @@ export function parseFileSize(headers: Headers): number | undefined {
   return contentLength ? Number(contentLength) : undefined
 }
 
-/// utils
 export function getFileName(source: string): string {
   const fileName = source
     .replace(/\?.*$/, '') // remove query string
