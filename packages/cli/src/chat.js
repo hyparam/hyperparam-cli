@@ -31,8 +31,14 @@ function sendToServer(chatInput) {
     const req = http.request(options, res => {
       let responseBody = ''
       res.on('data', chunk => {
-        responseBody += chunk
-        write(chunk)
+        if (chunk[0] !== 123) return // {
+        try {
+          const { content } = JSON.parse(chunk)
+          responseBody += content
+          write(content)
+        } catch (error) {
+          reject(error)
+        }
       })
       res.on('end', () => {
         if (res.statusCode === 200) {
@@ -73,7 +79,7 @@ export function chat() {
       process.exit()
     } else if (input) {
       try {
-        write(colors.user, 'answer:', colors.normal)
+        write(colors.user, 'answer: ', colors.normal)
         messages.push({ role: 'user', content: input.trim() })
         const response = await sendToServer({ messages })
         messages.push({ role: 'assistant', content: response })
