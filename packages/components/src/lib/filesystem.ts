@@ -181,7 +181,7 @@ export class HyperparamFileSystem extends FileSystem {
       eTag: file.eTag,
       size: file.fileSize,
       lastModified: file.lastModified,
-      source: file.key,
+      source: (prefix === '' ? '' : prefix + '/') + file.key,
       kind: this.getKind(file.key),
     }))
   }
