@@ -1,9 +1,8 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useState } from 'react'
 
 export interface SlidePanelConfig {
   slidePanel?: {
     minWidth?: number
-    maxWidth?: number
     defaultWidth?: number
   }
 }
@@ -16,7 +15,7 @@ interface SlidePanelProps {
 }
 
 const WIDTH = {
-  MIN: 200,
+  MIN: 100,
   MAX: 800,
   DEFAULT: 400,
 } as const
@@ -28,24 +27,23 @@ export default function SlidePanel({
   mainContent, panelContent, isPanelOpen, config,
 }: SlidePanelProps) {
   const minWidth = config?.slidePanel?.minWidth && config.slidePanel.minWidth > 0 ? config.slidePanel.minWidth : WIDTH.MIN
-  const maxWidth = config?.slidePanel?.maxWidth && config.slidePanel.maxWidth >= minWidth ? config.slidePanel.maxWidth : WIDTH.MAX
   function validWidth(width?: number): number | undefined {
-    if (width && minWidth <= width && width <= maxWidth) {
+    if (width && minWidth <= width) {
       return width
     }
     return undefined
   }
-  const defaultWidth = validWidth(config?.slidePanel?.defaultWidth) ?? validWidth(WIDTH.DEFAULT) ?? (maxWidth + minWidth) / 2
+  const defaultWidth = validWidth(config?.slidePanel?.defaultWidth) ?? WIDTH.DEFAULT
   const [panelWidth, setPanelWidth] = useState(defaultWidth)
   const [resizingClientX, setResizingClientX] = useState(-1)
+  const panelRef = React.createRef<HTMLDivElement>()
 
   useEffect(() => {
     function handleMouseMove(e: MouseEvent) {
       if (resizingClientX === -1) return
 
       // Calculate new width based on mouse position
-      const delta = resizingClientX - e.clientX
-      setPanelWidth(Math.max(minWidth, Math.min(maxWidth, delta)))
+      setPanelWidth(Math.max(minWidth, resizingClientX - e.clientX))
     }
 
     function handleMouseUp() {
@@ -63,11 +61,16 @@ export default function SlidePanel({
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [resizingClientX, minWidth, maxWidth])
+  }, [resizingClientX, minWidth])
 
-  function handleMouseDown(e: React.MouseEvent) {
-    setResizingClientX(e.clientX + panelWidth)
-  }
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (panelRef.current && panelRef.current.offsetWidth < panelWidth) {
+      setPanelWidth(panelRef.current.offsetWidth)
+      setResizingClientX(e.clientX + panelRef.current.offsetWidth)
+    } else {
+      setResizingClientX(e.clientX + panelWidth)
+    }
+  }, [panelRef, panelWidth])
 
   return (
     <div className="slideContainer">
@@ -81,7 +84,8 @@ export default function SlidePanel({
         />
       }
       <div
-        className="slidePanel"
+        className={resizingClientX === -1 ? 'slidePanel' : 'slidePanel slideDragging'}
+        ref={panelRef}
         style={isPanelOpen ? { width: panelWidth } : undefined}
       >
         {panelContent}
