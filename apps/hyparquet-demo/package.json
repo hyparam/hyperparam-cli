@@ -13,7 +13,7 @@
     "test": "vitest run --dir test"
   },
   "dependencies": {
-    "@hyparam/components": "0.1.6",
+    "@hyparam/components": "0.1.7",
     "hightable": "0.7.2",
     "hyparquet": "1.6.3",
     "hyparquet-compressors": "0.1.4",
