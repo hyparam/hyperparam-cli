@@ -1,20 +1,20 @@
-import { HttpFileSystem, HyperparamFileSystem, Page } from '@hyparam/components'
+import { Page, createHttpFileSystem, createHyperparamFileSystem, getSource } from '@hyparam/components'
 import React from 'react'
 
 const fileSystems = [
-  new HttpFileSystem(),
-  new HyperparamFileSystem({ endpoint: location.origin }),
+  createHttpFileSystem(),
+  createHyperparamFileSystem({ endpoint: location.origin }),
 ]
 
 export default function App() {
   const search = new URLSearchParams(location.search)
-  const url = search.get('key') ?? ''
+  const sourceId = search.get('key') ?? ''
   const row = search.get('row') === null ? undefined : Number(search.get('row'))
   const col = search.get('col') === null ? undefined : Number(search.get('col'))
 
   let source = undefined
   for (const fileSystem of fileSystems) {
-    const fsSource = fileSystem.getSource(url)
+    const fsSource = getSource(sourceId, fileSystem)
     if (fsSource) {
       source = fsSource
       break
@@ -30,8 +30,8 @@ export default function App() {
     config: {
       slidePanel: {},
       routes: {
-        getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
-        getCellRouteUrl: ({ source, col, row }) => `/files?key=${source}&col=${col}&row=${row}`,
+        getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
+        getCellRouteUrl: ({ sourceId, col, row }) => `/files?key=${sourceId}&col=${col}&row=${row}`,
       },
     },
   })
