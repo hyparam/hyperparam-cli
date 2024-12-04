@@ -1,18 +1,5 @@
+import type { DirSource, FileKind, FileMetadata, FileSource, SourcePart } from './source.js'
 import { getFileName } from './utils.js'
-
-export type FileKind = 'file' | 'directory'
-export interface FileMetadata {
-  name: string
-  eTag?: string
-  size?: number
-  lastModified?: string
-  source: string
-  kind: FileKind
-}
-export interface SourcePart {
-  name: string
-  source: string
-}
 
 export abstract class FileSystem {
     abstract fsId: string
@@ -28,10 +15,18 @@ export abstract class FileSystem {
         if (!this.canParse(source)) {
           return
         }
-        if (this.getKind(source) === 'file') {
-          return new FileSource(source, this)
-        } else {
-          return new DirSource(source, this)
+        return {
+          source,
+          getSourceParts: () => this.getSourceParts(source),
+          ...this.getKind(source) === 'file' ? {
+            kind: 'file',
+            fileName: this.getFileName(source),
+            resolveUrl: this.getResolveUrl(source),
+          } : {
+            kind: 'directory',
+            prefix: this.getPrefix(source),
+            listFiles: () => this.listFiles(this.getPrefix(source)),
+          },
         }
       } catch {
         console.debug('Failed to parse source', source)
@@ -39,53 +34,6 @@ export abstract class FileSystem {
     }
 }
 
-export abstract class Source {
-  abstract kind: 'file' | 'directory'
-  fs: FileSystem
-  source: string
-  constructor(source: string, fs: FileSystem) {
-    this.source = source
-    this.fs = fs
-    if (!this.fs.canParse(source)) {
-      throw new Error('Invalid source')
-    }
-  }
-  getSourceParts(): SourcePart[] {
-    return this.fs.getSourceParts(this.source)
-  }
-}
-
-export class FileSource extends Source {
-  kind = 'file' as const
-  fileName: string
-  resolveUrl: string
-
-  constructor(source: string, fs: FileSystem) {
-    super(source, fs)
-    if (this.fs.getKind(source) !== 'file') {
-      throw new Error('Invalid file source')
-    }
-    this.resolveUrl = this.fs.getResolveUrl(source)
-    this.fileName = this.fs.getFileName(source)
-  }
-}
-
-export class DirSource extends Source {
-  kind = 'directory' as const
-  prefix: string
-
-  constructor(source: string, fs: FileSystem) {
-    super(source, fs)
-    if (this.fs.getKind(source) !== 'directory') {
-      throw new Error('Invalid directory source')
-    }
-    this.prefix = this.fs.getPrefix(source)
-  }
-
-  listFiles(): Promise<FileMetadata[]> {
-    return this.fs.listFiles(this.prefix)
-  }
-}
 
 // Built-in implementations
 

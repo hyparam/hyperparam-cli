@@ -1,8 +1,7 @@
 import React from 'react'
 import { Page } from '../src/index.js'
 
-import { HttpFileSystem } from '../src/index.ts'
-import { Source } from '../src/lib/filesystem.js'
+import { HttpFileSystem, Source } from '../src/index.ts'
 export interface Navigation {
   col?: number
   row?: number

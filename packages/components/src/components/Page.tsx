@@ -1,4 +1,4 @@
-import { DirSource, FileSource, Source } from '../lib/filesystem.js'
+import { Source } from '../lib/source.js'
 import { BreadcrumbConfig } from './Breadcrumb.js'
 import Cell from './Cell.js'
 import File, { FileConfig } from './File.js'
@@ -17,11 +17,8 @@ interface PageProps {
 }
 
 export default function Page({ source, navigation, config }: PageProps) {
-  if (source instanceof DirSource) {
+  if (source.kind === 'directory') {
     return <Folder source={source} config={config}/>
-  }
-  if (!(source instanceof FileSource)) {
-    return <div>Invalid source</div>
   }
   if (navigation?.row !== undefined && navigation.col !== undefined) {
     // cell view
