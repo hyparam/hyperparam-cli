@@ -16,7 +16,6 @@ interface SlidePanelProps {
 
 const WIDTH = {
   MIN: 100,
-  MAX: 800,
   DEFAULT: 400,
 } as const
 
