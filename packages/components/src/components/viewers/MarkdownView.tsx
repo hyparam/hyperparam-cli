@@ -23,12 +23,12 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
-  const { resolveUrl } = source
+  const { resolveUrl, requestInit } = source
 
   useEffect(() => {
     async function loadContent() {
       try {
-        const res = await fetch(resolveUrl)
+        const res = await fetch(resolveUrl, requestInit)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
         if (res.status === 401) {
@@ -52,7 +52,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
       loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [resolveUrl, setError])
+  }, [resolveUrl, requestInit, setError])
 
   return <ContentHeader content={content}>
     <Markdown className='markdown' text={content?.text ?? ''} />

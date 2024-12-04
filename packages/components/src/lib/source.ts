@@ -23,6 +23,7 @@ export interface FileSource extends BaseSource {
   kind: 'file'
   fileName: string
   resolveUrl: string
+  requestInit?: RequestInit
 }
 
 export interface DirSource extends BaseSource {
