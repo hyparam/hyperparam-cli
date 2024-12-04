@@ -10,13 +10,13 @@ export interface FileSystem {
   getResolveUrl: (sourceId: string) => string
   getSourceParts: (sourceId: string) => SourcePart[]
   listFiles: (prefix: string, options?: {requestInit?: RequestInit}) => Promise<FileMetadata[]>
-  getSource?: (sourceId: string) => FileSource | DirSource
+  getSource?: (sourceId: string, options?: {requestInit?: RequestInit}) => FileSource | DirSource
 }
 
 export function getSource(sourceId: string, fs: FileSystem, options?: {requestInit?: RequestInit}): FileSource | DirSource | undefined {
   if (fs.getSource) {
     /// if the file system provides an optimized getSource method, use it
-    return fs.getSource(sourceId)
+    return fs.getSource(sourceId, options)
   }
   if (!fs.canParse(sourceId)) {
     return undefined
