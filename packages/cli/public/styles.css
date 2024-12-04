@@ -50,6 +50,9 @@ a:hover {
   color: #000;
   text-decoration: underline;
 }
+button {
+  cursor: pointer;
+}
 
 /* layout */
 main {
@@ -251,6 +254,7 @@ main {
   display: flex;
   gap: 16px;
   height: 24px;
+  overflow: hidden;
   padding: 0 8px;
   /* all one line */
   text-overflow: ellipsis;
@@ -324,6 +328,7 @@ main {
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-width: 100px;
   overflow: auto;
 }
 
@@ -332,6 +337,10 @@ main {
   flex-direction: column;
   width: 0;
   transition: width 0.2s;
+}
+
+.slideDragging {
+  transition: none;
 }
 
 .resizer {
@@ -354,10 +363,9 @@ main {
   background: none;
   border: none;
   color: inherit;
-  margin-left: auto;
   height: 24px;
+  margin-right: auto;
   outline: none;
-  padding: 0;
 }
 .slideClose::before {
   content: "\27E9\27E9";

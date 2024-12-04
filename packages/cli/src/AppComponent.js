@@ -28,7 +28,7 @@ export default function App() {
     source,
     navigation: { row, col },
     config: {
-      slidePanel: { minWidth: 250, maxWidth: 750 },
+      slidePanel: {},
       routes: {
         getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
         getCellRouteUrl: ({ source, col, row }) => `/files?key=${source}&col=${col}&row=${row}`,
