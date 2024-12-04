@@ -15,6 +15,7 @@ export interface FileSystem {
 
 export function getSource(sourceId: string, fs: FileSystem): FileSource | DirSource | undefined {
   if (fs.getSource) {
+    /// if the file system provides an optimized getSource method, use it
     return fs.getSource(sourceId)
   }
   if (!fs.canParse(sourceId)) {
