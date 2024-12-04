@@ -46,8 +46,8 @@ export default function App() {
   return <Page source={source} navigation={{ row, col }} config={{
     slidePanel: { minWidth: 250, maxWidth: 750 },
     routes: {
-      getSourceRouteUrl: ({ source }) => `/?url=${source}`,
-      getCellRouteUrl: ({ source, col, row }) => `/?url=${source}&col=${col}&row=${row}`,
+      getSourceRouteUrl: ({ sourceId }) => `/?url=${sourceId}`,
+      getCellRouteUrl: ({ sourceId, col, row }) => `/?url=${sourceId}&col=${col}&row=${row}`,
     },
   }} />
 }

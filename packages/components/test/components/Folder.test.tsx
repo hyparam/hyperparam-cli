@@ -3,9 +3,8 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, test, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
-import { HyperparamFileMetadata, createHyperparamFileSystem } from '../../src/lib/filesystem.js'
+import { HyperparamFileMetadata, createHyperparamFileSystem, getSource } from '../../src/lib/filesystem.js'
 import { RoutesConfig } from '../../src/lib/routes.js'
-import { getSource } from '../../src/lib/source.js'
 
 const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 const mockFiles: HyperparamFileMetadata[] = [

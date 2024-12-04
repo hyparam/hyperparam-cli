@@ -3,8 +3,7 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import ImageView from '../../../src/components/viewers/ImageView.js'
-import { createHyperparamFileSystem } from '../../../src/lib/filesystem.js'
-import { getSource } from '../../../src/lib/source.js'
+import { createHyperparamFileSystem, getSource } from '../../../src/lib/filesystem.js'
 
 const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { FileMetadata } from '../lib/filesystem.js'
-import type { DirSource } from '../lib/source.js'
+import type { DirSource, FileMetadata } from '../lib/source.js'
 import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
 import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
 import Layout, { Spinner } from './Layout.js'
