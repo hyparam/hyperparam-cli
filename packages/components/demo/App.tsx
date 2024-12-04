@@ -1,7 +1,7 @@
 import React from 'react'
 import { Page } from '../src/index.js'
 
-import { HttpFileSystem, Source } from '../src/index.ts'
+import { Source, createHttpFileSystem, getSource } from '../src/index.ts'
 export interface Navigation {
   col?: number
   row?: number
@@ -16,7 +16,7 @@ function getNumberParam(search: URLSearchParams, key: string): number | undefine
 }
 
 const fileSystems = [
-  new HttpFileSystem(),
+  createHttpFileSystem(),
 ]
 
 export default function App() {
@@ -33,7 +33,7 @@ export default function App() {
 
   let source: Source | undefined = undefined
   for (const fileSystem of fileSystems) {
-    const fsSource = fileSystem.getSource(url)
+    const fsSource = getSource(url, fileSystem)
     if (fsSource){
       source = fsSource
       break

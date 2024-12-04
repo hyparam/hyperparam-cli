@@ -1,22 +1,8 @@
-export type FileKind = 'file' | 'directory'
-
-export interface FileMetadata {
-  name: string
-  eTag?: string
-  size?: number
-  lastModified?: string
-  source: string
-  kind: FileKind
-}
-
-export interface SourcePart {
-  name: string
-  source: string
-}
+import type { FileMetadata, FileSystem, SourcePart } from './filesystem.js'
 
 interface BaseSource {
   source: string
-  getSourceParts: () => SourcePart[]
+  sourceParts: SourcePart[]
 }
 
 export interface FileSource extends BaseSource {
@@ -32,3 +18,32 @@ export interface DirSource extends BaseSource {
 }
 
 export type Source = FileSource | DirSource
+
+export function getSource(source: string, fs: FileSystem): FileSource | DirSource | undefined {
+  try {
+    if (!fs.canParse(source)) {
+      return
+    }
+    const sourceParts = fs.getSourceParts(source)
+    if (fs.getKind(source) === 'file') {
+      return {
+        kind: 'file',
+        source,
+        sourceParts,
+        fileName: fs.getFileName(source),
+        resolveUrl: fs.getResolveUrl(source),
+      }
+    } else {
+      const prefix = fs.getPrefix(source)
+      return {
+        kind: 'directory',
+        source,
+        sourceParts,
+        prefix,
+        listFiles: () => fs.listFiles(prefix),
+      }
+    }
+  } catch {
+    console.debug('Failed to get source', source)
+  }
+}

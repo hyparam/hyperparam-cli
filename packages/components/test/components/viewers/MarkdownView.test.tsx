@@ -3,9 +3,10 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import MarkdownView from '../../../src/components/viewers/MarkdownView.js'
-import { HyperparamFileSystem } from '../../../src/lib/filesystem.js'
+import { createHyperparamFileSystem } from '../../../src/lib/filesystem.js'
+import { getSource } from '../../../src/lib/source.js'
 
-const hyparamFileSystem = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' })
+const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 
 global.fetch = vi.fn()
 
@@ -17,7 +18,7 @@ describe('MarkdownView Component', () => {
       headers: new Map([['content-length', text.length]]),
     } as unknown as Response)
 
-    const source = hyparamFileSystem.getSource('test.md')
+    const source = getSource('test.md', hyparamFileSystem)
     assert(source?.kind === 'file')
 
     const { findByText } = render(

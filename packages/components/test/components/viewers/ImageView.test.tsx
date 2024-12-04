@@ -3,9 +3,10 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import ImageView from '../../../src/components/viewers/ImageView.js'
-import { HyperparamFileSystem } from '../../../src/lib/filesystem.js'
+import { createHyperparamFileSystem } from '../../../src/lib/filesystem.js'
+import { getSource } from '../../../src/lib/source.js'
 
-const hyparamFileSystem = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' })
+const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 
 global.fetch = vi.fn()
 
@@ -17,7 +18,7 @@ describe('ImageView Component', () => {
       headers: new Map([['content-length', body.byteLength]]),
     } as unknown as Response)
 
-    const source = hyparamFileSystem.getSource('test.png')
+    const source = getSource('test.png', hyparamFileSystem)
     assert(source?.kind === 'file')
 
     const { findByRole, findByText } = render(

@@ -13,10 +13,9 @@ interface BreadcrumbProps {
 export default function Breadcrumb({ source, config }: BreadcrumbProps) {
   return <nav className='top-header'>
     <div className='path'>
-      {source.getSourceParts().map((part, depth) =>
+      {source.sourceParts.map((part, depth) =>
         <a href={config?.routes?.getSourceRouteUrl?.({ source: part.source }) ?? ''} key={depth}>{part.name}</a>,
       )}
     </div>
   </nav>
-
 }
