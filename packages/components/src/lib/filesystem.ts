@@ -7,23 +7,23 @@ export interface FileMetadata {
   eTag?: string
   size?: number
   lastModified?: string
-  source: string
+  sourceId: string /// the source URL or path
   kind: FileKind
 }
 
 export interface SourcePart {
-  name: string
-  source: string
+  text: string
+  sourceId: string
 }
 
 export interface FileSystem {
   fsId: string
-  canParse: (source: string) => boolean
-  getKind: (source: string) => FileKind
-  getFileName: (source: string) => string
-  getPrefix: (source: string) => string
-  getResolveUrl: (source: string) => string
-  getSourceParts: (source: string) => SourcePart[]
+  canParse: (sourceId: string) => boolean
+  getKind: (sourceId: string) => FileKind
+  getFileName: (sourceId: string) => string
+  getPrefix: (sourceId: string) => string
+  getResolveUrl: (sourceId: string) => string
+  getSourceParts: (sourceId: string) => SourcePart[]
   listFiles: (prefix: string) => Promise<FileMetadata[]>
 }
 
@@ -35,12 +35,12 @@ function notImplemented(): never {
 export function createHttpFileSystem(): FileSystem {
   return {
     fsId: 'http' as const,
-    canParse: source => URL.canParse(source),
+    canParse: sourceId => URL.canParse(sourceId),
     getKind: () => 'file', /// all the URLs are considered files
     getFileName,
     getPrefix: notImplemented,
-    getResolveUrl: source => source,
-    getSourceParts: source => [{ name: source, source }],
+    getResolveUrl: sourceId => sourceId,
+    getSourceParts: sourceId => [{ text: sourceId, sourceId }],
     listFiles: notImplemented,
   }
 }
@@ -65,33 +65,33 @@ export function createHyperparamFileSystem({ endpoint }: {endpoint: string}): Fi
   if (!URL.canParse(endpoint)) {
     throw new Error('Invalid endpoint')
   }
-  function getKind(source: string): FileKind {
-    return source === '' || source.endsWith('/') ? 'directory' : 'file'
+  function getKind(sourceId: string): FileKind {
+    return sourceId === '' || sourceId.endsWith('/') ? 'directory' : 'file'
   }
   return {
     fsId: 'hyperparam' as const,
-    canParse: (source: string): boolean => {
+    canParse: (sourceId: string): boolean => {
       /// we expect relative paths, such as path/to/file or path/to/dir/
       /// let's just check that it is empty or starts with a "word" character
-      return source === '' || /^[\w]/.test(source)
+      return sourceId === '' || /^[\w]/.test(sourceId)
     },
     getKind,
     getFileName,
-    getPrefix: source => source.replace(/\/$/, ''),
-    getResolveUrl: (source: string): string => {
+    getPrefix: sourceId => sourceId.replace(/\/$/, ''),
+    getResolveUrl: (sourceId: string): string => {
       const url = new URL('/api/store/get', endpoint)
-      url.searchParams.append('key', source)
+      url.searchParams.append('key', sourceId)
       return url.toString()
     },
-    getSourceParts: (source: string): SourcePart[] => {
-      const parts = source.split('/')
+    getSourceParts: (sourceId: string): SourcePart[] => {
+      const parts = sourceId.split('/')
       return [
-        { 'name': '/', 'source': '' },
+        { 'text': '/', 'sourceId': '' },
         ...parts.map((part, depth) => {
           const slashSuffix = depth === parts.length - 1 ? '' : '/'
           return {
-            name: part + slashSuffix,
-            source: parts.slice(0, depth + 1).join('/') + slashSuffix,
+            text: part + slashSuffix,
+            sourceId: parts.slice(0, depth + 1).join('/') + slashSuffix,
           }
         }),
       ]
@@ -103,7 +103,7 @@ export function createHyperparamFileSystem({ endpoint }: {endpoint: string}): Fi
         eTag: file.eTag,
         size: file.fileSize,
         lastModified: file.lastModified,
-        source: (prefix === '' ? '' : prefix + '/') + file.key,
+        sourceId: (prefix === '' ? '' : prefix + '/') + file.key,
         kind: getKind(file.key),
       }))
     },

@@ -13,8 +13,8 @@ const httpFileSystem = createHttpFileSystem()
 
 const config: RoutesConfig = {
   routes: {
-    getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
-    getCellRouteUrl: ({ source, col, row }) => `/files?key=${source}&col=${col}&row=${row}`,
+    getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
+    getCellRouteUrl: ({ sourceId, col, row }) => `/files?key=${sourceId}&col=${col}&row=${row}`,
   },
 }
 

@@ -36,7 +36,7 @@ export default function Folder({ source, config }: FolderProps) {
     {files && files.length > 0 && <ul className='file-list'>
       {files.map((file, index) =>
         <li key={index}>
-          <a href={config?.routes?.getSourceRouteUrl?.({ source: file.source }) ?? location.href}>
+          <a href={config?.routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
             <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
               {file.name}
             </span>

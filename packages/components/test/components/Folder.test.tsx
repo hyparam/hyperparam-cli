@@ -15,7 +15,7 @@ const mockFiles: HyperparamFileMetadata[] = [
 
 const config: RoutesConfig = {
   routes: {
-    getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
+    getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
   },
 }
 

@@ -64,7 +64,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
 
   return <ContentHeader content={content}>
     {content?.dataUri && <img
-      alt={source.source}
+      alt={source.sourceId}
       className='image'
       src={content.dataUri} />}
 
