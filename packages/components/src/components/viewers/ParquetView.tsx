@@ -1,8 +1,8 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { FileSource } from '../../lib/filesystem.js'
 import { RoutesConfig, appendSearchParams } from '../../lib/routes.js'
+import { FileSource } from '../../lib/source.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
@@ -36,7 +36,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
 
-  const { resolveUrl } = source
+  const { resolveUrl, sourceId } = source
   useEffect(() => {
     async function loadParquetDataFrame() {
       try {
@@ -82,13 +82,13 @@ export default function ParquetView({ source, setProgress, setError, config }: V
     return () => { window.removeEventListener('keydown', handleKeyDown) }
   }, [cell])
 
-  const getCellRouteUrl = useCallback(({ source, col, row }: {source: string, col: number, row: number}) => {
-    const url = config?.routes?.getCellRouteUrl?.({ source, col, row })
+  const getCellRouteUrl = useCallback(({ col, row }: {col: number, row: number}) => {
+    const url = config?.routes?.getCellRouteUrl?.({ sourceId, col, row })
     if (url) {
       return url
     }
     return appendSearchParams({ col: col.toString(), row: row.toString() })
-  }, [config])
+  }, [config, sourceId])
 
   const onDoubleClickCell = useCallback((col: number, row: number) => {
     if (cell?.col === col && cell.row === row) {
@@ -101,9 +101,9 @@ export default function ParquetView({ source, setProgress, setError, config }: V
     if (event.button === 1) {
       // Middle click open in new tab
       event.preventDefault()
-      window.open(getCellRouteUrl({ source: source.source, row, col }), '_blank')
+      window.open(getCellRouteUrl({ row, col }), '_blank')
     }
-  }, [source.source, getCellRouteUrl])
+  }, [getCellRouteUrl])
 
   const headers = <span>{content?.dataframe.numRows.toLocaleString() ?? '...'} rows</span>
 

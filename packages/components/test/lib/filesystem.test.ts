@@ -1,50 +1,45 @@
-import { assert, describe, expect, it, test, vi } from 'vitest'
-import { HttpFileSystem, HyperparamFileMetadata, HyperparamFileSystem } from '../../src/lib/filesystem.js'
+import { describe, expect, it, test, vi } from 'vitest'
+import { HyperparamFileMetadata, createHttpFileSystem, createHyperparamFileSystem } from '../../src/lib/filesystem.js'
 
 global.fetch = vi.fn()
 
-describe('HyperparamFileSystem', () => {
+describe('createHyperparamFileSystem', () => {
+  const endpoint = 'http://localhost:3000'
+  const fs = createHyperparamFileSystem({ endpoint })
+
   test.for([
     'test.txt',
     'no-extension',
     'folder/subfolder/test.txt',
-  ])('recognizes a local file path', (key: string) => {
-    const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
-    expect(source?.kind).toBe('file')
+  ])('recognizes a local file path', (sourceId: string) => {
+    expect(fs.canParse(sourceId)).toBe(true)
+    expect(fs.getKind(sourceId)).toBe('file')
   })
 
   test.for([
     '',
     'folder1/',
     'folder1/folder2/',
-  ])('recognizes a folder', (key: string) => {
-    const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
-    expect(source?.kind).toBe('directory')
+  ])('recognizes a folder', (sourceId: string) => {
+    expect(fs.canParse(sourceId)).toBe(true)
+    expect(fs.getKind(sourceId)).toBe('directory')
   })
 
   test.for([
     '/',
     '////',
-  ])('does not support a heading slash', (key: string) => {
-    const source = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' }).getSource(key)
-    expect(source?.kind).toBeUndefined()
+  ])('does not support a heading slash', (sourceId: string) => {
+    expect(fs.canParse(sourceId)).toBe(false)
   })
-})
 
-describe('HyperparamFileSystem.getResolveUrl', () => {
   test.for([
     'test.txt',
     'folder/subfolder/test.txt',
-  ])('encodes the parameters', (key: string) => {
-    const endpoint = 'http://localhost:3000'
-    const source = new HyperparamFileSystem({ endpoint }).getSource(key)
-    assert(source?.kind === 'file')
-    expect(source.resolveUrl).toBe(endpoint + '/api/store/get?key=' + encodeURIComponent(key))
+  ])('encodes the parameters in resolveUrl', (sourceId: string) => {
+    expect(fs.getResolveUrl(sourceId)).toBe(endpoint + '/api/store/get?key=' + encodeURIComponent(sourceId))
   })
-})
 
-describe('HyperparamFileSystem.listFiles', () => {
-  it('creates a full source by concatenating the file with the prefix', async () => {
+  it('in listFiles, creates a full source by concatenating the file with the prefix', async () => {
     const mockFiles: HyperparamFileMetadata[] = [
       { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
       { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
@@ -53,28 +48,26 @@ describe('HyperparamFileSystem.listFiles', () => {
       json: () => Promise.resolve(mockFiles),
       ok: true,
     } as Response)
-
-    const endpoint = 'http://localhost:3000'
-    const source = new HyperparamFileSystem({ endpoint }).getSource('folder0/')
-    assert(source?.kind === 'directory')
-    const files = await source.listFiles()
+    const files = await fs.listFiles('folder0')
 
     expect(files).to.be.an('array').and.have.length(2)
-    expect(files[0].source).toBe('folder0/folder1/')
-    expect(files[1].source).toBe('folder0/file1.txt')
+    expect(files[0].sourceId).toBe('folder0/folder1/')
+    expect(files[1].sourceId).toBe('folder0/file1.txt')
   })
 })
 
-describe('HttpFileSystem', () => {
+describe('createHttpFileSystem', () => {
+  const fs = createHttpFileSystem()
+
   test.for([
     'http://example.com/test.txt',
     'https://example.com/test.txt',
     'http://weird',
-  ])('recognizes a URL', (key: string) => {
-    const source = new HttpFileSystem().getSource(key)
-    expect(source?.kind).toBe('file')
+  ])('recognizes a URL', (sourceId: string) => {
+    expect(fs.canParse(sourceId)).toBe(true)
+    expect(fs.getKind(sourceId)).toBe('file')
   })
   it('does not support encoded URLs', () => {
-    expect(new HttpFileSystem().getSource('https%3A%2F%2Fhyperparam-public.s3.amazonaws.com%2Fbunnies.parquet')).toBeUndefined()
+    expect(fs.canParse('https%3A%2F%2Fhyperparam-public.s3.amazonaws.com%2Fbunnies.parquet')).toBe(false)
   })
 })

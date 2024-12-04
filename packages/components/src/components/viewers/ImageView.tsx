@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileSource } from '../../lib/filesystem.js'
+import { FileSource } from '../../lib/source.js'
 import { contentTypes, parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'
@@ -64,7 +64,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
 
   return <ContentHeader content={content}>
     {content?.dataUri && <img
-      alt={source.source}
+      alt={source.sourceId}
       className='image'
       src={content.dataUri} />}
 

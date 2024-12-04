@@ -1,117 +1,62 @@
+import type { DirSource, FileKind, FileMetadata, FileSource, SourcePart } from './source.js'
 import { getFileName } from './utils.js'
 
-export type FileKind = 'file' | 'directory'
-export interface FileMetadata {
-  name: string
-  eTag?: string
-  size?: number
-  lastModified?: string
-  source: string
-  kind: FileKind
-}
-export interface SourcePart {
-  name: string
-  source: string
+export interface FileSystem {
+  fsId: string
+  canParse: (sourceId: string) => boolean
+  getKind: (sourceId: string) => FileKind
+  getFileName: (sourceId: string) => string
+  getPrefix: (sourceId: string) => string
+  getResolveUrl: (sourceId: string) => string
+  getSourceParts: (sourceId: string) => SourcePart[]
+  listFiles: (prefix: string) => Promise<FileMetadata[]>
+  getSource?: (sourceId: string) => FileSource | DirSource
 }
 
-export abstract class FileSystem {
-    abstract fsId: string
-    abstract canParse(source: string): boolean
-    abstract getKind(source: string): FileKind
-    abstract getFileName(source: string): string
-    abstract getPrefix(source: string): string
-    abstract getResolveUrl(source: string): string
-    abstract getSourceParts(source: string): SourcePart[]
-    abstract listFiles(prefix: string): Promise<FileMetadata[]>
-    getSource(source: string): FileSource | DirSource | undefined {
-      try {
-        if (!this.canParse(source)) {
-          return
-        }
-        if (this.getKind(source) === 'file') {
-          return new FileSource(source, this)
-        } else {
-          return new DirSource(source, this)
-        }
-      } catch {
-        console.debug('Failed to parse source', source)
-      }
+export function getSource(sourceId: string, fs: FileSystem): FileSource | DirSource | undefined {
+  if (fs.getSource) {
+    /// if the file system provides an optimized getSource method, use it
+    return fs.getSource(sourceId)
+  }
+  if (!fs.canParse(sourceId)) {
+    return undefined
+  }
+  const sourceParts = fs.getSourceParts(sourceId)
+  if (fs.getKind(sourceId) === 'file') {
+    return {
+      kind: 'file',
+      sourceId,
+      sourceParts,
+      fileName: fs.getFileName(sourceId),
+      resolveUrl: fs.getResolveUrl(sourceId),
     }
-}
-
-export abstract class Source {
-  abstract kind: 'file' | 'directory'
-  fs: FileSystem
-  source: string
-  constructor(source: string, fs: FileSystem) {
-    this.source = source
-    this.fs = fs
-    if (!this.fs.canParse(source)) {
-      throw new Error('Invalid source')
+  } else {
+    const prefix = fs.getPrefix(sourceId)
+    return {
+      kind: 'directory',
+      sourceId,
+      sourceParts,
+      prefix,
+      listFiles: () => fs.listFiles(prefix),
     }
   }
-  getSourceParts(): SourcePart[] {
-    return this.fs.getSourceParts(this.source)
-  }
 }
 
-export class FileSource extends Source {
-  kind = 'file' as const
-  fileName: string
-  resolveUrl: string
-
-  constructor(source: string, fs: FileSystem) {
-    super(source, fs)
-    if (this.fs.getKind(source) !== 'file') {
-      throw new Error('Invalid file source')
-    }
-    this.resolveUrl = this.fs.getResolveUrl(source)
-    this.fileName = this.fs.getFileName(source)
-  }
-}
-
-export class DirSource extends Source {
-  kind = 'directory' as const
-  prefix: string
-
-  constructor(source: string, fs: FileSystem) {
-    super(source, fs)
-    if (this.fs.getKind(source) !== 'directory') {
-      throw new Error('Invalid directory source')
-    }
-    this.prefix = this.fs.getPrefix(source)
-  }
-
-  listFiles(): Promise<FileMetadata[]> {
-    return this.fs.listFiles(this.prefix)
-  }
+function notImplemented(): never {
+  throw new Error('Not implemented')
 }
 
 // Built-in implementations
-
-export class HttpFileSystem extends FileSystem {
-  fsId = 'http' as const
-  canParse(source: string): boolean {
-    return URL.canParse(source)
-  }
-  getKind(): FileKind {
-    /// all the URLs are considered files
-    return 'file'
-  }
-  getFileName(source: string): string {
-    return getFileName(source)
-  }
-  getPrefix(): string {
-    throw new Error('Not implemented')
-  }
-  getResolveUrl(source: string): string {
-    return source
-  }
-  getSourceParts(source: string): SourcePart[] {
-    return [{ name: source, source }]
-  }
-  listFiles(): Promise<FileMetadata[]> {
-    throw new Error('Not implemented')
+export function createHttpFileSystem(): FileSystem {
+  return {
+    fsId: 'http' as const,
+    canParse: sourceId => URL.canParse(sourceId),
+    getKind: () => 'file', /// all the URLs are considered files
+    getFileName,
+    getPrefix: notImplemented,
+    getResolveUrl: sourceId => sourceId,
+    getSourceParts: sourceId => [{ text: sourceId, sourceId }],
+    listFiles: notImplemented,
   }
 }
 
@@ -121,68 +66,61 @@ export interface HyperparamFileMetadata {
   fileSize?: number
   lastModified: string
 }
-
-export class HyperparamFileSystem extends FileSystem {
-  fsId = 'hyparam' as const
-  endpoint: string
-  constructor({ endpoint }: {endpoint: string}) {
-    if (!URL.canParse(endpoint)) {
-      throw new Error('Invalid endpoint')
-    }
-    super()
-    this.endpoint = endpoint
+async function fetchHyperparamFilesList(prefix: string, endpoint: string): Promise<HyperparamFileMetadata[]> {
+  const url = new URL('/api/store/list', endpoint)
+  url.searchParams.append('prefix', prefix)
+  const res = await fetch(url)
+  if (res.ok) {
+    return await res.json() as HyperparamFileMetadata[]
+  } else {
+    throw new Error(await res.text())
   }
-  canParse(source: string): boolean {
-    /// we expect relative paths, such as path/to/file or path/to/dir/
-    /// let's just check that it is empty or starts with a "word" character
-    return source === '' || /^[\w]/.test(source)
+}
+export function createHyperparamFileSystem({ endpoint }: {endpoint: string}): FileSystem {
+  if (!URL.canParse(endpoint)) {
+    throw new Error('Invalid endpoint')
   }
-  getKind(source: string): FileKind {
-    return source === '' || source.endsWith('/') ? 'directory' : 'file'
+  function getKind(sourceId: string): FileKind {
+    return sourceId === '' || sourceId.endsWith('/') ? 'directory' : 'file'
   }
-  getFileName(source: string): string {
-    return getFileName(source)
-  }
-  getPrefix(source: string): string {
-    return source.replace(/\/$/, '')
-  }
-  getResolveUrl(source: string): string {
-    const url = new URL('/api/store/get', this.endpoint)
-    url.searchParams.append('key', source)
-    return url.toString()
-  }
-  getSourceParts(source: string): SourcePart[] {
-    const parts = source.split('/')
-    return [
-      { 'name': '/', 'source': '' },
-      ...parts.map((part, depth) => {
-        const slashSuffix = depth === parts.length - 1 ? '' : '/'
-        return {
-          name: part + slashSuffix,
-          source: parts.slice(0, depth + 1).join('/') + slashSuffix,
-        }
-      }),
-    ]
-  }
-  async _fetchFilesList(prefix: string): Promise<HyperparamFileMetadata[]> {
-    const url = new URL('/api/store/list', this.endpoint)
-    url.searchParams.append('prefix', prefix)
-    const res = await fetch(url)
-    if (res.ok) {
-      return await res.json() as HyperparamFileMetadata[]
-    } else {
-      throw new Error(await res.text())
-    }
-  }
-  async listFiles(prefix: string): Promise<FileMetadata[]> {
-    const files = await this._fetchFilesList(prefix)
-    return files.map(file => ({
-      name: file.key,
-      eTag: file.eTag,
-      size: file.fileSize,
-      lastModified: file.lastModified,
-      source: (prefix === '' ? '' : prefix + '/') + file.key,
-      kind: this.getKind(file.key),
-    }))
+  return {
+    fsId: 'hyperparam' as const,
+    canParse: (sourceId: string): boolean => {
+      /// we expect relative paths, such as path/to/file or path/to/dir/
+      /// let's just check that it is empty or starts with a "word" character
+      return sourceId === '' || /^[\w]/.test(sourceId)
+    },
+    getKind,
+    getFileName,
+    getPrefix: sourceId => sourceId.replace(/\/$/, ''),
+    getResolveUrl: (sourceId: string): string => {
+      const url = new URL('/api/store/get', endpoint)
+      url.searchParams.append('key', sourceId)
+      return url.toString()
+    },
+    getSourceParts: (sourceId: string): SourcePart[] => {
+      const parts = sourceId.split('/')
+      return [
+        { 'text': '/', 'sourceId': '' },
+        ...parts.map((part, depth) => {
+          const slashSuffix = depth === parts.length - 1 ? '' : '/'
+          return {
+            text: part + slashSuffix,
+            sourceId: parts.slice(0, depth + 1).join('/') + slashSuffix,
+          }
+        }),
+      ]
+    },
+    listFiles: async (prefix: string): Promise<FileMetadata[]> => {
+      const files = await fetchHyperparamFilesList(prefix, endpoint)
+      return files.map(file => ({
+        name: file.key,
+        eTag: file.eTag,
+        size: file.fileSize,
+        lastModified: file.lastModified,
+        sourceId: (prefix === '' ? '' : prefix + '/') + file.key,
+        kind: getKind(file.key),
+      }))
+    },
   }
 }

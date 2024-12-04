@@ -3,15 +3,10 @@ import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, test, vi } from 'vitest'
 import Folder from '../../src/components/Folder.js'
-import { HyperparamFileMetadata, HyperparamFileSystem } from '../../src/lib/filesystem.js'
+import { HyperparamFileMetadata, createHyperparamFileSystem, getSource } from '../../src/lib/filesystem.js'
 import { RoutesConfig } from '../../src/lib/routes.js'
 
-const hyparamFileSystem = new HyperparamFileSystem({ endpoint: 'http://localhost:3000' })
-// hyparamFileSystem._fetchFilesList = () => Promise.resolve([
-//   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
-//   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
-// ])
-
+const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
 const mockFiles: HyperparamFileMetadata[] = [
   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
@@ -19,7 +14,7 @@ const mockFiles: HyperparamFileMetadata[] = [
 
 const config: RoutesConfig = {
   routes: {
-    getSourceRouteUrl: ({ source }) => `/files?key=${source}`,
+    getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
   },
 }
 
@@ -35,7 +30,7 @@ describe('Folder Component', () => {
       ok: true,
     } as Response)
 
-    const source = hyparamFileSystem.getSource(path)
+    const source = getSource(path, hyparamFileSystem)
     assert(source?.kind === 'directory')
 
     const { findByText, getByText } = render(<Folder source={source} config={config} />)
@@ -57,7 +52,7 @@ describe('Folder Component', () => {
       ok: true,
     } as Response)
 
-    const source = hyparamFileSystem.getSource('')
+    const source = getSource('', hyparamFileSystem)
     assert(source?.kind === 'directory')
 
     const { container } = render(<Folder source={source} />)
@@ -71,7 +66,7 @@ describe('Folder Component', () => {
       ok: false,
     } as Response)
 
-    const source = hyparamFileSystem.getSource('test-prefix/')
+    const source = getSource('test-prefix/', hyparamFileSystem)
     assert(source?.kind === 'directory')
 
     const { findByText, queryByText } = render(<Folder source={source} />)
@@ -89,7 +84,7 @@ describe('Folder Component', () => {
       ok: true,
     } as Response)
 
-    const source = hyparamFileSystem.getSource('subdir1/subdir2/')
+    const source = getSource('subdir1/subdir2/', hyparamFileSystem)
     assert(source?.kind === 'directory')
 
     const { findByText, getByText } = render(<Folder source={source} config={config} />)

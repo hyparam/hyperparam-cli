@@ -1,8 +1,7 @@
 import React from 'react'
 import { Page } from '../src/index.js'
 
-import { HttpFileSystem } from '../src/index.ts'
-import { Source } from '../src/lib/filesystem.js'
+import { Source, createHttpFileSystem, getSource } from '../src/index.ts'
 export interface Navigation {
   col?: number
   row?: number
@@ -17,7 +16,7 @@ function getNumberParam(search: URLSearchParams, key: string): number | undefine
 }
 
 const fileSystems = [
-  new HttpFileSystem(),
+  createHttpFileSystem(),
 ]
 
 export default function App() {
@@ -34,7 +33,7 @@ export default function App() {
 
   let source: Source | undefined = undefined
   for (const fileSystem of fileSystems) {
-    const fsSource = fileSystem.getSource(url)
+    const fsSource = getSource(url, fileSystem)
     if (fsSource){
       source = fsSource
       break
@@ -47,8 +46,8 @@ export default function App() {
   return <Page source={source} navigation={{ row, col }} config={{
     slidePanel: { minWidth: 250, maxWidth: 750 },
     routes: {
-      getSourceRouteUrl: ({ source }) => `/?url=${source}`,
-      getCellRouteUrl: ({ source, col, row }) => `/?url=${source}&col=${col}&row=${row}`,
+      getSourceRouteUrl: ({ sourceId }) => `/?url=${sourceId}`,
+      getCellRouteUrl: ({ sourceId, col, row }) => `/?url=${sourceId}&col=${col}&row=${row}`,
     },
   }} />
 }

@@ -1,5 +1,5 @@
-import { Source } from '../lib/filesystem.js'
 import { RoutesConfig } from '../lib/routes.js'
+import { Source } from '../lib/source.js'
 
 export type BreadcrumbConfig = RoutesConfig
 interface BreadcrumbProps {
@@ -13,10 +13,9 @@ interface BreadcrumbProps {
 export default function Breadcrumb({ source, config }: BreadcrumbProps) {
   return <nav className='top-header'>
     <div className='path'>
-      {source.getSourceParts().map((part, depth) =>
-        <a href={config?.routes?.getSourceRouteUrl?.({ source: part.source }) ?? ''} key={depth}>{part.name}</a>,
+      {source.sourceParts.map((part, depth) =>
+        <a href={config?.routes?.getSourceRouteUrl?.({ sourceId: part.sourceId }) ?? ''} key={depth}>{part.text}</a>,
       )}
     </div>
   </nav>
-
 }

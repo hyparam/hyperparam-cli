@@ -1,7 +1,7 @@
 export interface RoutesConfig {
   routes?: {
-    getSourceRouteUrl?: (params: { source: string }) => string
-    getCellRouteUrl?: (params: { source: string, col: number, row: number }) => string
+    getSourceRouteUrl?: (params: { sourceId: string }) => string
+    getCellRouteUrl?: (params: { sourceId: string, col: number, row: number }) => string
   }
 }
 
