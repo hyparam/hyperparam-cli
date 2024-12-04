@@ -111,7 +111,7 @@ export function createHyperparamFileSystem({ endpoint }: {endpoint: string}): Fi
         }),
       ]
     },
-    async listFiles(prefix: string): Promise<FileMetadata[]> {
+    listFiles: async (prefix: string): Promise<FileMetadata[]> => {
       const files = await fetchHyperparamFilesList(prefix, endpoint)
       return files.map(file => ({
         name: file.key,
