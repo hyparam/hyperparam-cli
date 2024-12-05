@@ -1,4 +1,4 @@
-import type { DirSource, FileKind, FileMetadata, FileSource, SourcePart } from './source.js'
+import type { DirSource, FileKind, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
 export interface HyperparamFileMetadata {

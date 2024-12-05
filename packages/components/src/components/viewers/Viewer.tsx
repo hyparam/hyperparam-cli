@@ -1,4 +1,4 @@
-import { FileSource } from '../../lib/sources/source.js'
+import { FileSource } from '../../lib/sources/types.js'
 import { imageTypes } from '../../lib/utils.js'
 import ImageView from './ImageView.js'
 import MarkdownView from './MarkdownView.js'

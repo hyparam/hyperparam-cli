@@ -1,7 +1,7 @@
 import { asyncRows } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
-import { FileSource } from '../lib/sources/source.js'
+import { FileSource } from '../lib/sources/types.js'
 import { parquetDataFrame } from '../lib/tableProvider.js'
 import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
 import Layout from './Layout.js'

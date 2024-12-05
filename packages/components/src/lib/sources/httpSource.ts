@@ -1,4 +1,4 @@
-import { DirSource, FileSource } from './source.js'
+import { DirSource, FileSource } from './types.js'
 import { getFileName } from './utils.js'
 
 export function getHttpSource(sourceId: string, options?: {requestInit?: RequestInit}): FileSource | DirSource | undefined {
