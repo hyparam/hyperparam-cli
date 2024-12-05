@@ -31,7 +31,7 @@ export default function CellView({ source, row, col, config }: CellProps) {
   const [error, setError] = useState<Error>()
 
   // File path from url
-  const { resolveUrl, fileName } = source
+  const { resolveUrl, requestInit, fileName } = source
 
   // Load cell data
   useEffect(() => {
@@ -39,8 +39,8 @@ export default function CellView({ source, row, col, config }: CellProps) {
       try {
         // TODO: handle first row > 100kb
         setProgress(0.25)
-        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl })
-        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength }
+        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, requestInit })
+        const from = { url: resolveUrl, requestInit, byteLength: asyncBuffer.byteLength }
         setProgress(0.5)
         const metadata = await parquetMetadataAsync(asyncBuffer)
         setProgress(0.75)
@@ -66,7 +66,7 @@ export default function CellView({ source, row, col, config }: CellProps) {
       setLoading(LoadingState.Loading)
       loadCellData().catch(() => undefined)
     }
-  }, [resolveUrl, col, row, loading, setError])
+  }, [resolveUrl, requestInit, col, row, loading, setError])
 
   return (
     <Layout progress={progress} error={error} title={fileName}>

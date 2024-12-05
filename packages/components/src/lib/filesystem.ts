@@ -9,14 +9,14 @@ export interface FileSystem {
   getPrefix: (sourceId: string) => string
   getResolveUrl: (sourceId: string) => string
   getSourceParts: (sourceId: string) => SourcePart[]
-  listFiles: (prefix: string) => Promise<FileMetadata[]>
-  getSource?: (sourceId: string) => FileSource | DirSource
+  listFiles: (prefix: string, options?: {requestInit?: RequestInit}) => Promise<FileMetadata[]>
+  getSource?: (sourceId: string, options?: {requestInit?: RequestInit}) => FileSource | DirSource
 }
 
-export function getSource(sourceId: string, fs: FileSystem): FileSource | DirSource | undefined {
+export function getSource(sourceId: string, fs: FileSystem, options?: {requestInit?: RequestInit}): FileSource | DirSource | undefined {
   if (fs.getSource) {
     /// if the file system provides an optimized getSource method, use it
-    return fs.getSource(sourceId)
+    return fs.getSource(sourceId, options)
   }
   if (!fs.canParse(sourceId)) {
     return undefined
@@ -29,6 +29,7 @@ export function getSource(sourceId: string, fs: FileSystem): FileSource | DirSou
       sourceParts,
       fileName: fs.getFileName(sourceId),
       resolveUrl: fs.getResolveUrl(sourceId),
+      requestInit: options?.requestInit,
     }
   } else {
     const prefix = fs.getPrefix(sourceId)
@@ -37,7 +38,7 @@ export function getSource(sourceId: string, fs: FileSystem): FileSource | DirSou
       sourceId,
       sourceParts,
       prefix,
-      listFiles: () => fs.listFiles(prefix),
+      listFiles: () => fs.listFiles(prefix, { requestInit: options?.requestInit }),
     }
   }
 }
@@ -66,10 +67,10 @@ export interface HyperparamFileMetadata {
   fileSize?: number
   lastModified: string
 }
-async function fetchHyperparamFilesList(prefix: string, endpoint: string): Promise<HyperparamFileMetadata[]> {
+async function fetchHyperparamFilesList(prefix: string, endpoint: string, options?: {requestInit?: RequestInit}): Promise<HyperparamFileMetadata[]> {
   const url = new URL('/api/store/list', endpoint)
   url.searchParams.append('prefix', prefix)
-  const res = await fetch(url)
+  const res = await fetch(url, options?.requestInit)
   if (res.ok) {
     return await res.json() as HyperparamFileMetadata[]
   } else {
@@ -111,8 +112,8 @@ export function createHyperparamFileSystem({ endpoint }: {endpoint: string}): Fi
         }),
       ]
     },
-    listFiles: async (prefix: string): Promise<FileMetadata[]> => {
-      const files = await fetchHyperparamFilesList(prefix, endpoint)
+    listFiles: async (prefix, options): Promise<FileMetadata[]> => {
+      const files = await fetchHyperparamFilesList(prefix, endpoint, options)
       return files.map(file => ({
         name: file.key,
         eTag: file.eTag,

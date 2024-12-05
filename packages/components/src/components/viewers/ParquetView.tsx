@@ -36,13 +36,13 @@ export default function ParquetView({ source, setProgress, setError, config }: V
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
 
-  const { resolveUrl, sourceId } = source
+  const { resolveUrl, requestInit, sourceId } = source
   useEffect(() => {
     async function loadParquetDataFrame() {
       try {
         setProgress(0.33)
-        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl })
-        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength }
+        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, requestInit })
+        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, requestInit }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
         let dataframe = parquetDataFrame(from, metadata)
@@ -60,7 +60,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       setLoading(LoadingState.Loading)
       loadParquetDataFrame().catch(() => undefined)
     }
-  }, [loading, resolveUrl, setError, setProgress])
+  }, [loading, resolveUrl, requestInit, setError, setProgress])
 
 
   // Clear loading state on content change

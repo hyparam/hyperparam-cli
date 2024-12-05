@@ -27,12 +27,12 @@ export default function ImageView({ source, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
 
-  const { fileName, resolveUrl } = source
+  const { fileName, resolveUrl, requestInit } = source
 
   useEffect(() => {
     async function loadContent() {
       try {
-        const res = await fetch(resolveUrl)
+        const res = await fetch(resolveUrl, requestInit)
         if (res.status === 401) {
           const text = await res.text()
           setError(new Error(text))
@@ -60,7 +60,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
       loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [fileName, resolveUrl, setError])
+  }, [fileName, resolveUrl, requestInit, setError])
 
   return <ContentHeader content={content}>
     {content?.dataUri && <img

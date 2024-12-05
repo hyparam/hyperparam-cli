@@ -23,13 +23,13 @@ export default function TextView({ source, setError }: ViewerProps) {
   const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
-  const { resolveUrl } = source
+  const { resolveUrl, requestInit } = source
 
   // Load plain text content
   useEffect(() => {
     async function loadContent() {
       try {
-        const res = await fetch(resolveUrl)
+        const res = await fetch(resolveUrl, requestInit)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
         if (res.status === 401) {
@@ -53,7 +53,7 @@ export default function TextView({ source, setError }: ViewerProps) {
       loadContent().catch(() => undefined)
       return LoadingState.Loading
     })
-  }, [resolveUrl, setError])
+  }, [resolveUrl, requestInit, setError])
 
   const headers = <>
     <span>{newlines(content?.text ?? '')} lines</span>
