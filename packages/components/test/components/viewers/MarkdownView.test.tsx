@@ -2,10 +2,7 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import MarkdownView from '../../../src/components/viewers/MarkdownView.js'
-import { createHyperparamFileSystem, getSource } from '../../../src/lib/filesystem.js'
-
-const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
+import { MarkdownView, getHyperparamSource } from '../../../src/index.js'
 
 global.fetch = vi.fn()
 
@@ -17,7 +14,7 @@ describe('MarkdownView Component', () => {
       headers: new Map([['content-length', text.length]]),
     } as unknown as Response)
 
-    const source = getSource('test.md', hyparamFileSystem)
+    const source = getHyperparamSource('test.md', { endpoint: 'http://localhost:3000' })
     assert(source?.kind === 'file')
 
     const { findByText } = render(

@@ -1,5 +1,5 @@
 import { RoutesConfig } from '../lib/routes.js'
-import { Source } from '../lib/source.js'
+import { Source } from '../lib/sources/source.js'
 
 export type BreadcrumbConfig = RoutesConfig
 interface BreadcrumbProps {

@@ -2,11 +2,9 @@ import { render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, test, vi } from 'vitest'
-import Folder from '../../src/components/Folder.js'
-import { HyperparamFileMetadata, createHyperparamFileSystem, getSource } from '../../src/lib/filesystem.js'
-import { RoutesConfig } from '../../src/lib/routes.js'
+import { Folder, HyperparamFileMetadata, RoutesConfig, getHyperparamSource } from '../../src/index.js'
 
-const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
+const endpoint = 'http://localhost:3000'
 const mockFiles: HyperparamFileMetadata[] = [
   { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
@@ -30,7 +28,7 @@ describe('Folder Component', () => {
       ok: true,
     } as Response)
 
-    const source = getSource(path, hyparamFileSystem)
+    const source = getHyperparamSource(path, { endpoint })
     assert(source?.kind === 'directory')
 
     const { findByText, getByText } = render(<Folder source={source} config={config} />)
@@ -52,7 +50,7 @@ describe('Folder Component', () => {
       ok: true,
     } as Response)
 
-    const source = getSource('', hyparamFileSystem)
+    const source = getHyperparamSource('', { endpoint })
     assert(source?.kind === 'directory')
 
     const { container } = render(<Folder source={source} />)
@@ -66,7 +64,7 @@ describe('Folder Component', () => {
       ok: false,
     } as Response)
 
-    const source = getSource('test-prefix/', hyparamFileSystem)
+    const source = getHyperparamSource('test-prefix/', { endpoint })
     assert(source?.kind === 'directory')
 
     const { findByText, queryByText } = render(<Folder source={source} />)
@@ -84,7 +82,7 @@ describe('Folder Component', () => {
       ok: true,
     } as Response)
 
-    const source = getSource('subdir1/subdir2/', hyparamFileSystem)
+    const source = getHyperparamSource('subdir1/subdir2/', { endpoint })
     assert(source?.kind === 'directory')
 
     const { findByText, getByText } = render(<Folder source={source} config={config} />)

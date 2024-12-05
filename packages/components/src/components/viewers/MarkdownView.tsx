@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileSource } from '../../lib/source.js'
+import { FileSource } from '../../lib/sources/source.js'
 import { parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
