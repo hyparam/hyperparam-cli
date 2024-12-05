@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
-import Markdown from '../../src/components/Markdown.js'
+import { Markdown } from '../../src/index.js'
 
 describe('Markdown', () => {
   it('renders plain text as a paragraph', () => {

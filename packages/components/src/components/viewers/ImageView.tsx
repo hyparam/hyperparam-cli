@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileSource } from '../../lib/source.js'
+import { FileSource } from '../../lib/sources/types.js'
 import { contentTypes, parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'

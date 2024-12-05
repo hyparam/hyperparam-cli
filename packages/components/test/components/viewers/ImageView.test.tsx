@@ -2,10 +2,7 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import ImageView from '../../../src/components/viewers/ImageView.js'
-import { createHyperparamFileSystem, getSource } from '../../../src/lib/filesystem.js'
-
-const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
+import { ImageView, getHyperparamSource } from '../../../src/index.js'
 
 global.fetch = vi.fn()
 
@@ -17,7 +14,7 @@ describe('ImageView Component', () => {
       headers: new Map([['content-length', body.byteLength]]),
     } as unknown as Response)
 
-    const source = getSource('test.png', hyparamFileSystem)
+    const source = getHyperparamSource('test.png', { endpoint: 'http://localhost:3000' })
     assert(source?.kind === 'file')
 
     const { findByRole, findByText } = render(

@@ -1,4 +1,4 @@
-import { Source } from '../lib/source.js'
+import { Source } from '../lib/sources/types.js'
 import { BreadcrumbConfig } from './Breadcrumb.js'
 import Cell from './Cell.js'
 import File, { FileConfig } from './File.js'

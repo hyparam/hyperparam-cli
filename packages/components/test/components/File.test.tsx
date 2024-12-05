@@ -2,13 +2,9 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React, { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import File from '../../src/components/File.js'
-import { createHttpFileSystem, createHyperparamFileSystem, getSource } from '../../src/lib/filesystem.js'
-import { RoutesConfig } from '../../src/lib/routes.js'
+import { File, RoutesConfig, getHttpSource, getHyperparamSource } from '../../src/index.js'
 
-const hyparamFileSystem = createHyperparamFileSystem({ endpoint: 'http://localhost:3000' })
-const httpFileSystem = createHttpFileSystem()
-
+const endpoint = 'http://localhost:3000'
 
 const config: RoutesConfig = {
   routes: {
@@ -22,7 +18,7 @@ global.fetch = vi.fn(() => Promise.resolve({ text: vi.fn() } as unknown as Respo
 
 describe('File Component', () => {
   it('renders a local file path', async () => {
-    const source = getSource('folder/subfolder/test.txt', hyparamFileSystem)
+    const source = getHyperparamSource('folder/subfolder/test.txt', { endpoint })
     assert(source?.kind === 'file')
 
     const { getByText } = await act(() => render(
@@ -37,7 +33,7 @@ describe('File Component', () => {
 
   it('renders a URL', async () => {
     const url = 'https://example.com/test.txt'
-    const source = getSource(url, httpFileSystem)
+    const source = getHttpSource(url)
     assert(source?.kind === 'file')
 
     const { getByText } = await act(() => render(<File source={source} />))
@@ -46,7 +42,7 @@ describe('File Component', () => {
   })
 
   it('renders correct breadcrumbs for nested folders', async () => {
-    const source = getSource('folder1/folder2/folder3/test.txt', hyparamFileSystem)
+    const source = getHyperparamSource('folder1/folder2/folder3/test.txt', { endpoint })
     assert(source?.kind === 'file')
 
     const { getAllByRole } = await act(() => render(

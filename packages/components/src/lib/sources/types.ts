@@ -33,4 +33,3 @@ export interface DirSource extends BaseSource {
 }
 
 export type Source = FileSource | DirSource
-

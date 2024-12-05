@@ -1,7 +1,7 @@
 import React from 'react'
 import { Page } from '../src/index.js'
 
-import { Source, createHttpFileSystem, getSource } from '../src/index.ts'
+import { getHttpSource } from '../src/index.ts'
 export interface Navigation {
   col?: number
   row?: number
@@ -15,10 +15,6 @@ function getNumberParam(search: URLSearchParams, key: string): number | undefine
   return number
 }
 
-const fileSystems = [
-  createHttpFileSystem(),
-]
-
 export default function App() {
   const search = new URLSearchParams(location.search)
   const url = search.get('url')
@@ -31,20 +27,13 @@ export default function App() {
   const row = getNumberParam(search, 'row')
   const col = getNumberParam(search, 'col')
 
-  let source: Source | undefined = undefined
-  for (const fileSystem of fileSystems) {
-    const fsSource = getSource(url, fileSystem)
-    if (fsSource){
-      source = fsSource
-      break
-    }
-  }
+  const source = getHttpSource(url)
 
   if (!source) {
     return <div>Could not load a data source. You have to pass a valid source in the url, eg: <a href={defaultUrl}>{defaultUrl}</a>.</div>
   }
   return <Page source={source} navigation={{ row, col }} config={{
-    slidePanel: { minWidth: 250, maxWidth: 750 },
+    slidePanel: { minWidth: 250 },
     routes: {
       getSourceRouteUrl: ({ sourceId }) => `/?url=${sourceId}`,
       getCellRouteUrl: ({ sourceId, col, row }) => `/?url=${sourceId}&col=${col}&row=${row}`,
