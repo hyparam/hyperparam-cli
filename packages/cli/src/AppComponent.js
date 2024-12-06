@@ -1,10 +1,5 @@
-import { Page, createHttpFileSystem, createHyperparamFileSystem, getSource } from '@hyparam/components'
+import { Page, getHttpSource, getHyperparamSource } from '@hyparam/components'
 import React from 'react'
-
-const fileSystems = [
-  createHttpFileSystem(),
-  createHyperparamFileSystem({ endpoint: location.origin }),
-]
 
 export default function App() {
   const search = new URLSearchParams(location.search)
@@ -12,14 +7,7 @@ export default function App() {
   const row = search.get('row') === null ? undefined : Number(search.get('row'))
   const col = search.get('col') === null ? undefined : Number(search.get('col'))
 
-  let source = undefined
-  for (const fileSystem of fileSystems) {
-    const fsSource = getSource(sourceId, fileSystem)
-    if (fsSource) {
-      source = fsSource
-      break
-    }
-  }
+  const source = getHttpSource(sourceId) ?? getHyperparamSource(sourceId, { endpoint: location.origin })
 
   if (!source) {
     return React.createElement('div', { children: 'Could not load a data source. You have to pass a valid source in the url.' })
@@ -36,4 +24,3 @@ export default function App() {
     },
   })
 }
-
