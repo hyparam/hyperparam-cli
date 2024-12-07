@@ -10,6 +10,9 @@
   flex-direction: column;
   height: 100vh;
 }
+.table-corner {
+  background: url('https://hyperparam.app/assets/table/hyperparam.svg') #e4e4e6 no-repeat center 6px;
+}
 
 /* brand logo */
 .brand {

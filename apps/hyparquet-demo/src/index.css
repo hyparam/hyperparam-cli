@@ -531,6 +531,7 @@ td:first-child {
   left: 0;
   z-index: 15;
   box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+  background: url('https://hyperparam.app/assets/table/hyparquet.svg') #e4e4e6 no-repeat center 6px;
 }
 
 /* mock row numbers */
