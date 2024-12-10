@@ -1,6 +1,6 @@
 {
   "name": "hyperparam",
-  "version": "0.2.10",
+  "version": "0.2.11",
   "description": "Hyperparam CLI",
   "license": "MIT",
   "main": "src/cli.js",
