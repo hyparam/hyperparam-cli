@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import fs from 'fs/promises'
+import hyperparamPackage from '../package.json' with { type: 'json' }
 import { chat } from './chat.js'
 import { serve } from './serve.js'
 
@@ -16,7 +17,7 @@ if (arg === 'chat') {
   console.log('  hyperparam -h, --help,    give this help list')
   console.log('  hyperparam -v, --version  print program version')
 } else if (arg === '--version' || arg === '-V' || arg === '-v') {
-  console.log(process.env.npm_package_version)
+  console.log(hyperparamPackage.version)
 } else if (!arg) {
   serve(process.cwd(), undefined) // current directory
 } else if (arg.match(/^https?:\/\//)) {
