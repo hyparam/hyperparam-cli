@@ -78,7 +78,7 @@ sub img {
 /* sidebar */
 nav {
   height: 100vh;
-  min-width: 48px;
+  width: 48px;
   background-image: linear-gradient(to bottom, #667, #585669);
   box-shadow: 0 0 4px rgba(10, 10, 10, 0.5);
   height: 100vh;
