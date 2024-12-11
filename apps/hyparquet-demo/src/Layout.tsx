@@ -1,5 +1,5 @@
 import { cn } from '@hyparam/components'
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 interface LayoutProps {
   children: ReactNode
@@ -20,9 +20,21 @@ interface LayoutProps {
  * @returns {ReactNode}
  */
 export default function Layout({ children, className, progress, error }: LayoutProps): ReactNode {
+  const [showError, setShowError] = useState(false)
   const errorMessage = error?.toString()
   if (error) console.error(error)
 
+  // Reset error visibility when error prop changes
+  useEffect(() => {
+    if (error) {
+      setShowError(true)
+      console.error(error)
+    } else {
+      setShowError(false)
+    }
+  }, [error])
+
+  // Update title
   useEffect(() => {
     document.title = 'hyparquet demo - apache parquet file viewer online'
   }, [])
@@ -32,7 +44,17 @@ export default function Layout({ children, className, progress, error }: LayoutP
       <div className={cn('content', className)}>
         {children}
       </div>
-      <div className={cn('error-bar', error && 'show-error')}>{errorMessage}</div>
+      <div className={cn('error-bar', showError && 'show-error')}>
+        <div className='error-content'>
+          <span>{errorMessage}</span>
+          <button
+            aria-label='Close error message'
+            className='close-button'
+            onClick={() => { setShowError(false) }}>
+            &times;
+          </button>
+        </div>
+      </div>
     </div>
     {progress !== undefined && progress < 1 &&
       <div className={'progress-bar'} role='progressbar'>

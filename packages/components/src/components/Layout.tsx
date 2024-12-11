@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
 
 interface LayoutProps {
@@ -21,9 +21,21 @@ interface LayoutProps {
  * @param props.title - page title
  */
 export default function Layout({ children, className, progress, error, title }: LayoutProps) {
+  const [showError, setShowError] = useState(false)
   const errorMessage = error?.toString()
   if (error) console.error(error)
 
+  // Reset error visibility when error prop changes
+  useEffect(() => {
+    if (error) {
+      setShowError(true)
+      console.error(error)
+    } else {
+      setShowError(false)
+    }
+  }, [error])
+
+  // Update title
   useEffect(() => {
     document.title = title ? `${title} - hyperparam` : 'hyperparam'
   }, [title])
@@ -34,7 +46,17 @@ export default function Layout({ children, className, progress, error, title }: 
       <div className={cn('content', className)}>
         {children}
       </div>
-      <div className={cn('error-bar', error !== undefined && 'show-error')}>{errorMessage}</div>
+      <div className={cn('error-bar', showError && 'show-error')}>
+        <div className='error-content'>
+          <span>{errorMessage}</span>
+          <button
+            aria-label='Close error message'
+            className='close-button'
+            onClick={() => { setShowError(false) }}>
+            &times;
+          </button>
+        </div>
+      </div>
     </div>
     {progress !== undefined && progress < 1 &&
       <div className={'progress-bar'} role='progressbar'>
