@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
 
 interface LayoutProps {
@@ -21,20 +21,17 @@ interface LayoutProps {
  * @param props.title - page title
  */
 export default function Layout({ children, className, progress, error, title }: LayoutProps) {
-  const errorMessage = error?.toString()
-  if (error) console.error(error)
-
+  // Update title
   useEffect(() => {
     document.title = title ? `${title} - hyperparam` : 'hyperparam'
   }, [title])
-
   return <main className='main'>
     <Sidebar />
     <div className='content-container'>
       <div className={cn('content', className)}>
         {children}
       </div>
-      <div className={cn('error-bar', error !== undefined && 'show-error')}>{errorMessage}</div>
+      <ErrorBar error={error}></ErrorBar>
     </div>
     {progress !== undefined && progress < 1 &&
       <div className={'progress-bar'} role='progressbar'>
@@ -52,4 +49,28 @@ function Sidebar() {
 
 export function Spinner({ className }: { className: string }) {
   return <div className={cn('spinner', className)}></div>
+}
+
+export function ErrorBar({ error }: { error?: Error }) {
+  const [showError, setShowError] = useState(error !== undefined)
+  const [prevError, setPrevError] = useState(error)
+
+  if (error) console.error(error)
+  /// Reset error visibility when error prop changes
+  if (error !== prevError) {
+    setPrevError(error)
+    setShowError(error !== undefined)
+  }
+
+  return <div className={cn('error-bar', showError && 'show-error')}>
+    <div className='error-content'>
+      <span>{error?.toString()}</span>
+      <button
+        aria-label='Close error message'
+        className='close-button'
+        onClick={() => { setShowError(false) }}>
+      &times;
+      </button>
+    </div>
+  </div>
 }
