@@ -51,7 +51,7 @@ export function Spinner({ className }: { className: string }) {
   return <div className={cn('spinner', className)}></div>
 }
 
-function ErrorBar({ error }: { error?: Error }) {
+export function ErrorBar({ error }: { error?: Error }) {
   const [showError, setShowError] = useState(error !== undefined)
   const [prevError, setPrevError] = useState(error)
 
