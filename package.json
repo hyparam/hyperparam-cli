@@ -10,10 +10,8 @@
     "apps/hyparquet-demo"
   ],
   "scripts": {
-    "build": "npm run build -ws",
-    "coverage": "npm run coverage -ws",
-    "lint": "npm run lint -ws",
-    "test": "npm test -ws"
+    "lint": "eslint .",
+    "test": "vitest run"
   },
   "overrides": {
     "highlight.js": "11.10.0",

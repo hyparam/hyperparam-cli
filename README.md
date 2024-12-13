@@ -3,10 +3,12 @@
 This is a monorepo for the Hyperparam project.
 
 It contains the following packages, published to npm:
+
 - [`@hyparam/components`](./packages/components): a library of React components and utilities for building Hyperparam UIs.
 - [`hyperparam`](./packages/cli): a cli tool for viewing arbitrarily large datasets in the browser.
 
 It also contains the following applications:
+
 - [`hightable-demo`](./apps/hightable-demo): an example project showing how to use [hightable](https://github.com/hyparam/hightable).
 - [`hyparquet-demo`](./apps/hyparquet-demo): an example project showing how to use [hyparquet](https://github.com/hyparam/hyparquet).
 
@@ -21,25 +23,25 @@ npm install
 Lint all the workspaces:
 
 ```bash
-npm run lint
+npm run lint -ws
 ```
 
 Test all the workspaces:
 
 ```bash
-npm test
+npm test -ws
 ```
 
 Compute the coverage for all the workspaces:
 
 ```bash
-npm run coverage
+npm run coverage -ws
 ```
 
 Build all the workspaces (they are built in order, so the dependencies are built first - it's defined manually by the order of the workspaces in the `package.json`):
 
 ```bash
-npm run build
+npm run build -ws
 ```
 
 Run an app:
