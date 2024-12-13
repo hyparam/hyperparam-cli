@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npx tsc -w ${{ inputs.workspace }}
+      - run: npm run typecheck -w ${{ inputs.workspace }}
   
   test:
     runs-on: ubuntu-latest

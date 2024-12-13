@@ -10,7 +10,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run --dir test"
+    "test": "vitest run --dir test",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "hightable": "0.7.2",

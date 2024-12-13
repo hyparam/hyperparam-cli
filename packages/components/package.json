@@ -36,7 +36,8 @@
     "dev": "vite ./demo",
     "lint": "eslint .",
     "prepare": "npm run build",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "hightable": "0.7.2",

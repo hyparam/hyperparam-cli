@@ -10,7 +10,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run --dir test"
+    "test": "vitest run --dir test",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@hyparam/components": "0.1.11",
