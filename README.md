@@ -77,3 +77,5 @@ The monorepo is managed with [npm workspaces](https://docs.npmjs.com/cli/v10/usi
 It means that if you make a change to `@hyparam/components`, you need to rebuild it before developing `hyperparam` or `hyparquet-demo`.
 
 Also, if you increment the version of `@hyparam/components`, you need to update the version of `@hyparam/components` in the `package.json` of `hyperparam` and `hyparquet-demo`, as we use exact versions in the `package.json` of the workspaces. Note that we don't have to increment the version after every change, only when we want to publish a new version with a significant batch of changes.
+
+The root package.json contains a special field, `overrides`, which sets the shared dependencies versions we want to have in all the workspaces. The "check_dependencies" GitHub action checks that the dependencies are the same in all the workspaces (`npm ls` would fail if dependency version mismatch).

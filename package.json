@@ -15,6 +15,14 @@
     "lint": "npm run lint -ws",
     "test": "npm test -ws"
   },
+  "overrides": {
+    "highlight.js": "11.10.0",
+    "hightable": "0.7.2",
+    "hyparquet": "1.6.4",
+    "hyparquet-compressors": "1.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
   "devDependencies": {
     "@eslint/js": "^9.16.0",
     "@testing-library/react": "16.1.0",

@@ -1,0 +1,16 @@
+name: check dependencies
+on:
+  push:
+    paths:
+      - '**/package.json'
+      - '.github/workflows/check_dependencies.yml'
+jobs:
+  check-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm i
+      - name: Check if the dependencies are free of any conflict and match "overrides" in the root package.json
+        run: npm ls
