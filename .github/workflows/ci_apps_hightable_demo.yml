@@ -5,7 +5,7 @@ on:
       - 'apps/hightable-demo/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_apps_hightable_demo.yml'
-      - 'eslint.config.mjs'
+      - 'eslint.config.js'
 jobs:
   ci:
     uses: ./.github/workflows/_common_jobs.yml

@@ -6,7 +6,7 @@ on:
       - 'apps/hyparquet-demo/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_apps_hyparquet_demo.yml'
-      - 'eslint.config.mjs'
+      - 'eslint.config.js'
 jobs:
   build-components:
     runs-on: ubuntu-latest

@@ -5,7 +5,7 @@ on:
       - 'packages/components/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_packages_components.yml'
-      - 'eslint.config.mjs'
+      - 'eslint.config.js'
 jobs:
   ci:
     uses: ./.github/workflows/_common_jobs.yml

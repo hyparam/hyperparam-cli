@@ -6,7 +6,7 @@ on:
       - 'packages/cli/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_packages_cli.yml'
-      - 'eslint.config.mjs'
+      - 'eslint.config.js'
 jobs:
   build-components:
     runs-on: ubuntu-latest

@@ -1,7 +1,7 @@
 import javascript from '@eslint/js'
 import globals from 'globals'
 import typescript from 'typescript-eslint'
-import { sharedJsRules } from '../../eslint.config.mjs'
+import { sharedJsRules } from '../../eslint.config.js'
 
 export default [
   {
