@@ -3,7 +3,7 @@ import packageJson from '../package.json' with { type: 'json' }
 
 describe('package.json', () => {
   it('should have the correct name', () => {
-    expect(packageJson.name).toBe('hightable-demo')
+    expect(packageJson.name).toBe('@hyparam/monorepo')
   })
   it('should have a valid version', () => {
     expect(packageJson.version).toMatch(/^\d+\.\d+\.\d+$/)
@@ -14,8 +14,8 @@ describe('package.json', () => {
   it('should have precise dependency versions', () => {
     const { dependencies, devDependencies } = packageJson
     const allDependencies = { ...dependencies, ...devDependencies }
-    Object.values(allDependencies).forEach(version => {
-      expect(version).toMatch(/^\d+\.\d+\.\d+$/)
-    })
+    Object.values( allDependencies).forEach(version => {
+      expect(version).toMatch(/^\d+\.\d+\.\d+$/) },
+    )
   })
 })

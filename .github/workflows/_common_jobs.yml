@@ -2,47 +2,35 @@ name: Launch CI jobs for a package or app
 on:
   workflow_call:
     inputs:
-      working-directory:
+      workspace:
         required: true
         type: string
 jobs:
   lint:
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run lint
+      - run: npm run lint -w ${{ inputs.workspace }}
   
   typecheck:
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npx tsc
+      - run: npx tsc -w ${{ inputs.workspace }}
   
   test:
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run coverage
+      - run: npm run coverage -w ${{ inputs.workspace }}
   
   buildcheck:
-    defaults:
-      run:
-        working-directory: ${{ inputs.working-directory }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: npm i
-      - run: npm run build
+      - run: npm run build -w ${{ inputs.workspace }}
       
