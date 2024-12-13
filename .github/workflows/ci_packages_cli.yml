@@ -2,12 +2,24 @@ name: apps/cli
 on:
   push:
     paths:
+      - 'packages/components/**'
       - 'packages/cli/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_packages_cli.yml'
-      - 'shared.eslint.config.js'
+      - 'eslint.config.js'
+      - 'package.json'
 jobs:
+  build-components:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm i
+      - name: Build components package
+        run: npm run build -w @hyparam/components
   ci:
+    needs: build-components
     uses: ./.github/workflows/_common_jobs.yml
     with:
-      working-directory: packages/cli
+      workspace: hyperparam

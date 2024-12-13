@@ -1,0 +1,22 @@
+name: root
+on:
+  push:
+    paths:
+      - '*'
+      - 'test/**'
+      - '.github/workflows/ci_root.yml'
+      - 'eslint.config.js'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i
+      - run: npm run lint
+  
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm i
+      - run: npm run test

@@ -4,9 +4,11 @@ on:
   push:
     branches: ["master"]
     paths:
+      - "packages/components/**"
       - "apps/hyparquet-demo/**"
       - "apps/hightable-demo/**"
       - ".github/workflows/deploy_pages.yml"
+      - 'package.json'
   workflow_dispatch:
 
 jobs:
@@ -16,16 +18,12 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v4
-      - name: Build hyparquet demo
+      - name: Build components package and demo apps
         run: |
           npm i
-          npm run build
-        working-directory: ./apps/hyparquet-demo
-      - name: Build hightable demo
-        run: |
-          npm i
-          npm run build
-        working-directory: ./apps/hightable-demo
+          npm run build -w @hyparam/components
+          npm run build -w hyparquet-demo
+          npm run build -w hightable-demo
       - name: Move the build outputs to a folder
         run: |
           mkdir -p build_outputs_folder/apps

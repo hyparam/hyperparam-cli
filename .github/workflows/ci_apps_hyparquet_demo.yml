@@ -2,12 +2,24 @@ name: apps/hyparquet-demo
 on:
   push:
     paths:
+      - 'packages/components/**'
       - 'apps/hyparquet-demo/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_apps_hyparquet_demo.yml'
-      - 'shared.eslint.config.js'
+      - 'eslint.config.js'
+      - 'package.json'
 jobs:
+  build-components:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm i
+      - name: Build components package
+        run: npm run build -w @hyparam/components
   ci:
+    needs: build-components
     uses: ./.github/workflows/_common_jobs.yml
     with:
-      working-directory: apps/hyparquet-demo
+      workspace: hyparquet-demo

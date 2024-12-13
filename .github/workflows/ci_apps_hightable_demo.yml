@@ -5,9 +5,10 @@ on:
       - 'apps/hightable-demo/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_apps_hightable_demo.yml'
-      - 'shared.eslint.config.js'
+      - 'eslint.config.js'
+      - 'package.json'
 jobs:
   ci:
     uses: ./.github/workflows/_common_jobs.yml
     with:
-      working-directory: apps/hightable-demo
+      workspace: hightable-demo

@@ -5,9 +5,10 @@ on:
       - 'packages/components/**'
       - '.github/workflows/_common_jobs.yml'
       - '.github/workflows/ci_packages_components.yml'
-      - 'shared.eslint.config.js'
+      - 'eslint.config.js'
+      - 'package.json'
 jobs:
   ci:
     uses: ./.github/workflows/_common_jobs.yml
     with:
-      working-directory: packages/components
+      workspace: '@hyparam/components'

@@ -1,4 +1,8 @@
-const sharedJsRules = {
+import javascript from '@eslint/js'
+import globals from 'globals'
+
+/** @type {import('eslint').Linter.Config.RulesRecord} */
+export const sharedJsRules = {
   'arrow-spacing': 'error',
   camelcase: 'off',
   'comma-spacing': 'error',
@@ -36,9 +40,26 @@ const sharedJsRules = {
   'space-infix-ops': 'error',
 }
 
-const sharedTsRules = {
+/** @type {import('eslint').Linter.Config.RulesRecord} */
+export const sharedTsRules = {
   '@typescript-eslint/restrict-template-expressions': 'off',
   '@typescript-eslint/no-unused-vars': 'warn',
 }
 
-module.exports = { sharedJsRules, sharedTsRules }
+
+/** @type {import('eslint').Linter.Config[]} */
+export default [
+  {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    rules: {
+      ...javascript.configs.recommended.rules,
+      ...sharedJsRules,
+    },
+    files: ['*.js', 'test/**/*.js'],
+  },
+]
