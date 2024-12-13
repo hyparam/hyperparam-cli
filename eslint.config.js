@@ -60,5 +60,6 @@ export default [
       ...javascript.configs.recommended.rules,
       ...sharedJsRules,
     },
+    files: ['*.js', 'test/**/*.js'],
   },
 ]
