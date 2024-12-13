@@ -2,8 +2,8 @@ name: root
 on:
   push:
     paths:
-      - './*'
-      - './test/**'
+      - '*'
+      - 'test/**'
       - '.github/workflows/ci_root.yml'
       - 'eslint.config.js'
 jobs:
