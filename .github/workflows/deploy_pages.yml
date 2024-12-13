@@ -8,6 +8,7 @@ on:
       - "apps/hyparquet-demo/**"
       - "apps/hightable-demo/**"
       - ".github/workflows/deploy_pages.yml"
+      - 'package.json'
   workflow_dispatch:
 
 jobs:
