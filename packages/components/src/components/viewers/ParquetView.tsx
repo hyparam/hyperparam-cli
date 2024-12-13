@@ -62,7 +62,6 @@ export default function ParquetView({ source, setProgress, setError, config }: V
     }
   }, [loading, resolveUrl, requestInit, setError, setProgress])
 
-
   // Clear loading state on content change
   useEffect(() => {
     setLoading(LoadingState.NotLoaded)

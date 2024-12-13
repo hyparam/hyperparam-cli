@@ -40,7 +40,6 @@ export default function Layout({ children, className, progress, error }: LayoutP
   </>
 }
 
-
 export function Spinner({ className }: { className: string }) {
   return <div className={cn('spinner', className)}></div>
 }

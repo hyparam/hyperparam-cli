@@ -35,4 +35,3 @@ export function replaceSearchParams(params?: Record<string, string>, options?: {
 export function appendSearchParams(params?: Record<string, string>): string {
   return replaceSearchParams(params, { appendOnly: true })
 }
-
