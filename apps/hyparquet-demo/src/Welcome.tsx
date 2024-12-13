@@ -2,7 +2,6 @@ import { ReactNode, useRef } from 'react'
 import audioSvg from './assets/audio.svg'
 import hyparquetMp3 from './assets/hyparquet.mp3'
 
-
 export default function Welcome(): ReactNode {
   const audio = useRef<HTMLAudioElement>(null)
 

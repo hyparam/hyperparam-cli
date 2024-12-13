@@ -14,6 +14,7 @@ export const sharedJsRules = {
   'no-constant-condition': 'off',
   'no-extra-parens': 'error',
   'no-multi-spaces': 'error',
+  'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
   'no-trailing-spaces': 'error',
   'no-unused-vars': 'off',
   'no-useless-concat': 'error',
@@ -46,9 +47,11 @@ export const sharedTsRules = {
   '@typescript-eslint/no-unused-vars': 'warn',
 }
 
-
 /** @type {import('eslint').Linter.Config[]} */
 export default [
+  {
+    ignores: ['**/coverage/**'],
+  },
   {
     languageOptions: {
       globals: {
@@ -60,6 +63,6 @@ export default [
       ...javascript.configs.recommended.rules,
       ...sharedJsRules,
     },
-    files: ['*.js', 'test/**/*.js'],
+    files: ['eslint.config.js', 'test/**/*.js'],
   },
 ]

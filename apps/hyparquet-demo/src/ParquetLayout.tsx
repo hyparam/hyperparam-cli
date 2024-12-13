@@ -28,7 +28,6 @@ export default function ParquetLayout({ byteLength, metadata }: LayoutProps): Re
   </div>
 }
 
-
 function Cell<N extends bigint | number>({ name, start, end }: { name: string, start: N, end: N }) {
   const bytes = end - start
   return <div className="cell">
@@ -121,7 +120,6 @@ function ColumnIndexes({ metadata }: { metadata: FileMetaData }) {
     )}
   </Group>
 }
-
 
 /**
  * Find the start byte offset for a column chunk.
