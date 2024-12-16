@@ -33,9 +33,19 @@ export default function SlidePanel({
     return undefined
   }
   const defaultWidth = validWidth(config?.slidePanel?.defaultWidth) ?? WIDTH.DEFAULT
-  const [panelWidth, setPanelWidth] = useState(defaultWidth)
   const [resizingClientX, setResizingClientX] = useState(-1)
   const panelRef = React.createRef<HTMLDivElement>()
+
+  // Load initial panel width from localStorage if available
+  const [panelWidth, setPanelWidth] = useState<number>(() => {
+    const savedWidth = typeof window !== 'undefined' ? localStorage.getItem('panelWidth') : null
+    return savedWidth ? parseInt(savedWidth, 10) : defaultWidth
+  })
+
+  useEffect(() => {
+    // Persist panelWidth to localStorage
+    localStorage.setItem('panelWidth', panelWidth.toString())
+  }, [panelWidth])
 
   useEffect(() => {
     function handleMouseMove(e: MouseEvent) {
