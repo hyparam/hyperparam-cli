@@ -20,9 +20,9 @@
     "coverage": "vitest run --coverage --coverage.include=src",
     "dev": "npm run serve",
     "lint": "eslint",
-    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "serve": "node src/cli.js",
-    "preserve": "npm run prepare",
+    "preserve": "npm run build",
     "url": "npm run serve -- https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet",
     "test": "vitest run --dir test",
     "typecheck": "tsc"
