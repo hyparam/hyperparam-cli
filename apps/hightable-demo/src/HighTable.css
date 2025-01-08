@@ -102,6 +102,26 @@
   min-width: 32px;
   max-width: none;
   width: 32px;
+  cursor: pointer;
+}
+.table td:first-child span {
+  display: inline;
+}
+.table td:first-child input {
+  display: none;
+}
+.selectable td:first-child:hover span, .selectable tr.selected td:first-child span {
+  display: none;
+}
+.selectable td:first-child:hover input, .selectable tr.selected td:first-child input {
+  display: inline;
+  cursor: pointer;
+}
+.selectable tr.selected {
+  background-color: #fbf7bf;
+}
+.selectable tr.selected td:first-child {
+  background-color: #f1edbb;
 }
 
 /* cells */
@@ -193,7 +213,6 @@
 
 /* table corner */
 .table-corner {
-  background-color: #e4e4e6;
   border-right: 1px solid #ccc;
   position: absolute;
   height: 33px;
@@ -201,9 +220,28 @@
   top: 0;
   left: 0;
   z-index: 15;
-  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);  
   background: url('https://hyperparam.app/assets/table/hightable.svg') #e4e4e6 no-repeat center 6px;
+  cursor: default;
+  display: flex;
+  justify-content: center;
 }
+.selectable .table-corner {
+  background: #e4e4e6;
+  cursor: pointer;
+}
+.table-corner input {
+  display: none;
+}
+.selectable .table-corner span {
+  display: none;
+}
+.selectable .table-corner input {
+  display: inline;
+  cursor: pointer;
+  text-align: center;
+}
+
 /* mock row numbers */
 .mock-row-label {
   content: "";
