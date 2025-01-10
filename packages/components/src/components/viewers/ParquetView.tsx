@@ -89,7 +89,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
     return appendSearchParams({ col: col.toString(), row: row.toString() })
   }, [config, sourceId])
 
-  const onDoubleClickCell = useCallback((col: number, row: number) => {
+  const onDoubleClickCell = useCallback((_event: React.MouseEvent, col: number, row: number) => {
     if (cell?.col === col && cell.row === row) {
       setCell(undefined)
     } else {
