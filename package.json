@@ -16,8 +16,8 @@
   },
   "overrides": {
     "highlight.js": "11.10.0",
-    "hightable": "0.7.3",
-    "hyparquet": "1.6.4",
+    "hightable": "0.8.0",
+    "hyparquet": "1.8.0",
     "hyparquet-compressors": "1.0.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
