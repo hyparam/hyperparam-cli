@@ -1,8 +1,13 @@
-import { Action, ControlledHighTable, Selection, State, initialState, reducer } from 'hightable'
-import { StrictMode, useMemo, useReducer } from 'react'
+import { ControlledHighTable, HighTable, InternalAction, InternalState, Selection, SelectionAndAnchor, initialState, reducer } from 'hightable'
+import { StrictMode, useMemo, useReducer, useState } from 'react'
 import { data } from './data'
 import './HighTable.css'
 import './index.css'
+
+type State = InternalState & SelectionAndAnchor
+
+type Action = InternalAction
+  | ({ type: 'SET_SELECTION' } & SelectionAndAnchor)
 
 // for demo purpose
 function appReducer(state: State, action: Action): State {
@@ -21,6 +26,15 @@ export default function App() {
   const columns = data.header
 
   const [state, dispatch] = useReducer(appReducer, initialState)
+  const [selectable, setSelectable] = useState(false)
+
+  const selectionAndAnchor = selectable ? { selection: state.selection, anchor: state.anchor } : undefined
+  const setSelectionAndAnchor = selectable ? (selectionAndAnchor: SelectionAndAnchor) => { dispatch({ type: 'SET_SELECTION', ...selectionAndAnchor }) } : undefined
+
+  function onSelectionChange(selection: Selection) {
+    dispatch({ type: 'SET_SELECTION', selection })
+  }
+
   const { selection, orderBy } = state
   const columnId = useMemo(() => {
     if (!orderBy) return undefined
@@ -60,27 +74,37 @@ export default function App() {
 
   return <StrictMode>
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-      <div style={{ padding: '1em' }}>
-        <h2>Hightable demo</h2>
-
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1em' }}>
-          <div style={{ padding: '1em', border: '1px solid #ccc' }}>
-            <h3>Order by</h3>
-            <p>Click the button to sort the table by the next column</p>
-            <button onClick={onSortClick}>Sort the following column</button>
-            <p>Column ID: {columnId}</p>
-            <p>{columnId === undefined ? 'No sorted column' : 'Column name: "' + columns[columnId] + '"'}</p>
-          </div>
-          <div style={{ padding: '1em', border: '1px solid #ccc' }}>
-            <h3>Rows selection</h3>
-            <p>Click the button to delete the selected rows</p>
-            <button onClick={onSelectionClick}>Move the selection down by one row</button>
-            <p>selection: <code style={{ margin: '0.5em', padding: '0.2em 0.5em', backgroundColor: '#ddd' }}>{JSON.stringify(selection)}</code></p>
-            <p>{getSelectionCount(selection)} selected rows: {getFirstRows(selection).map(index => <code key={index} style={{ margin: '0.5em', padding: '0.2em 0.5em', backgroundColor: '#ddd' }}>{index}</code>)}</p>
+      <div style={{ padding: '0 1em 1em' }}>
+        <h2 >Hightable</h2>
+        {selectable && <p>The selection is enabled because onSelectionChange is set.</p>}
+        {!selectable && <p>The selection is disabled because onSelectionChange is undefined.</p>}
+        <button onClick={() => { setSelectable(selectable => !selectable) }}>{selectable ? 'Disable' : 'Enable'} selection</button>
+      </div>
+      <HighTable data={data} cacheKey='demo' onSelectionChange={selectable ? onSelectionChange : undefined} />
+      <div style={{ padding: '0 1em 1em', borderTop: '1px solid #ccc' }}>
+        <h2 >ControlledHightable</h2>
+        <div style={{ padding: '0 1em', marginBottom: '1em' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1em' }}>
+            <div style={{ padding: '0 1em', border: '1px solid #ccc' }}>
+              <h3>Order by</h3>
+              <p>Column sort in ControlledHightable is controlled internally by clicking the column headers, and externally by the following button:</p>
+              <button onClick={onSortClick}>Sort the following column</button>
+              <p>{columnId === undefined ? 'No sorted column' : 'Sorted by: "' + columns[columnId] + '"'}</p>
+            </div>
+            <div style={{ padding: '0 1em', border: '1px solid #ccc' }}>
+              <h3>Rows selection</h3>
+              {!selectable && <p>The selection is disabled</p>}
+              {selectable && <>
+                <p>The selection is controlled internally by (shift) clicking the left column, and externally by mirroring changes from HighTable and by the following button:</p>
+                <button onClick={onSelectionClick}>Move the selection down by one row</button>
+                <p>selection: <code style={{ margin: '0.5em', padding: '0.2em 0.5em', backgroundColor: '#ddd' }}>{JSON.stringify(selection)}</code></p>
+                <p>{getSelectionCount(selection)} selected rows: {getFirstRows(selection).map(index => <code key={index} style={{ margin: '0.5em', padding: '0.2em 0.5em', backgroundColor: '#ddd' }}>{index}</code>)}</p>
+              </>}
+            </div>
           </div>
         </div>
       </div>
-      <ControlledHighTable data={data} cacheKey='demo' selectable state={state} dispatch={dispatch} />
+      <ControlledHighTable data={data} cacheKey='demo' state={state} dispatch={dispatch} selectionAndAnchor={selectionAndAnchor} setSelectionAndAnchor={setSelectionAndAnchor} />
     </div>
   </StrictMode>
 }
