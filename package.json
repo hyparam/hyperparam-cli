@@ -15,7 +15,7 @@
     "test": "vitest run --dir test"
   },
   "overrides": {
-    "highlight.js": "11.10.0",
+    "highlight.js": "11.11.1",
     "hightable": "0.8.1",
     "hyparquet": "1.8.0",
     "hyparquet-compressors": "1.0.0",
