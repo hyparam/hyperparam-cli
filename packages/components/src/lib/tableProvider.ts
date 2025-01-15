@@ -1,4 +1,4 @@
-import { DataFrame, ResolvablePromise, resolvablePromise } from 'hightable/src/dataframe.js'
+import { DataFrame, ResolvablePromise, resolvablePromise } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
 import { parquetQueryWorker, parquetSortIndexWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
@@ -73,8 +73,12 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
           // Re-assemble data in sorted order into wrapped
           for (let i = rowStart; i < rowEnd; i++) {
+            const row = data[indices[i]]
+            // Add index to wrapped row
+            const indexPromise = resolvablePromise()
+            indexPromise.resolve(indices[i])
+            wrapped[i - rowStart].__index__ = indexPromise
             for (const key of header) {
-              const row = data[indices[i]]
               if (key in row) {
                 const cell = row[key]
                 cell
