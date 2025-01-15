@@ -1,3 +1,4 @@
+import 'hightable/src/HighTable.css'
 import React from 'react'
 import { Page } from '../src/index.js'
 

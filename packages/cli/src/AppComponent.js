@@ -1,4 +1,5 @@
 import { Page, getHttpSource, getHyperparamSource } from '@hyparam/components'
+import 'hightable/src/HighTable.css'
 import React from 'react'
 
 export default function App() {

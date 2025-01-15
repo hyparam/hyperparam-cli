@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@hyparam/components": "0.1.13",
-    "hightable": "0.8.1",
+    "hightable": "0.9.0",
     "hyparquet": "1.8.0",
     "hyparquet-compressors": "1.0.0",
     "react": "18.3.1",

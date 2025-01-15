@@ -40,7 +40,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "hightable": "0.8.1",
+    "hightable": "0.9.0",
     "hyparquet": "1.8.0",
     "hyparquet-compressors": "1.0.0"
   },
