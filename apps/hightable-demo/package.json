@@ -16,6 +16,7 @@
   "dependencies": {
     "hightable": "../../../hightable",
     "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react-dom": "18.3.1",
+    "react-router": "7.1.3"
   }
 }
