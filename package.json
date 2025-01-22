@@ -16,7 +16,7 @@
   },
   "overrides": {
     "highlight.js": "11.11.1",
-    "hightable": "0.9.0",
+    "hightable": "0.9.1",
     "hyparquet": "1.8.0",
     "hyparquet-compressors": "1.0.0",
     "react": "18.3.1",
@@ -37,7 +37,7 @@
     "jsdom": "26.0.0",
     "typescript": "5.7.3",
     "typescript-eslint": "8.19.1",
-    "vite": "6.0.7",
+    "vite": "6.0.9",
     "vitest": "2.1.8"
   }
 }

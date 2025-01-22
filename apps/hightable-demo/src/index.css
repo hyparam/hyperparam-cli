@@ -6,7 +6,7 @@ body {
 }
 
 /* sidebar */
-nav {
+nav.sidebar {
   height: 100vh;
   width: 48px;
   background-image: linear-gradient(to bottom, #667, #585669);
@@ -53,4 +53,48 @@ nav {
 
 .table-corner {
   background: url('https://hyperparam.app/assets/table/hightable.svg') #e4e4e6 no-repeat center 6px;
+}
+
+.layout {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.topbar {
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(10, 10, 10, 0.1);
+  display: flex;
+  //height: 3em;
+  width: 100%;
+
+  padding: 0.5em;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  gap: 1em;
+}
+.topbar .title {
+  color: #444;
+  font-weight: bold;
+}
+.topbar .link {
+  color: #888;
+  cursor: pointer;
+}
+.topbar .link.active {
+  color: #706fb1;
+  font-weight: bold;
+}
+
+.content {
+  overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.content section {
+  margin: 1em;
+  display: flex;
+  gap: 0.5em;
 }
