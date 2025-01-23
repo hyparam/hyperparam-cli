@@ -209,6 +209,30 @@ async function handleListing(prefix) {
       })
     }
   }
+  files.sort((a, b) => {
+    const isDirA = a.key.endsWith("/");
+    const isDirB = b.key.endsWith("/");
+
+    // Prioritize directories over files
+    if (isDirA && !isDirB) return -1;
+    if (!isDirA && isDirB) return 1;
+
+    // Check for dot folders/files and special char folders/files
+    const isDotFolderA = a.key.startsWith(".");
+    const isDotFolderB = b.key.startsWith(".");
+    const hasSpecialCharsA = /[^a-zA-Z0-9]/.test(a.key);
+    const hasSpecialCharsB = /[^a-zA-Z0-9]/.test(b.key);
+
+    // Handle dot folders/files first
+    if (isDotFolderA && !isDotFolderB) return -1;
+    if (!isDotFolderA && isDotFolderB) return 1;
+
+    // Handle special character folders/files second
+    if (hasSpecialCharsA && !hasSpecialCharsB) return 1;
+    if (!hasSpecialCharsA && hasSpecialCharsB) return -1;
+
+    return a.key.localeCompare(b.key);
+  });
 
   return { status: 200, content: JSON.stringify(files), contentType: 'application/json' }
 }
