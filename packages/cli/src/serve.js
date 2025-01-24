@@ -181,7 +181,7 @@ async function handleHead(filePath) {
  * @param {string} prefix file path prefix
  * @returns {Promise<ServeResult>}
  */
-async function handleListing(prefix) {
+export async function handleListing(prefix) {
   try {
     const stat = await fs.stat(prefix)
     if (!stat.isDirectory()) return { status: 400, content: 'not a directory' }
