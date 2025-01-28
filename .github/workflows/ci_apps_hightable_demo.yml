@@ -1,6 +1,6 @@
 name: apps/hightable-demo
 on:
-  push:
+  pull_request:
     paths:
       - 'apps/hightable-demo/**'
       - '.github/workflows/_common_jobs.yml'

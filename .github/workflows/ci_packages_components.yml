@@ -1,6 +1,6 @@
 name: packages/components
 on:
-  push:
+  pull_request:
     paths:
       - 'packages/components/**'
       - '.github/workflows/_common_jobs.yml'
