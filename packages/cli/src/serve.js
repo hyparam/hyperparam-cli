@@ -78,9 +78,9 @@ function handleRequest(req, serveDirectory) {
   const pathname = parsedUrl.pathname || ''
 
   // get location of hyperparam assets
-  const hyperparamPath = import.meta.url
+  const hyperparamPath = decodeURIComponent(import.meta.url
     .replace('file://', '')
-    .replace('/src/serve.js', '')
+    .replace('/src/serve.js', ''))
 
   if (pathname === '/' || pathname === '/files/') {
     // redirect to /files
