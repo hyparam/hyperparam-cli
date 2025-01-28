@@ -1,6 +1,6 @@
 name: apps/hyparquet-demo
 on:
-  push:
+  pull_request:
     paths:
       - 'packages/components/**'
       - 'apps/hyparquet-demo/**'

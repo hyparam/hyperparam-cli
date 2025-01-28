@@ -1,6 +1,6 @@
 name: check dependencies
 on:
-  push:
+  pull_request:
     paths:
       - '**/package.json'
       - '.github/workflows/check_dependencies.yml'

@@ -1,6 +1,6 @@
 name: apps/cli
 on:
-  push:
+  pull_request:
     paths:
       - 'packages/components/**'
       - 'packages/cli/**'
