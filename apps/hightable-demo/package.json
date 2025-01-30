@@ -14,7 +14,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "hightable": "0.9.1",
+    "hightable": "0.9.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router": "7.1.3"
