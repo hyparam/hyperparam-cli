@@ -1,5 +1,7 @@
 name: apps/hightable-demo
 on:
+  push:
+    branches: ["master"]
   pull_request:
     paths:
       - 'apps/hightable-demo/**'

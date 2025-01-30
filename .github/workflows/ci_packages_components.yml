@@ -1,5 +1,7 @@
 name: packages/components
 on:
+  push:
+    branches: ["master"]
   pull_request:
     paths:
       - 'packages/components/**'

@@ -1,5 +1,7 @@
 name: check dependencies
 on:
+  push:
+    branches: ["master"]
   pull_request:
     paths:
       - '**/package.json'

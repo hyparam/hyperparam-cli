@@ -3,12 +3,6 @@ name: Deploy GitHub Pages
 on:
   push:
     branches: ["master"]
-    paths:
-      - "packages/components/**"
-      - "apps/hyparquet-demo/**"
-      - "apps/hightable-demo/**"
-      - ".github/workflows/deploy_pages.yml"
-      - 'package.json'
   workflow_dispatch:
 
 jobs:

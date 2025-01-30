@@ -1,5 +1,7 @@
 name: apps/cli
 on:
+  push:
+    branches: ["master"]
   pull_request:
     paths:
       - 'packages/components/**'
