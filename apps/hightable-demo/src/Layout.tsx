@@ -8,10 +8,10 @@ export default function Layout({ children }: { children: ReactNode }) {
       {/* NavLink makes it easy to show active states */}
       {
         [
-          ['Basic', '/'],
-          ['Selection', '/selection'],
-          ['Controlled', '/controlled'],
-          ['Mirror', '/mirror'],
+          ['Basic', './'],
+          ['Selection', './selection'],
+          ['Controlled', './controlled'],
+          ['Mirror', './mirror'],
         ].map(([label, path]) => <NavLink key={path} to={path}
           className={ ({ isActive }) => isActive ? 'link active' : 'link' }
         >{label}</NavLink>,
