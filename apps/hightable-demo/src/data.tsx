@@ -1,4 +1,4 @@
-import { rowCache, sortableDataFrame, wrapPromise } from 'hightable'
+import { AsyncRow, rowCache, sortableDataFrame, wrapPromise } from 'hightable'
 
 function lorem(rand: number, length: number): string {
   const words = 'lorem ipsum dolor sit amet consectetur adipiscing elit'.split(' ')
@@ -15,7 +15,7 @@ const mockData = {
   header,
   numRows: 10000,
   rows(start: number, end: number) {
-    const arr: Record<string, ReturnType<typeof wrapPromise<string | number>>>[] = []
+    const arr: AsyncRow[] = []
     for (let i = start; i < end; i++) {
       const rand = Math.abs(Math.sin(i + 1))
       const uuid = rand.toString(16).substring(2)
@@ -28,11 +28,14 @@ const mockData = {
       }
       const row = { ...partial, JSON: JSON.stringify(partial) }
       // Map to randomly delayed promises
-      const promised = Object.fromEntries(Object.entries(row).map(([key, value]) =>
+      const cells = Object.fromEntries(Object.entries(row).map(([key, value]) =>
         // discrete time delay for each cell to simulate async data loading
         [key, wrapPromise(delay(value, 100 * Math.floor(10 * Math.random())))],
       ))
-      arr.push(promised)
+      arr.push({
+        index: wrapPromise(i),
+        cells,
+      })
     }
     return arr
   },

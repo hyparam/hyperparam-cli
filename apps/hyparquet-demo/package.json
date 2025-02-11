@@ -14,11 +14,11 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@hyparam/components": "0.1.15",
-    "hightable": "0.9.2",
-    "hyparquet": "1.8.1",
+    "@hyparam/components": "0.1.16",
+    "hightable": "0.10.0",
+    "hyparquet": "1.8.2",
     "hyparquet-compressors": "1.0.0",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
   }
 }
