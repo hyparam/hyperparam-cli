@@ -1,4 +1,4 @@
-import { DataFrame, asyncRows, stringify } from 'hightable'
+import { DataFrame, stringify } from 'hightable'
 import { useEffect, useState } from 'react'
 import ContentHeader from './ContentHeader.js'
 
@@ -22,11 +22,13 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
     async function loadCellData() {
       try {
         setProgress(0.5)
-        const rows = df.rows(row, row + 1)
-        // Convert to AsyncRows
-        const asyncRow = asyncRows(rows, 1, df.header)[0]
+        const asyncRows = df.rows(row, row + 1)
+        if (asyncRows.length !== 1) {
+          throw new Error(`Expected 1 row, got ${asyncRows.length}`)
+        }
+        const asyncRow = asyncRows[0]
         // Await cell data
-        const text = await asyncRow[df.header[col]].then(stringify)
+        const text = await asyncRow.cells[df.header[col]].then(stringify)
         setText(text)
       } catch (error) {
         setError(error as Error)

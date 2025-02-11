@@ -1,4 +1,3 @@
-import { asyncRows } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
 import { FileSource } from '../lib/sources/types.js'
@@ -45,11 +44,13 @@ export default function CellView({ source, row, col, config }: CellProps) {
         const metadata = await parquetMetadataAsync(asyncBuffer)
         setProgress(0.75)
         const df = parquetDataFrame(from, metadata)
-        const rows = df.rows(row, row + 1)
-        // Convert to AsyncRows
-        const asyncRow = asyncRows(rows, 1, df.header)[0]
+        const asyncRows = df.rows(row, row + 1)
+        if (asyncRows.length !== 1) {
+          throw new Error(`Expected 1 row, got ${asyncRows.length}`)
+        }
+        const asyncRow = asyncRows[0]
         // Await cell data
-        const text = await asyncRow[df.header[col]].then(stringify)
+        const text = await asyncRow.cells[df.header[col]].then(stringify)
         setText(text)
         setError(undefined)
       } catch (error) {
