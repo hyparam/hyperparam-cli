@@ -2,9 +2,9 @@ import { ReactNode } from 'react'
 import Page, { PageProps } from './Page.js'
 import Welcome from './Welcome.js'
 
-import { AsyncBufferFrom, Row, asyncBufferFrom, parquetQueryWorker } from '@hyparam/components'
-import { DataFrame, rowCache } from 'hightable'
-import { FileMetaData, byteLengthFromUrl, parquetMetadataAsync, parquetSchema } from 'hyparquet'
+import { AsyncBufferFrom, asyncBufferFrom, parquetDataFrame } from '@hyparam/components'
+import { rowCache } from 'hightable'
+import { byteLengthFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useCallback, useEffect, useState } from 'react'
 import Dropzone from './Dropzone.js'
 import Layout from './Layout.js'
@@ -58,26 +58,4 @@ export default function App(): ReactNode {
       {pageProps ? <Page {...pageProps} /> : <Welcome />}
     </Dropzone>
   </Layout>
-}
-
-/**
- * Convert a parquet file into a dataframe.
- */
-function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData): DataFrame {
-  const { children } = parquetSchema(metadata)
-  return {
-    header: children.map(child => child.element.name),
-    numRows: Number(metadata.num_rows),
-    /**
-     * @param {number} rowStart
-     * @param {number} rowEnd
-     * @param {string} orderBy
-     * @returns {Promise<any[][]>}
-     */
-    rows(rowStart: number, rowEnd: number, orderBy: string): Promise<Row[]> {
-      console.log(`reading rows ${rowStart}-${rowEnd}`, orderBy)
-      return parquetQueryWorker({ from, metadata, rowStart, rowEnd, orderBy })
-    },
-    sortable: true,
-  }
 }
