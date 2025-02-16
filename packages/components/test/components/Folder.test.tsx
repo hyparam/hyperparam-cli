@@ -1,13 +1,13 @@
 import { render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
-import React from 'react'
+import React, { act } from 'react'
 import { describe, expect, it, test, vi } from 'vitest'
 import { Folder, HyperparamFileMetadata, RoutesConfig, getHyperparamSource } from '../../src/index.js'
 
 const endpoint = 'http://localhost:3000'
 const mockFiles: HyperparamFileMetadata[] = [
-  { key: 'folder1/', lastModified: '2023-01-01T00:00:00Z' },
-  { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
+  { key: 'folder1/', lastModified: '2022-01-01T12:00:00Z' },
+  { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T12:00:00Z' },
 ]
 
 const config: RoutesConfig = {
@@ -44,7 +44,7 @@ describe('Folder Component', () => {
     expect(getByText('1/1/2023')).toBeDefined()
   })
 
-  it('displays the spinner while loading', () => {
+  it('displays the spinner while loading', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       json: () => Promise.resolve([]),
       ok: true,
@@ -53,7 +53,7 @@ describe('Folder Component', () => {
     const source = getHyperparamSource('', { endpoint })
     assert(source?.kind === 'directory')
 
-    const { container } = render(<Folder source={source} />)
+    const { container } = await act(() => render(<Folder source={source} />))
     expect(container.querySelector('.spinner')).toBeDefined()
   })
 

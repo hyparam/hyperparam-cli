@@ -1,119 +1,237 @@
-import { ReactNode } from 'react'
-import { JSX } from 'react/jsx-runtime'
+import type { ReactNode } from 'react'
 
 interface MarkdownProps {
-  className?: string
   text: string
+  className?: string
 }
 
 export default function Markdown({ text, className }: MarkdownProps) {
-  function parseMarkdown(markdown: string): ReactNode {
-    const elements: ReactNode[] = []
-    const lines = markdown.split('\n')
+  // Inline parsing: parse bold, italic, underline, links, images, inline code
+  function parseInline(str: string): ReactNode[] {
+    const nodes: ReactNode[] = []
 
-    let inCodeBlock = false
-    let codeBlock: string[] = []
+    // A helper function to safely parse inline and return an array of react nodes
+    function renderTextSegments(text: string): ReactNode[] {
+      let result: ReactNode[] = []
 
-    let inList = false
-    let listItems: ReactNode[] = []
+      // Parse images: ![alt](url)
+      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
+      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
+      const codeRegex = /`([^`]+)`/g
+      const boldRegex = /\*\*([^*]+)\*\*/g
+      const italicRegex = /\*(?!\s)([^*]+?)(?!\s)\*/g
+      const underlineRegex = /__(.+?)__/g
 
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]
-
-      // Code blocks
-      if (line.startsWith('```')) {
-        if (inCodeBlock) {
-          elements.push(<pre key={`code-${i}`}>{codeBlock.join('\n')}</pre>)
-          inCodeBlock = false
-          codeBlock = []
-        } else {
-          inCodeBlock = true
+      function applyRegex(
+        currentText: ReactNode[],
+        regex: RegExp,
+        renderFn: (match: RegExpExecArray) => ReactNode,
+      ) {
+        const newResult: ReactNode[] = []
+        for (const segment of currentText) {
+          if (typeof segment === 'string') {
+            const str = segment
+            let lastIndex = 0
+            let match: RegExpExecArray | null
+            while ((match = regex.exec(str)) !== null) {
+              // Add text before match
+              if (match.index > lastIndex) {
+                newResult.push(str.slice(lastIndex, match.index))
+              }
+              // Add replaced node
+              newResult.push(renderFn(match))
+              lastIndex = match.index + match[0].length
+            }
+            if (lastIndex < str.length) {
+              newResult.push(str.slice(lastIndex))
+            }
+          } else {
+            // If it's already a ReactNode (not a string), just push it
+            newResult.push(segment)
+          }
         }
-        continue
-      }
-      if (inCodeBlock) {
-        codeBlock.push(line)
-        continue
+        return newResult
       }
 
-      // Bold
-      if (line.includes('**')) {
-        const parts = line.split('**')
-        elements.push(
-          <p key={i}>
-            {parts.map((part, index) => index % 2 ? <strong key={index}>{part}</strong> : part)}
-          </p>,
-        )
-        continue
-      }
+      // Start with entire text as a single segment
+      result = [text]
 
-      // Italic
-      if (line.includes('*')) {
-        const parts = line.split('*')
-        elements.push(
-          <p key={i}>
-            {parts.map((part, index) => index % 2 ? <em key={index}>{part}</em> : part)}
-          </p>,
-        )
-        continue
-      }
+      // Apply in a certain order:
+      result = applyRegex(result, imageRegex, (m) => <img alt={m[1]} src={m[2]} />)
+      result = applyRegex(result, linkRegex, (m) => <a href={m[2]}>{m[1]}</a>)
+      result = applyRegex(result, codeRegex, (m) => <code>{m[1]}</code>)
+      result = applyRegex(result, boldRegex, (m) => <strong>{m[1]}</strong>)
+      result = applyRegex(result, italicRegex, (m) => <em>{m[1]}</em>)
+      result = applyRegex(result, underlineRegex, (m) => <u>{m[1]}</u>)
 
-      // Headers
-      if (line.startsWith('#')) {
-        const level = line.split(' ')[0].length
-        const text = line.slice(level + 1)
-        const HeaderTag = `h${level}` as keyof JSX.IntrinsicElements
-        elements.push(<HeaderTag key={i}>{text}</HeaderTag>)
-        continue
-      }
-
-      // Images
-      const imageMatch = /!\[(.*?)\]\((.*?)\)/.exec(line)
-      if (imageMatch) {
-        const [, alt, src] = imageMatch
-        elements.push(<img key={i} src={src} alt={alt} />)
-        continue
-      }
-
-      // Links
-      if (line.includes('[') && line.includes(']') && line.includes('(') && line.includes(')')) {
-        const linkedLine = line.replace(/\[(.*?)\]\((.*?)\)/g, (_, linkText, url) => {
-          return `<a href="${url}">${linkText}</a>`
-        })
-        elements.push(<p dangerouslySetInnerHTML={{ __html: linkedLine }} key={i}></p>)
-        continue
-      }
-
-      // Lists
-      if (line.startsWith('-') || line.startsWith('*') || line.startsWith('+')) {
-        const listItem = line.slice(1).trim()
-        listItems.push(<li key={`list-item-${i}`}>{listItem}</li>)
-        inList = true
-        continue
-      }
-
-      if (inList && listItems.length > 0) {
-        elements.push(<ul key={`list-${i}`}>{listItems}</ul>)
-        listItems = []
-        inList = false
-      }
-
-      // Paragraphs
-      elements.push(<p key={i}>{line}</p>)
+      return result
     }
 
-    // Flush any remaining code block
-    if (inCodeBlock && codeBlock.length > 0) {
-      elements.push(<pre key={`code-${lines.length}`}>{codeBlock.join('\n')}</pre>)
-    }
-
-    // Flush any remaining list items
-    if (inList && listItems.length > 0) {
-      elements.push(<ul key={`list-${lines.length}`}>{listItems}</ul>)
-    }
-
-    return <div className={className}>{elements}</div>
+    nodes.push(...renderTextSegments(str))
+    return nodes
   }
 
-  return parseMarkdown(text)
+  // Block-level parsing: paragraphs, headers, lists, code blocks
+  type NodeType =
+    | { type: 'paragraph', content: string }
+    | { type: 'header', level: number, content: string }
+    | { type: 'codeblock', content: string }
+    | { type: 'list', ordered: boolean, items: ListItemType[] }
+
+  interface ListItemType {
+    content: string
+    children: NodeType[]
+  }
+
+  function parseBlocks(lines: string[]): NodeType[] {
+    let i = 0
+    const nodes: NodeType[] = []
+
+    function parseList(startIndent: number, ordered: boolean): { node: NodeType, endIndex: number } {
+      const items: ListItemType[] = []
+      while (i < lines.length) {
+        const line = lines[i]
+        const indent = /^(\s*)/.exec(line)?.[1].length ?? 0
+
+        // Check if line is a list item at or deeper than startIndent
+        const liMatch = ordered
+          ? /^\s*\d+\.\s+(.*)/.exec(line)
+          : /^\s*-\s+(.*)/.exec(line)
+
+        if (!liMatch || indent < startIndent) {
+          break
+        }
+
+        const content = liMatch[1]
+        i++
+
+        // Check if next lines form sub-lists or paragraphs under this item
+        const children: NodeType[] = []
+        while (i < lines.length) {
+          const subline = lines[i]
+          const subIndent = /^(\s*)/.exec(subline)?.[1].length ?? 0
+          // Check for sub-list
+          const subOlMatch = /^\s*\d+\.\s+(.*)/.exec(subline)
+          const subUlMatch = /^\s*-\s+(.*)/.exec(subline)
+          if ((subOlMatch || subUlMatch) && subIndent > startIndent) {
+            const { node: sublist, endIndex } = parseList(subIndent, !!subOlMatch)
+            children.push(sublist)
+            i = endIndex
+          } else if (subline.trim().length === 0 || subIndent > startIndent) {
+            if (subline.trim().length !== 0) {
+              // paragraph under item
+              children.push({ type: 'paragraph', content: subline.trim() })
+            }
+            i++
+          } else {
+            break
+          }
+        }
+
+        items.push({ content, children })
+      }
+
+      return { node: { type: 'list', ordered, items }, endIndex: i }
+    }
+
+    while (i < lines.length) {
+      const line = lines[i]
+
+      // Skip blank lines
+      if (line.trim() === '') {
+        i++
+        continue
+      }
+
+      // Check for code block
+      if (line.trim().startsWith('```')) {
+        i++
+        const codeLines: string[] = []
+        while (i < lines.length && !lines[i].trim().startsWith('```')) {
+          codeLines.push(lines[i])
+          i++
+        }
+        i++ // skip the ending ```
+        nodes.push({ type: 'codeblock', content: codeLines.join('\n') })
+        continue
+      }
+
+      // Check for headers
+      const headerMatch = /^(#{1,3})\s+(.*)/.exec(line)
+      if (headerMatch) {
+        const level = headerMatch[1].length
+        const content = headerMatch[2]
+        nodes.push({ type: 'header', level, content })
+        i++
+        continue
+      }
+
+      // Check for list item
+      const olMatch = /^\s*\d+\.\s+(.*)/.exec(line)
+      const ulMatch = /^\s*-\s+(.*)/.exec(line)
+
+      if (olMatch || ulMatch) {
+        const indent = /^(\s*)/.exec(line)?.[1].length ?? 0
+        const ordered = !!olMatch
+        const { node, endIndex } = parseList(indent, ordered)
+        nodes.push(node)
+        i = endIndex
+        continue
+      }
+
+      // If not code block, header, or list, treat as paragraph
+      nodes.push({ type: 'paragraph', content: line })
+      i++
+    }
+
+    return nodes
+  }
+
+  const lines = text.split('\n')
+  const ast = parseBlocks(lines)
+
+  // Convert AST to React elements
+  function renderNodes(nodes: NodeType[]): ReactNode {
+    return nodes.map((node, idx) => {
+      switch (node.type) {
+      case 'paragraph':
+        return <p key={idx}>{...parseInline(node.content)}</p>
+      case 'header':
+        if (node.level === 1) return <h1 key={idx}>{...parseInline(node.content)}</h1>
+        if (node.level === 2) return <h2 key={idx}>{...parseInline(node.content)}</h2>
+        if (node.level === 3) return <h3 key={idx}>{...parseInline(node.content)}</h3>
+        return <p key={idx}>{...parseInline(node.content)}</p>
+      case 'codeblock':
+        return (
+          <pre key={idx}>
+            <code>{node.content}</code>
+          </pre>
+        )
+      case 'list':
+        if (node.ordered) {
+          return (
+            <ol key={idx}>
+              {node.items.map((item, liIndex) => <li key={liIndex}>
+                {...parseInline(item.content)}
+                {renderNodes(item.children)}
+              </li>)}
+            </ol>
+          )
+        } else {
+          return (
+            <ul key={idx}>
+              {node.items.map((item, liIndex) => <li key={liIndex}>
+                {...parseInline(item.content)}
+                {renderNodes(item.children)}
+              </li>)}
+            </ul>
+          )
+        }
+      default:
+        return null
+      }
+    })
+  }
+
+  return <div className={className}>{renderNodes(ast)}</div>
 }

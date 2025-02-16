@@ -23,6 +23,13 @@ describe('Markdown', () => {
     expect(italicText.tagName).toBe('EM')
   })
 
+  it('does not treat asterisks used for multiplication as italic', () => {
+    const text = 'Make tool calls to compute 123123 * 3423542 and 235666 * 233333.'
+    const { container, getByText } = render(<Markdown text={text} />)
+    expect(getByText(text)).toBeDefined()
+    expect(container.querySelector('em')).toBeNull()
+  })
+
   it('renders headers', () => {
     const text = '# Heading 1\n## Heading 2\n### Heading 3'
     const { getByText } = render(<Markdown text={text} />)
@@ -56,6 +63,14 @@ describe('Markdown', () => {
 
   it('renders a list', () => {
     const text = '- Item 1\n- Item 2\n- Item 3\n\n'
+    const { getByText } = render(<Markdown text={text} />)
+    expect(getByText('Item 1')).toBeDefined()
+    expect(getByText('Item 2')).toBeDefined()
+    expect(getByText('Item 3')).toBeDefined()
+  })
+
+  it('renders an list with bold', () => {
+    const text = '- **Item 1**\n- Item 2\n- Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
     expect(getByText('Item 2')).toBeDefined()

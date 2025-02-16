@@ -14,10 +14,13 @@ const config: RoutesConfig = {
 }
 
 // Mock fetch
-global.fetch = vi.fn(() => Promise.resolve({ text: vi.fn() } as unknown as Response))
+const text = vi.fn()
+const headers = { get: vi.fn() }
+global.fetch = vi.fn(() => Promise.resolve({ text, headers } as unknown as Response))
 
 describe('File Component', () => {
   it('renders a local file path', async () => {
+    text.mockResolvedValueOnce('test content')
     const source = getHyperparamSource('folder/subfolder/test.txt', { endpoint })
     assert(source?.kind === 'file')
 
@@ -32,6 +35,7 @@ describe('File Component', () => {
   })
 
   it('renders a URL', async () => {
+    text.mockResolvedValueOnce('test content')
     const url = 'https://example.com/test.txt'
     const source = getHttpSource(url)
     assert(source?.kind === 'file')
@@ -42,6 +46,7 @@ describe('File Component', () => {
   })
 
   it('renders correct breadcrumbs for nested folders', async () => {
+    text.mockResolvedValueOnce('test content')
     const source = getHyperparamSource('folder1/folder2/folder3/test.txt', { endpoint })
     assert(source?.kind === 'file')
 
