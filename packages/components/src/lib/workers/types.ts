@@ -1,4 +1,5 @@
 import { ColumnData, FileMetaData, ParquetReadOptions } from 'hyparquet'
+import { ParquetQueryFilter } from 'hyparquet/src/types.js'
 
 // Serializable constructors for AsyncBuffers
 interface AsyncBufferFromFile {
@@ -15,6 +16,7 @@ export type AsyncBufferFrom = AsyncBufferFromFile | AsyncBufferFromUrl
 // Same as ParquetReadOptions, but AsyncBufferFrom instead of AsyncBuffer
 export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'file'> {
   from: AsyncBufferFrom
+  filter?: ParquetQueryFilter,
   orderBy?: string
   sortIndex?: boolean
 }

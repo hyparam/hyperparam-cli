@@ -19,12 +19,12 @@ function postIndicesMessage ({ indices, queryId }: IndicesMessage) {
 self.onmessage = async ({ data }: {
   data: ParquetReadWorkerOptions & { queryId: number; chunks: boolean };
 }) => {
-  const { metadata, from, rowStart, rowEnd, orderBy, columns, queryId, chunks, sortIndex } = data
+  const { metadata, filter, from, rowStart, rowEnd, orderBy, columns, queryId, chunks, sortIndex } = data
   const file = await asyncBufferFrom(from)
   if (sortIndex === undefined) {
     const onChunk = chunks ? (chunk: ColumnData) => { postChunkMessage({ chunk, queryId }) } : undefined
     try {
-      const result = await parquetQuery({ metadata, file, rowStart, rowEnd, orderBy, columns, compressors, onChunk })
+      const result = await parquetQuery({ metadata, filter, file, rowStart, rowEnd, orderBy, columns, compressors, onChunk })
       postResultMessage({ result, queryId })
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
