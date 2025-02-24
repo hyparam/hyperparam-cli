@@ -45,6 +45,7 @@ export const sharedJsRules = {
 export const sharedTsRules = {
   '@typescript-eslint/restrict-template-expressions': 'off',
   '@typescript-eslint/no-unused-vars': 'warn',
+  '@typescript-eslint/require-await': 'warn',
 }
 
 /** @type {import('eslint').Linter.Config[]} */
