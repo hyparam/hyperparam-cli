@@ -125,6 +125,7 @@ main {
   justify-content: space-between;
   min-height: 32px;
   padding-left: 20px;
+  padding-right: 10px;
 }
 .top-header h1 {
   font-size: 18px;
@@ -135,6 +136,32 @@ main {
 .top-header-divided {
   border-bottom: 1px solid #ddd;
   background: #eee;
+}
+
+.top-actions {
+  left: auto;
+}
+/* search */
+input.search {
+  background: #fff url(/public/search.svg) no-repeat center right 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  flex-shrink: 1;
+  font-size: 12px;
+  height: 24px;
+  min-width: 0;
+  outline: none;
+  padding: 4px 20px 2px 8px;
+  width: 100px;
+  transition-duration: 0.3s;
+  transition-property: border, width;
+}
+input.search:focus {
+  border-color: #778;
+  box-shadow: 0 0 1px #556;
+  color: #444;
+  padding-left: 8px;
+  width: 180px;
 }
 
 /* file path */
@@ -217,7 +244,7 @@ main {
   justify-content: space-between;
   min-height: 100%;
   overflow-y: auto;
-  padding: 10px;
+  padding: 10px 10px 10px 20px;
 }
 
 /* error bar close button */
@@ -323,7 +350,7 @@ button.close-button:hover {
   gap: 16px;
   height: 24px;
   overflow: hidden;
-  padding: 0 8px;
+  padding: 0 16px;
   /* all one line */
   text-overflow: ellipsis;
   white-space: nowrap;

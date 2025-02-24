@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FileSource } from '../lib/sources/types.js'
+import type { FileSource } from '../lib/sources/types.js'
 import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
 import Layout from './Layout.js'
 import Viewer, { ViewerConfig } from './viewers/Viewer.js'
