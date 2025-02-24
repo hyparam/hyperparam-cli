@@ -4,12 +4,6 @@ import { parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
 
-enum LoadingState {
-  NotLoaded,
-  Loading,
-  Loaded
-}
-
 interface ViewerProps {
   source: FileSource
   setError: (error: Error | undefined) => void
@@ -20,7 +14,6 @@ interface ViewerProps {
  * Text viewer component.
  */
 export default function TextView({ source, setError }: ViewerProps) {
-  const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
 
   const { resolveUrl, requestInit } = source
@@ -32,7 +25,7 @@ export default function TextView({ source, setError }: ViewerProps) {
         const res = await fetch(resolveUrl, requestInit)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
-        if (res.status === 401) {
+        if (res.status >= 400) {
           setError(new Error(text))
           setContent(undefined)
           return
@@ -42,17 +35,10 @@ export default function TextView({ source, setError }: ViewerProps) {
       } catch (error) {
         setError(error as Error)
         setContent(undefined)
-      } finally {
-        setLoading(LoadingState.Loaded)
       }
     }
 
-    setLoading((loading) => {
-      // use loading state to ensure we only load content once
-      if (loading !== LoadingState.NotLoaded) return loading
-      loadContent().catch(() => undefined)
-      return LoadingState.Loading
-    })
+    loadContent().catch(() => undefined)
   }, [resolveUrl, requestInit, setError])
 
   const headers = <>
@@ -61,11 +47,11 @@ export default function TextView({ source, setError }: ViewerProps) {
 
   // Simple text viewer
   return <ContentHeader content={content} headers={headers}>
-    <code className='text'>
-      {content?.text}
-    </code>
+    {content && <code className='text'>
+      {content.text}
+    </code>}
 
-    {loading && <Spinner className='center' />}
+    {!content && <Spinner className='center' />}
   </ContentHeader>
 }
 
