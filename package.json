@@ -1,14 +1,12 @@
 {
   "name": "@hyparam/monorepo",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "license": "MIT",
   "type": "module",
   "workspaces": [
     "packages/components",
-    "packages/cli",
-    "apps/hightable-demo",
-    "apps/hyparquet-demo"
+    "packages/cli"
   ],
   "scripts": {
     "lint": "eslint .",
