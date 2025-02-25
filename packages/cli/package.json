@@ -28,9 +28,9 @@
     "typecheck": "tsc"
   },
   "dependencies": {
+    "@hyparam/components": "0.1.17",
     "highlight.js": "11.11.1",
     "hightable": "0.10.0",
-    "@hyparam/components": "0.1.17",
     "react": "18.3.1",
     "react-dom": "18.3.1"
   },

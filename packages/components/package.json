@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "hightable": "0.10.0",
-    "hyparquet": "1.8.2",
+    "hyparquet": "1.8.4",
     "hyparquet-compressors": "1.0.0"
   },
   "peerDependencies": {
