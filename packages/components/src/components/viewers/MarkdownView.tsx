@@ -57,6 +57,6 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
   return <ContentHeader content={content}>
     <Markdown className='markdown' text={content?.text ?? ''} />
 
-    { loading === LoadingState.Loading && <Spinner className='center' /> }
+    { loading === LoadingState.Loading && <div className='center'><Spinner /></div> }
   </ContentHeader>
 }

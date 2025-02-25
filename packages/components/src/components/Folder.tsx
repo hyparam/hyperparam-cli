@@ -109,7 +109,7 @@ export default function Folder({ source, config }: FolderProps) {
       )}
     </ul>}
     {files?.length === 0 && <div className='center'>No files</div>}
-    {files === undefined && <Spinner className='center' />}
+    {files === undefined && <div className='center'><Spinner /></div>}
   </Layout>
 }
 

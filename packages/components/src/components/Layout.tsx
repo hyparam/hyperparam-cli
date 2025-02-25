@@ -49,7 +49,7 @@ function Sidebar() {
   </nav>
 }
 
-export function Spinner({ className }: { className: string }) {
+export function Spinner({ className }: { className?: string }) {
   return <div className={cn('spinner', className)}></div>
 }
 

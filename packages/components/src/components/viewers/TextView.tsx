@@ -51,7 +51,7 @@ export default function TextView({ source, setError }: ViewerProps) {
       {content.text}
     </code>}
 
-    {!content && <Spinner className='center' />}
+    {!content && <div className='center'><Spinner /></div>}
   </ContentHeader>
 }
 

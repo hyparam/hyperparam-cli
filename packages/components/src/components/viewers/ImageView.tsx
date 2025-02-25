@@ -68,7 +68,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
       className='image'
       src={content.dataUri} />}
 
-    {loading && <Spinner className='center' />}
+    {loading && <div className='center'><Spinner /></div>}
   </ContentHeader>
 }
 
