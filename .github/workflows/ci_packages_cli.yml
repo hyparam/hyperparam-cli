@@ -1,4 +1,4 @@
-name: apps/cli
+name: packages/cli
 on:
   push:
     branches: ["master"]
