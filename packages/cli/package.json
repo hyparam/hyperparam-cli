@@ -1,6 +1,6 @@
 {
   "name": "hyperparam",
-  "version": "0.2.21",
+  "version": "0.2.22",
   "description": "Hyperparam CLI",
   "author": "Hyperparam",
   "homepage": "https://hyperparam.app",
@@ -28,7 +28,7 @@
     "typecheck": "tsc"
   },
   "dependencies": {
-    "@hyparam/components": "0.1.17",
+    "@hyparam/components": "0.1.18",
     "highlight.js": "11.11.1",
     "hightable": "0.10.0",
     "react": "18.3.1",
