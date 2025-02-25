@@ -72,7 +72,7 @@ export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, filter, o
 
     // If caller provided an onChunk callback, worker will send chunks as they are parsed
     const chunks = onChunk !== undefined
-    worker.postMessage({ queryId, metadata, from, rowStart, rowEnd,filter, orderBy, chunks })
+    worker.postMessage({ queryId, metadata, from, rowStart, rowEnd, filter, orderBy, chunks })
   })
 }
 
