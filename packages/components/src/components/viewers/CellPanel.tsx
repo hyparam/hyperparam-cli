@@ -22,7 +22,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
     async function loadCellData() {
       try {
         setProgress(0.5)
-        const asyncRows = df.rows(row, row + 1)
+        const asyncRows = df.rows({ start: row, end: row + 1 })
         if (asyncRows.length !== 1) {
           throw new Error(`Expected 1 row, got ${asyncRows.length}`)
         }

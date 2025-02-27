@@ -44,7 +44,7 @@ export default function CellView({ source, row, col, config }: CellProps) {
         const metadata = await parquetMetadataAsync(asyncBuffer)
         setProgress(0.75)
         const df = parquetDataFrame(from, metadata)
-        const asyncRows = df.rows(row, row + 1)
+        const asyncRows = df.rows({ start: row, end: row + 1 })
         if (asyncRows.length !== 1) {
           throw new Error(`Expected 1 row, got ${asyncRows.length}`)
         }
