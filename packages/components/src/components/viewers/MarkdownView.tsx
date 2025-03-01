@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { FileSource } from '../../lib/sources/types.js'
+import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
@@ -25,6 +25,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
 
   const { resolveUrl, requestInit } = source
 
+  // Load markdown content
   useEffect(() => {
     async function loadContent() {
       try {
