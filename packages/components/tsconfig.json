@@ -20,7 +20,7 @@
 
     "outDir": "./es",
     "emitDeclarationOnly": true,
-    "declaration": true,
+    "declaration": true
   },
   "include": ["src"]
 }

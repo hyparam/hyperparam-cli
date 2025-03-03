@@ -37,6 +37,7 @@ export default tseslint.config(
       ...tseslint.configs.recommended.rules,
       ...sharedJsRules,
       ...sharedTsRules,
+      'no-extra-parens': 'warn',
     },
   },
   {

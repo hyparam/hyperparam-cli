@@ -309,7 +309,7 @@ button.close-button:hover {
   border-top: none;
 }
 .file-list a {
-  border-top: 1px solid #bbb;
+  border-top: 1px solid #ddd;
   color: #444;
   display: flex;
   padding: 8px 16px 8px 20px;

@@ -1,6 +1,7 @@
 import { Page, getHttpSource, getHyperparamSource } from '@hyparam/components'
 import 'hightable/src/HighTable.css'
 import React from 'react'
+import '@hyparam/components/components.css'
 
 export default function App() {
   const search = new URLSearchParams(location.search)
