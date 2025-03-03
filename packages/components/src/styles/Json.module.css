@@ -1,3 +1,9 @@
+.jsonView {
+  background-color: #22222b;
+  color: #d6d6d6;
+  padding: 8px 8px 8px 20px;
+}
+
 .json {
   white-space: pre-wrap;
 }
