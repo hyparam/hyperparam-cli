@@ -99,3 +99,63 @@ describe('Markdown', () => {
     expect(code?.textContent).toBe('console.log(\'Hello, world!\')')
   })
 })
+
+describe('Markdown with nested elements', () => {
+  it('renders an image inside a link', () => {
+    const text = '[![mit license](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT)'
+    const { container } = render(<Markdown text={text} />)
+
+    // Check that we have an image
+    const img = container.querySelector('img')
+    expect(img).toBeDefined()
+    expect(img?.getAttribute('alt')).toBe('mit license')
+    expect(img?.getAttribute('src')).toBe('https://img.shields.io/badge/License-MIT-orange.svg')
+
+    // Check that the image is inside a link
+    const link = container.querySelector('a')
+    expect(link).toBeDefined()
+    expect(link?.getAttribute('href')).toBe('https://opensource.org/licenses/MIT')
+    expect(link?.contains(img)).toBe(true)
+  })
+
+  it('handles multiple images inside links in one paragraph', () => {
+    const text = 'Check [![license](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT) and [![npm](https://img.shields.io/npm/v/package.svg)](https://www.npmjs.com/package)'
+    const { container } = render(<Markdown text={text} />)
+
+    const links = container.querySelectorAll('a')
+    expect(links.length).toBe(2)
+
+    const images = container.querySelectorAll('img')
+    expect(images.length).toBe(2)
+
+    // First link contains first image
+    expect(links[0].getAttribute('href')).toBe('https://opensource.org/licenses/MIT')
+    expect(links[0].contains(images[0])).toBe(true)
+    expect(images[0].getAttribute('alt')).toBe('license')
+
+    // Second link contains second image
+    expect(links[1].getAttribute('href')).toBe('https://www.npmjs.com/package')
+    expect(links[1].contains(images[1])).toBe(true)
+    expect(images[1].getAttribute('alt')).toBe('npm')
+  })
+
+  it('handles images and text inside links', () => {
+    const text = '[Click here ![icon](https://example.com/icon.png) for more info](https://example.com)'
+    const { container } = render(<Markdown text={text} />)
+
+    const link = container.querySelector('a')
+    expect(link).toBeDefined()
+    expect(link?.getAttribute('href')).toBe('https://example.com')
+
+    // Check that the link contains both text fragments
+    const linkText = link?.textContent ?? ''
+    expect(linkText.includes('Click here')).toBe(true)
+    expect(linkText.includes('for more info')).toBe(true)
+
+    // Image should be inside the link
+    const img = container.querySelector('img')
+    expect(img).toBeDefined()
+    expect(img?.getAttribute('src')).toBe('https://example.com/icon.png')
+    expect(link?.contains(img)).toBe(true)
+  })
+})

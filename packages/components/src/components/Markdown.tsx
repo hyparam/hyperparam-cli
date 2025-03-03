@@ -14,7 +14,10 @@ export default function Markdown({ text, className }: MarkdownProps) {
     function renderTextSegments(text: string): ReactNode[] {
       let result: ReactNode[] = []
 
-      // Parse images: ![alt](url)
+      // Process in order: image links, images, regular links, and then formatting
+      const imageInsideLinkRegex = /\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/g
+      // Handle mixed content within links: [text ![img](img_url) more text](link_url)
+      const mixedContentLinkRegex = /\[([^\]]*?!\[[^\]]*?\]\([^)]+?\)[^\]]*?)\]\(([^)]+)\)/g
       const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
       const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
       const codeRegex = /`([^`]+)`/g
@@ -33,6 +36,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
             const str = segment
             let lastIndex = 0
             let match: RegExpExecArray | null
+            regex.lastIndex = 0 // Reset regex for safety
             while ((match = regex.exec(str)) !== null) {
               // Add text before match
               if (match.index > lastIndex) {
@@ -56,13 +60,24 @@ export default function Markdown({ text, className }: MarkdownProps) {
       // Start with entire text as a single segment
       result = [text]
 
-      // Apply in a certain order:
-      result = applyRegex(result, imageRegex, (m) => <img alt={m[1]} src={m[2]} />)
-      result = applyRegex(result, linkRegex, (m) => <a href={m[2]}>{m[1]}</a>)
-      result = applyRegex(result, codeRegex, (m) => <code>{m[1]}</code>)
-      result = applyRegex(result, boldRegex, (m) => <strong>{m[1]}</strong>)
-      result = applyRegex(result, italicRegex, (m) => <em>{m[1]}</em>)
-      result = applyRegex(result, underlineRegex, (m) => <u>{m[1]}</u>)
+      // Apply in a specific order to handle nested elements:
+      // First handle image-inside-link pattern
+      result = applyRegex(result, imageInsideLinkRegex, (m) => <a href={m[3]} key={`imglink-${m[3]}`}>
+        <img alt={m[1]} src={m[2]} key={`img-in-link-${m[2]}`} />
+      </a>)
+
+      // Then handle mixed content links (with images and text)
+      result = applyRegex(result, mixedContentLinkRegex, (m) => <a href={m[2]} key={`mixed-${m[2]}`}>{parseInline(m[1])}</a>)
+
+      // Then handle regular images and links
+      result = applyRegex(result, imageRegex, (m) => <img key={`img-${m[2]}`} alt={m[1]} src={m[2]} />)
+      result = applyRegex(result, linkRegex, (m) => <a href={m[2]} key={`link-${m[2]}`}>{parseInline(m[1])}</a>)
+
+      // Finally handle text formatting
+      result = applyRegex(result, codeRegex, (m) => <code key={`code-${m.index}`}>{m[1]}</code>)
+      result = applyRegex(result, boldRegex, (m) => <strong key={`bold-${m.index}`}>{m[1]}</strong>)
+      result = applyRegex(result, italicRegex, (m) => <em key={`italic-${m.index}`}>{m[1]}</em>)
+      result = applyRegex(result, underlineRegex, (m) => <u key={`underline-${m.index}`}>{m[1]}</u>)
 
       return result
     }
