@@ -7,7 +7,6 @@ import ContentHeader, { TextContent } from './ContentHeader.js'
 interface ViewerProps {
   source: FileSource
   setError: (error: Error | undefined) => void
-  setProgress: (progress: number | undefined) => void
 }
 
 /**
@@ -41,8 +40,7 @@ export default function TextView({ source, setError }: ViewerProps) {
         setIsLoading(false)
       }
     }
-
-    loadContent().catch(() => undefined)
+    void loadContent()
   }, [resolveUrl, requestInit, setError])
 
   const headers = <>

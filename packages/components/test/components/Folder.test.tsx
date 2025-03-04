@@ -152,7 +152,7 @@ describe('Folder Component', () => {
 
     // Type a search query and hit enter
     const searchInput = getByPlaceholderText('Search...')
-    await act(async () => {
+    act(() => {
       fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
     })
 
@@ -163,7 +163,7 @@ describe('Folder Component', () => {
     expect(location.href).toBe('/files?key=file1.txt')
   })
 
-  it('jumps to search box when user types /', async () => {
+  it('jumps to search box when user types /', () => {
     const dirSource: DirSource = {
       sourceId: 'test-source',
       sourceParts: [{ text: 'test-source', sourceId: 'test-source' }],
@@ -179,7 +179,7 @@ describe('Folder Component', () => {
     expect(document.activeElement).toBe(searchInput)
 
     // Typing inside the search box should work including /
-    await act(async () => {
+    act(() => {
       fireEvent.keyUp(searchInput, { target: { value: 'file1/' } })
       expect(searchInput.value).toBe('file1/')
     })

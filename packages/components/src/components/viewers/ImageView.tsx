@@ -4,12 +4,6 @@ import { contentTypes, parseFileSize } from '../../lib/utils.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'
 
-enum LoadingState {
-  NotLoaded,
-  Loading,
-  Loaded
-}
-
 interface ViewerProps {
   source: FileSource
   setError: (error: Error | undefined) => void
@@ -24,14 +18,15 @@ interface Content {
  * Image viewer component.
  */
 export default function ImageView({ source, setError }: ViewerProps) {
-  const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<Content>()
+  const [isLoading, setIsLoading] = useState(true)
 
   const { fileName, resolveUrl, requestInit } = source
 
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         if (res.status === 401) {
           const text = await res.text()
@@ -50,16 +45,10 @@ export default function ImageView({ source, setError }: ViewerProps) {
         setContent(undefined)
         setError(error as Error)
       } finally {
-        setLoading(LoadingState.Loaded)
+        setIsLoading(false)
       }
     }
-
-    setLoading((loading) => {
-      // use loading state to ensure we only load content once
-      if (loading !== LoadingState.NotLoaded) return loading
-      loadContent().catch(() => undefined)
-      return LoadingState.Loading
-    })
+    void loadContent()
   }, [fileName, resolveUrl, requestInit, setError])
 
   return <ContentHeader content={content}>
@@ -68,7 +57,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
       className='image'
       src={content.dataUri} />}
 
-    {loading && <div className='center'><Spinner /></div>}
+    {isLoading && <div className='center'><Spinner /></div>}
   </ContentHeader>
 }
 

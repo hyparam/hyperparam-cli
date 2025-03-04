@@ -45,6 +45,6 @@ export default function Viewer({
 
   // Default to text viewer
   return (
-    <TextView source={source} setError={setError} setProgress={setProgress} />
+    <TextView source={source} setError={setError} />
   )
 }

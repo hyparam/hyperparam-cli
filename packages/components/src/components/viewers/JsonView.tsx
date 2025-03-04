@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/Json.module.css'
 import Json from '../Json.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
-import styles from '../../styles/Json.module.css'
 
 interface ViewerProps {
   source: FileSource

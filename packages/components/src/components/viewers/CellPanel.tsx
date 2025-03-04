@@ -37,7 +37,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
       }
     }
 
-    loadCellData().catch(() => undefined)
+    void loadCellData()
   }, [df, col, row, setProgress, setError])
 
   const headers = <>
