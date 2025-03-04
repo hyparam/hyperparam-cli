@@ -341,14 +341,14 @@ button.close-button:hover {
 
 /* file icons */
 .file {
-  background: url("../assets/file.svg");
+  background-image: url("../assets/file.svg");
   background-position: left center;
   background-repeat: no-repeat;
   background-size: 12px;
   padding-left: 22px;
 }
 .folder {
-  background: url("../assets/folder.svg");
+  background-image: url("../assets/folder.svg");
 }
 
 /* viewer */
