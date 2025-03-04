@@ -1,8 +1,5 @@
-import 'hightable/src/HighTable.css'
-import React from 'react'
-import { Page } from '../src/index.js'
-
-import { getHttpSource } from '../src/index.ts'
+import { getHttpSource } from '../lib/sources/httpSource.js'
+import Page from './Page.js'
 export interface Navigation {
   col?: number
   row?: number

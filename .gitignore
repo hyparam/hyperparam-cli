@@ -30,4 +30,4 @@ package-lock.json
 *.parquet
 /coverage/
 
-/es
+/lib

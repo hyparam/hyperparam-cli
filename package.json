@@ -15,30 +15,27 @@
     "directory": "packages/components"
   },
   "type": "module",
-  "main": "dist/index.umd.min.js",
-  "unpkg": "dist/index.umd.min.js",
-  "module": "dist/index.es.min.js",
-  "types": "es/index.d.ts",
+  "types": "lib/index.d.ts",
   "exports": {
     ".": {
-      "types": "./es/index.d.ts",
-      "import": "./dist/index.es.min.js",
-      "require": "./dist/index.umd.min.js"
+      "types": "./lib/index.d.ts",
+      "import": "./dist/index.min.js"
     },
     "./components.css": "./dist/components.css"
   },
   "files": [
     "dist",
-    "es"
+    "lib"
   ],
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "tsc -b && vite build",
     "coverage": "vitest run --coverage --coverage.include=src",
-    "dev": "vite ./demo",
+    "dev": "vite",
     "lint": "eslint .",
-    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "vitest run",
-    "typecheck": "tsc"
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
   },
   "dependencies": {
     "hightable": "0.11.0",
