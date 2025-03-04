@@ -73,7 +73,7 @@ const sharedTsRules = {
 // ]
 
 export default tseslint.config(
-  { ignores: ['coverage/', 'dist/', 'es/'] },
+  { ignores: ['coverage/', 'dist/', 'lib/', 'packages/'] },
   {
     settings: { react: { version: '18.3' } },
     extends: [javascript.configs.recommended, ...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylisticTypeChecked],
