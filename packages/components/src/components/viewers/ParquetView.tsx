@@ -9,12 +9,6 @@ import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
 import SlidePanel, { SlidePanelConfig } from './SlidePanel.js'
 
-enum LoadingState {
-  NotLoaded,
-  Loading,
-  Loaded
-}
-
 export type ParquetViewConfig = SlidePanelConfig & RoutesConfig
 
 interface ViewerProps {
@@ -32,13 +26,13 @@ interface Content extends ContentSize {
  * Parquet file viewer
  */
 export default function ParquetView({ source, setProgress, setError, config }: ViewerProps) {
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
+  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
 
-  const { resolveUrl, requestInit, sourceId } = source
   useEffect(() => {
     async function loadParquetDataFrame() {
+      const { resolveUrl, requestInit } = source
       try {
         setProgress(0.33)
         const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, requestInit })
@@ -52,20 +46,15 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       } catch (error) {
         setError(error as Error)
       } finally {
-        setLoading(LoadingState.Loaded)
+        setIsLoading(false)
         setProgress(1)
       }
     }
-    if (loading === LoadingState.NotLoaded) {
-      setLoading(LoadingState.Loading)
-      void loadParquetDataFrame()
-    }
-  }, [loading, resolveUrl, requestInit, setError, setProgress])
 
-  // Clear loading state on content change
-  useEffect(() => {
-    setLoading(LoadingState.NotLoaded)
-  }, [source])
+    setContent(undefined)
+    setIsLoading(true)
+    void loadParquetDataFrame()
+  }, [setError, setProgress, source])
 
   // Close cell view on escape key
   useEffect(() => {
@@ -81,6 +70,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
     return () => { window.removeEventListener('keydown', handleKeyDown) }
   }, [cell])
 
+  const { sourceId } = source
   const getCellRouteUrl = useCallback(({ col, row }: {col: number, row: number}) => {
     const url = config?.routes?.getCellRouteUrl?.({ sourceId, col, row })
     if (url) {
@@ -108,13 +98,13 @@ export default function ParquetView({ source, setProgress, setError, config }: V
 
   const mainContent = <ContentHeader content={content} headers={headers}>
     {content?.dataframe && <HighTable
-      cacheKey={resolveUrl}
+      cacheKey={source.resolveUrl}
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
       onError={setError} />}
 
-    {loading === LoadingState.Loading && <div className='center'><Spinner /></div>}
+    {isLoading && <div className='center'><Spinner /></div>}
   </ContentHeader>
 
   let panelContent
