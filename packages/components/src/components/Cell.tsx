@@ -62,7 +62,7 @@ export default function CellView({ source, row, col, config }: CellProps) {
 
     setProgress(0)
     void loadCellData()
-  }, [resolveUrl, requestInit, col, row, setError])
+  }, [resolveUrl, requestInit, col, row])
 
   return (
     <Layout progress={progress} error={error} title={fileName}>
