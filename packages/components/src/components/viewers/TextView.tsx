@@ -7,7 +7,6 @@ import ContentHeader, { TextContent } from './ContentHeader.js'
 interface ViewerProps {
   source: FileSource
   setError: (error: Error | undefined) => void
-  setProgress: (progress: number | undefined) => void
 }
 
 /**
