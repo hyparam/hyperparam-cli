@@ -18,7 +18,12 @@
     },
     "./components.css": "./dist/components.css"
   },
+  "bin": {
+    "hyp": "bin/cli.js",
+    "hyperparam": "bin/cli.js"
+  },
   "files": [
+    "bin",
     "dist",
     "lib"
   ],
