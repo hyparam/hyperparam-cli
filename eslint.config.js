@@ -52,26 +52,6 @@ const sharedTsRules = {
   '@typescript-eslint/require-await': 'warn',
 }
 
-// /** @type {import('eslint').Linter.Config[]} */
-// export default [
-//   {
-//     ignores: ['**/coverage/**'],
-//   },
-//   {
-//     languageOptions: {
-//       globals: {
-//         ...globals.browser,
-//         ...globals.node,
-//       },
-//     },
-//     rules: {
-//       ...javascript.configs.recommended.rules,
-//       ...sharedJsRules,
-//     },
-//     files: ['eslint.config.js', 'test/**/*.js'],
-//   },
-// ]
-
 export default tseslint.config(
   { ignores: ['coverage/', 'dist/', 'lib/', 'packages/'] },
   {
