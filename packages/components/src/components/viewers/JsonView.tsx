@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/Json.module.css'
 import Json from '../Json.js'
 import { Spinner } from '../Layout.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
-import styles from '../../styles/Json.module.css'
 
 interface ViewerProps {
   source: FileSource
@@ -27,7 +27,6 @@ export default function JsonView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
-        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         const futureText = res.text()
         if (res.status === 401) {
@@ -53,6 +52,8 @@ export default function JsonView({ source, setError }: ViewerProps) {
         setIsLoading(false)
       }
     }
+
+    setIsLoading(true)
     void loadContent()
   }, [resolveUrl, requestInit, setError])
 

@@ -5,12 +5,6 @@ import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
 
-enum LoadingState {
-  NotLoaded,
-  Loading,
-  Loaded
-}
-
 interface ViewerProps {
   source: FileSource
   setError: (error: Error | undefined) => void
@@ -20,8 +14,8 @@ interface ViewerProps {
  * Markdown viewer component.
  */
 export default function MarkdownView({ source, setError }: ViewerProps) {
-  const [loading, setLoading] = useState(LoadingState.NotLoaded)
   const [content, setContent] = useState<TextContent>()
+  const [isLoading, setIsLoading] = useState(true)
 
   const { resolveUrl, requestInit } = source
 
@@ -43,21 +37,17 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
         setError(error as Error)
         setContent(undefined)
       } finally {
-        setLoading(LoadingState.Loaded)
+        setIsLoading(false)
       }
     }
 
-    setLoading((loading) => {
-      // use loading state to ensure we only load content once
-      if (loading !== LoadingState.NotLoaded) return loading
-      void loadContent()
-      return LoadingState.Loading
-    })
+    setIsLoading(true)
+    void loadContent()
   }, [resolveUrl, requestInit, setError])
 
   return <ContentHeader content={content}>
     <Markdown className='markdown' text={content?.text ?? ''} />
 
-    { loading === LoadingState.Loading && <div className='center'><Spinner /></div> }
+    { isLoading && <div className='center'><Spinner /></div> }
   </ContentHeader>
 }
