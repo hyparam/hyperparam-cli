@@ -14,12 +14,6 @@ interface CellProps {
   config?: CellConfig
 }
 
-enum LoadingState {
-  NotLoaded,
-  Loading,
-  Loaded,
-}
-
 /**
  * Cell viewer displays a single cell from a table.
  */

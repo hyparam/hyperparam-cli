@@ -72,11 +72,11 @@ function JsonObject({ obj, label }: { obj: object, label?: string }): ReactNode 
       <span className={styles.object}>{'{'}</span>
     </div>
     <ul>
-      {Object.entries(obj).map(([key, value]) => (
+      {Object.entries(obj).map(([key, value]) =>
         <li key={key}>
           <Json json={value as unknown} label={key} />
-        </li>
-      ))}
+        </li>,
+      )}
     </ul>
     <div className={styles.object}>{'}'}</div>
   </>
