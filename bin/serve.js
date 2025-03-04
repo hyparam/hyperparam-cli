@@ -88,7 +88,7 @@ function handleRequest(req, serveDirectory) {
   } else if (pathname.startsWith('/files')) {
     // serve index.html
     return handleStatic(`${hyperparamPath}/dist/index.html`)
-  } else if (pathname.startsWith('/assets/')) {
+  } else if (pathname.startsWith('/assets/') || pathname.startsWith('/favicon') ) {
     // serve static files
     return handleStatic(`${hyperparamPath}/dist${pathname}`)
   // else if (pathname.startsWith('/public/')) {
