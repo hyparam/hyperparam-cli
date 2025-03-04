@@ -24,7 +24,8 @@
       "types": "./es/index.d.ts",
       "import": "./dist/index.es.min.js",
       "require": "./dist/index.umd.min.js"
-    }
+    },
+    "./components.css": "./dist/components.css"
   },
   "files": [
     "dist",

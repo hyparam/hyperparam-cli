@@ -1,0 +1,53 @@
+.jsonView {
+  background-color: #22222b;
+  color: #d6d6d6;
+  padding: 8px 8px 8px 20px;
+}
+
+.json {
+  white-space: pre-wrap;
+}
+.json * {
+  font-family: monospace;
+}
+
+.json ul {
+  border-left: 1px solid #556;
+  list-style-type: none;
+  padding: 0;
+}
+
+.json li {
+  margin: 4px 0 4px 20px;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.drill {
+  color: #556;
+  font-size: 10pt;
+  margin-left: -12px;
+  margin-right: 4px;
+  user-select: none;
+}
+.clickable:hover .drill {
+  color: #778;
+}
+.key {
+  color: #aad;
+  font-weight: bold;
+}
+.array {
+  color: #79e;
+}
+.number {
+  color: #eea;
+}
+.object {
+  color: #d8d;
+}
+.string {
+  color: #eaa;
+}

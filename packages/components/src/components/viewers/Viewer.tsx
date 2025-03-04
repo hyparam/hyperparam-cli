@@ -1,6 +1,7 @@
 import { FileSource } from '../../lib/sources/types.js'
 import { imageTypes } from '../../lib/utils.js'
 import ImageView from './ImageView.js'
+import JsonView from './JsonView.js'
 import MarkdownView from './MarkdownView.js'
 import TableView, { ParquetViewConfig } from './ParquetView.js'
 import TextView from './TextView.js'
@@ -36,6 +37,8 @@ export default function Viewer({
         config={config}
       />
     )
+  } else if (fileName.endsWith('.json')) {
+    return <JsonView source={source} setError={setError} />
   } else if (imageTypes.some((type) => fileName.endsWith(type))) {
     return <ImageView source={source} setError={setError} />
   }

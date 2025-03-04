@@ -15,6 +15,7 @@ interface ViewerProps {
  */
 export default function TextView({ source, setError }: ViewerProps) {
   const [content, setContent] = useState<TextContent>()
+  const [isLoading, setIsLoading] = useState(true)
 
   const { resolveUrl, requestInit } = source
 
@@ -22,6 +23,7 @@ export default function TextView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
@@ -35,6 +37,8 @@ export default function TextView({ source, setError }: ViewerProps) {
       } catch (error) {
         setError(error as Error)
         setContent(undefined)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -51,7 +55,7 @@ export default function TextView({ source, setError }: ViewerProps) {
       {content.text}
     </code>}
 
-    {!content && <div className='center'><Spinner /></div>}
+    {isLoading && <div className='center'><Spinner /></div>}
   </ContentHeader>
 }
 
