@@ -17,6 +17,7 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
+    "rootDir": "src",
     "outDir": "./lib",
     "noEmit": false,
     "emitDeclarationOnly": false,

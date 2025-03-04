@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   pipe,
   readStreamToReadableStream,
-} from '../src/streamConverters.js'
+} from '../../bin/streamConverters.js'
 
 describe('pipe', () => {
   it('should pipe data from web ReadableStream to a Writable', async () => {

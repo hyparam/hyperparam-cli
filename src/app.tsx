@@ -1,13 +1,13 @@
 import 'hightable/src/HighTable.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import DemoApp from './components/DemoApp.js'
-import './styles/demo.css'
+import App from './components/App.js'
+import './styles/app.css'
 
-const root = document.getElementById('root')
+const root = document.getElementById('app')
 if (!root) throw new Error('missing root element')
 createRoot(root).render(
   <StrictMode>
-    <DemoApp />
+    <App />
   </StrictMode>,
 )

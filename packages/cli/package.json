@@ -18,9 +18,9 @@
   "scripts": {
     "build": "rollup -c",
     "coverage": "vitest run --coverage --coverage.include=src",
-    "dev": "npm run serve",
     "lint": "eslint",
     "prepublishOnly": "npm run build",
+    "dev": "npm run serve",
     "serve": "node src/cli.js",
     "preserve": "npm run build",
     "url": "npm run serve -- https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet",

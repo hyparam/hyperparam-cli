@@ -1,7 +1,7 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import * as fs from 'fs/promises'
 import path from 'path'
-import { handleListing } from '../src/serve.js'
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { handleListing } from '../../bin/serve.js'
 
 const tempDir = path.join(__dirname, 'temp-test-dir')
 

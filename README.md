@@ -1,9 +1,72 @@
-# React components for hyparam apps
+# hyperparam
 
-This package contains the React components for the hyparam apps.
+[![npm](https://img.shields.io/npm/v/hyperparam)](https://www.npmjs.com/package/hyperparam)
+[![workflow status](https://github.com/hyparam/hyperparam-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/hyparam/hyperparam-cli/actions)
+[![mit license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![coverage](https://img.shields.io/badge/Coverage-35-darkred)
 
-It depends on [hyparquet](https://github.com/hyparam/hyparquet), [hyparquet-compressors](https://github.com/hyparam/hyparquet-compressors), [hightable](https://github.com/hyparam/hightable/), and requires React to be installed (peer-dependency).
+This is the hyperparam cli tool.
 
-It is used in [hyperparam](https://github.com/hyparam/hyperparam-cli/tree/master/packages/cli).
+The hyperparam cli tool is for viewing arbitrarily large datasets in the browser.
 
-It also contains utilities, in the lib/ subdirectory, that can be used without React. They are used in [hyparquet-demo](https://github.com/hyparam/hyperparam-cli/tree/master/apps/hyparquet-demo).
+## Viewer
+
+To open a file browser in your current local directory run:
+
+```sh
+npx hyperparam
+```
+
+You can also pass a specific file, folder, or url:
+
+```sh
+npx hyperparam example.parquet
+npx hyperparam directory/
+npx hyperparam https://hyperparam-public.s3.amazonaws.com/bunnies.parquet
+```
+
+## Chat
+
+To start a chat with hyperparam:
+
+```sh
+npx hyperparam chat
+```
+
+## Installation
+
+Install for all users:
+
+```sh
+sudo npm i -g hyperparam
+```
+
+Now you can just run:
+
+```sh
+hyperparam
+```
+
+or:
+
+```sh
+hyp
+```
+
+## Developers
+
+To develop the CLI locally:
+
+```sh
+npm i
+npm run build
+npm run serve
+```
+
+When you make changes, make sure to rebuild:
+
+```sh
+npm run build
+```
+
+Then refresh the browser.
