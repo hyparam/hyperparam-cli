@@ -100,21 +100,12 @@ export default tseslint.config(
     files: ['**/*.js'],
     ...tseslint.configs.disableTypeChecked,
   },
-  // {
-  //   files: ['bin/**/*.js'],
-  //   plugins: {
-  //     typescript,
-  //   },
-  //   languageOptions: {
-  //     globals: {
-  //       ...globals.browser,
-  //       ...globals.node,
-  //     },
-  //   },
-  //   rules: {
-  //     ...javascript.configs.recommended.rules,
-  //     ...typescript.configs.recommended.rules,
-  //     ...sharedJsRules,
-  //   },
-  // }
+  {
+    files: ['bin/**/*.js', 'test/bin/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
 )

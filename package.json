@@ -7,7 +7,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hyparam/hyperparam-cli.git",
+    "url": "git+https://github.com/hyparam/hyperparam-cli.git"
   },
   "type": "module",
   "types": "lib/index.d.ts",

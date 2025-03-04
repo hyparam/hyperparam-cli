@@ -49,7 +49,7 @@ if (arg === 'chat') {
  */
 function checkForUpdates() {
   const currentVersion = packageJson.version
-  return fetch('https://registry.npmjs.org/hyperparam/latest')
+  return void fetch('https://registry.npmjs.org/hyperparam/latest')
     .then(response => response.json())
     .then(data => {
       const latestVersion = data.version
@@ -58,5 +58,4 @@ function checkForUpdates() {
         console.log('\x1b[33mRun \'npm install -g hyperparam\' to update\x1b[0m')
       }
     })
-    .catch(() => {}) // ignore errors
 }
