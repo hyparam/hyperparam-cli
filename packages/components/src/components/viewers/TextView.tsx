@@ -42,7 +42,7 @@ export default function TextView({ source, setError }: ViewerProps) {
       }
     }
 
-    loadContent().catch(() => undefined)
+    void loadContent()
   }, [resolveUrl, requestInit, setError])
 
   const headers = <>

@@ -58,7 +58,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
     }
     if (loading === LoadingState.NotLoaded) {
       setLoading(LoadingState.Loading)
-      loadParquetDataFrame().catch(() => undefined)
+      void loadParquetDataFrame()
     }
   }, [loading, resolveUrl, requestInit, setError, setProgress])
 

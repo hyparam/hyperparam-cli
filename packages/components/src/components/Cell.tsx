@@ -65,7 +65,7 @@ export default function CellView({ source, row, col, config }: CellProps) {
     if (loading === LoadingState.NotLoaded) {
       // use loading state to ensure we only load content once
       setLoading(LoadingState.Loading)
-      loadCellData().catch(() => undefined)
+      void loadCellData()
     }
   }, [resolveUrl, requestInit, col, row, loading, setError])
 

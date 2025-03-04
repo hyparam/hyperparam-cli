@@ -50,7 +50,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
     setLoading((loading) => {
       // use loading state to ensure we only load content once
       if (loading !== LoadingState.NotLoaded) return loading
-      loadContent().catch(() => undefined)
+      void loadContent()
       return LoadingState.Loading
     })
   }, [resolveUrl, requestInit, setError])
