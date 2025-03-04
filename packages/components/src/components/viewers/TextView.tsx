@@ -23,6 +23,7 @@ export default function TextView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length

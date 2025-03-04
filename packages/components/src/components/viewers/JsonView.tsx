@@ -27,19 +27,22 @@ export default function JsonView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
-        const text = await res.text()
-        const fileSize = parseFileSize(res.headers) ?? text.length
+        const futureText = res.text()
         if (res.status === 401) {
+          const text = await futureText
           setError(new Error(text))
           setContent(undefined)
           return
         }
+        const fileSize = parseFileSize(res.headers) ?? (await futureText).length
         if (fileSize > largeFileSize) {
           setError(new Error('File is too large to display'))
           setContent(undefined)
           return
         }
+        const text = await futureText
         setError(undefined)
         setContent({ text, fileSize })
         setJson(JSON.parse(text))

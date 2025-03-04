@@ -49,9 +49,7 @@ function JsonArray({ array, label }: { array: unknown[], label?: string }): Reac
       <span className={styles.array}>{'['}</span>
     </div>
     <ul>
-      {array.map((item, index) => (
-        <li key={index}>{<Json json={item} />}</li>
-      ))}
+      {array.map((item, index) => <li key={index}>{<Json json={item} />}</li>)}
     </ul>
     <div className={styles.array}>{']'}</div>
   </>
