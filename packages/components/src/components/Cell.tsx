@@ -24,7 +24,6 @@ enum LoadingState {
  * Cell viewer displays a single cell from a table.
  */
 export default function CellView({ source, row, col, config }: CellProps) {
-  const [loading, setLoading] = useState<LoadingState>(LoadingState.NotLoaded)
   const [text, setText] = useState<string | undefined>()
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
@@ -57,17 +56,13 @@ export default function CellView({ source, row, col, config }: CellProps) {
         setError(error as Error)
         setText(undefined)
       } finally {
-        setLoading(LoadingState.Loaded)
         setProgress(undefined)
       }
     }
 
-    if (loading === LoadingState.NotLoaded) {
-      // use loading state to ensure we only load content once
-      setLoading(LoadingState.Loading)
-      void loadCellData()
-    }
-  }, [resolveUrl, requestInit, col, row, loading, setError])
+    setProgress(0)
+    void loadCellData()
+  }, [resolveUrl, requestInit, col, row, setError])
 
   return (
     <Layout progress={progress} error={error} title={fileName}>
