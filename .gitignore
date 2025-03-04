@@ -31,3 +31,4 @@ package-lock.json
 /coverage/
 
 /lib
+tsconfig.tsbuildinfo
