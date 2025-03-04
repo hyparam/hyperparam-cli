@@ -26,6 +26,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         if (res.status === 401) {
           const text = await res.text()
@@ -47,8 +48,6 @@ export default function ImageView({ source, setError }: ViewerProps) {
         setIsLoading(false)
       }
     }
-
-    setIsLoading(true)
     void loadContent()
   }, [fileName, resolveUrl, requestInit, setError])
 

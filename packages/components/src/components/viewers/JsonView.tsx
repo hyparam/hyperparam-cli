@@ -27,6 +27,7 @@ export default function JsonView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         const futureText = res.text()
         if (res.status === 401) {
@@ -52,8 +53,6 @@ export default function JsonView({ source, setError }: ViewerProps) {
         setIsLoading(false)
       }
     }
-
-    setIsLoading(true)
     void loadContent()
   }, [resolveUrl, requestInit, setError])
 

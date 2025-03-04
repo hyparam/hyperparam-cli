@@ -32,9 +32,10 @@ export default function ParquetView({ source, setProgress, setError, config }: V
 
   useEffect(() => {
     async function loadParquetDataFrame() {
-      const { resolveUrl, requestInit } = source
       try {
+        setIsLoading(true)
         setProgress(0.33)
+        const { resolveUrl, requestInit } = source
         const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, requestInit })
         const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, requestInit }
         setProgress(0.66)
@@ -50,9 +51,6 @@ export default function ParquetView({ source, setProgress, setError, config }: V
         setProgress(1)
       }
     }
-
-    setContent(undefined)
-    setIsLoading(true)
     void loadParquetDataFrame()
   }, [setError, setProgress, source])
 

@@ -23,6 +23,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
   useEffect(() => {
     async function loadContent() {
       try {
+        setIsLoading(true)
         const res = await fetch(resolveUrl, requestInit)
         const text = await res.text()
         const fileSize = parseFileSize(res.headers) ?? text.length
@@ -40,8 +41,6 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
         setIsLoading(false)
       }
     }
-
-    setIsLoading(true)
     void loadContent()
   }, [resolveUrl, requestInit, setError])
 
