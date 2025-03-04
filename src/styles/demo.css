@@ -34,7 +34,7 @@
 }
 .brand::before {
   content: '';
-  background: url(logo.svg) no-repeat 0 center;
+  background: url("../assets/logo.svg") no-repeat 0 center;
   background-size: 26px;
   height: 26px;
   width: 26px;
@@ -262,14 +262,14 @@ button.close-button:hover {
 
 /* file icons */
 .file {
-  background: url(file.svg);
+  background: url("../assets/file.svg");
   background-position: left center;
   background-repeat: no-repeat;
   background-size: 12px;
   padding-left: 22px;
 }
 .folder {
-  background-image: url(folder.svg);
+  background: url("../assets/folder.svg");
 }
 
 /* viewer */

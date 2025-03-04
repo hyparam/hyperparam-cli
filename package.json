@@ -1,19 +1,43 @@
 {
-  "name": "@hyparam/monorepo",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@hyparam/components",
+  "version": "0.1.19",
+  "description": "React components for hyparam apps",
+  "keywords": [
+    "component",
+    "data",
+    "javascript",
+    "react"
+  ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyparam/hyperparam-cli.git",
+    "directory": "packages/components"
+  },
   "type": "module",
-  "workspaces": [
-    "packages/components",
-    "packages/cli"
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./dist/index.min.js"
+    },
+    "./components.css": "./dist/components.css"
+  },
+  "files": [
+    "dist",
+    "lib"
   ],
   "scripts": {
+    "build": "tsc -b && vite build",
+    "coverage": "vitest run --coverage --coverage.include=src",
+    "dev": "vite",
     "lint": "eslint .",
-    "test": "vitest run --dir test"
+    "prepublishOnly": "npm run build",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "preview": "vite preview"
   },
-  "overrides": {
-    "highlight.js": "11.11.1",
+  "dependencies": {
     "hightable": "0.11.0",
     "hyparquet": "1.8.4",
     "hyparquet-compressors": "1.0.0",
