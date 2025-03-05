@@ -30,5 +30,5 @@ package-lock.json
 *.parquet
 /coverage/
 
-/lib
+/lib/
 tsconfig.tsbuildinfo
