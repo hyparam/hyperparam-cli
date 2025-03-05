@@ -1,64 +1,75 @@
-# Hyperparam monorepo
+# hyperparam
 
-This is a monorepo for the Hyperparam project.
+[![npm](https://img.shields.io/npm/v/hyperparam)](https://www.npmjs.com/package/hyperparam)
+[![workflow status](https://github.com/hyparam/hyperparam-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/hyparam/hyperparam-cli/actions)
+[![mit license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+![coverage](https://img.shields.io/badge/Coverage-35-darkred)
 
-It contains the following packages, published to npm:
+This is the hyperparam cli tool.
 
-- [`@hyparam/components`](./packages/components): a library of React components and utilities for building Hyperparam UIs.
-- [`hyperparam`](./packages/cli): a cli tool for viewing arbitrarily large datasets in the browser.
+The hyperparam cli tool is for viewing arbitrarily large datasets in the browser.
 
-## Use
+## Viewer
 
-Install all the workspaces with:
+To open a file browser in your current local directory run:
 
-```bash
-npm install
+```sh
+npx hyperparam
 ```
 
-Lint all the workspaces:
+You can also pass a specific file, folder, or url:
 
-```bash
-npm run lint -ws
+```sh
+npx hyperparam example.parquet
+npx hyperparam directory/
+npx hyperparam https://hyperparam-public.s3.amazonaws.com/bunnies.parquet
 ```
 
-Test all the workspaces:
+## Chat
 
-```bash
-npm test -ws
+To start a chat with hyperparam:
+
+```sh
+npx hyperparam chat
 ```
 
-Compute the coverage for all the workspaces:
+## Installation
 
-```bash
-npm run coverage -ws
+Install for all users:
+
+```sh
+sudo npm i -g hyperparam
 ```
 
-Build all the workspaces (they are built in order, so the dependencies are built first - it's defined manually by the order of the workspaces in the `package.json`):
+Now you can just run:
 
-```bash
-npm run build -ws
+```sh
+hyperparam
 ```
 
-- `hyperparam`:
+or:
 
-```bash
-npm run dev -w hyperparam
+```sh
+hyp
 ```
 
-- `components`:
+## Developers
 
-```bash
-npm run dev -w @hyparam/components
+To develop the CLI locally:
+
+```sh
+npm i
+npm run dev
 ```
 
-## Development
+The application will be rebuild automatically when you make changes, and the browser will refresh.
 
-The monorepo is managed with [npm workspaces](https://docs.npmjs.com/cli/v10/using-npm/workspaces). Some workspaces are dependencies of others. Currently:
+### Library and application
 
-- `@hyparam/components` is a dependency of `hyperparam`.
+Hyperparam is an application that relies on node.js scripts in the `bin/` directory and serves the static web application built in the `dist/` directory.
 
-It means that if you make a change to `@hyparam/components`, you need to rebuild it before developing `hyperparam`.
+The `hyperparam` package also includes a library that can be used in other applications. The library is in the `lib/` directory. For example:
 
-Also, if you increment the version of `@hyparam/components`, you need to update the version of `@hyparam/components` in the `package.json` of `hyperparam`, as we use exact versions in the `package.json` of the workspaces. Note that we don't have to increment the version after every change, only when we want to publish a new version with a significant batch of changes.
-
-The root package.json contains a special field, `overrides`, which sets the shared dependencies versions we want to have in all the workspaces. The "check_dependencies" GitHub action checks that the dependencies are the same in all the workspaces (`npm ls` would fail if dependency version mismatch).
+```js
+import { asyncBufferFrom, AsyncBufferFrom, parquetDataFrame } from "hyperparam";
+```

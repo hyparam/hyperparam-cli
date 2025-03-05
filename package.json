@@ -1,19 +1,51 @@
 {
-  "name": "@hyparam/monorepo",
-  "version": "0.1.0",
-  "private": true,
+  "name": "hyperparam",
+  "version": "0.2.23",
+  "description": "Hyperparam CLI",
+  "author": "Hyperparam",
+  "homepage": "https://hyperparam.app",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hyparam/hyperparam-cli.git"
+  },
   "type": "module",
-  "workspaces": [
-    "packages/components",
-    "packages/cli"
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.es.min.js",
+      "require": "./lib/index.umd.min.js"
+    }
+  },
+  "bin": {
+    "hyp": "bin/cli.js",
+    "hyperparam": "bin/cli.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "lib"
   ],
   "scripts": {
+    "build:types": "tsc -b",
+    "build:lib": "vite build -c vite.lib.config.ts",
+    "build:app": "vite build -c vite.app.config.ts",
+    "build": "run-s build:lib build:types build:app",
+    "coverage": "vitest run -c vite.lib.config.ts --coverage --coverage.include=src --coverage.include=bin",
+    "dev": "run-p -l watch:ts watch:vite watch:serve",
     "lint": "eslint .",
-    "test": "vitest run --dir test"
+    "prepublishOnly": "npm run build",
+    "serve": "node bin/cli.js",
+    "preserve": "npm run build",
+    "test": "vitest run -c vite.lib.config.ts",
+    "typecheck": "tsc --noEmit",
+    "url": "run-p -l watch:ts watch:vite watch:url",
+    "watch:ts": "tsc --watch",
+    "watch:vite": "vite build --watch",
+    "watch:serve": "nodemon bin/cli.js",
+    "watch:url": "nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
   },
-  "overrides": {
-    "highlight.js": "11.11.1",
+  "dependencies": {
     "hightable": "0.11.0",
     "hyparquet": "1.8.4",
     "hyparquet-compressors": "1.0.0",
@@ -33,6 +65,8 @@
     "eslint-plugin-react-refresh": "0.4.19",
     "globals": "15.14.0",
     "jsdom": "26.0.0",
+    "nodemon": "3.1.9",
+    "npm-run-all": "4.1.5",
     "typescript": "5.7.3",
     "typescript-eslint": "8.25.0",
     "vite": "6.2.0",
