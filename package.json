@@ -13,9 +13,9 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "import": "./lib/index.js"
-    },
-    "./*": "./lib/*"
+      "import": "./lib/index.es.min.js",
+      "require": "./lib/index.umd.min.js"
+    }
   },
   "bin": {
     "hyp": "bin/cli.js",
@@ -28,16 +28,16 @@
   ],
   "scripts": {
     "build:ts": "tsc -b",
-    "build:vite": "vite build",
-    "build": "run-s build:ts build:vite",
-    "postbuild": "copyfiles -u 1 src/**/*.css lib/",
-    "coverage": "vitest run --coverage --coverage.include=src --coverage.include=bin",
+    "build:lib": "vite build -c vite.lib.config.ts",
+    "build:app": "vite build -c vite.app.config.ts",
+    "build": "run-s build:ts build:lib build:app",
+    "coverage": "vitest run -c vite.lib.config.ts --coverage --coverage.include=src --coverage.include=bin",
     "dev": "run-p -l watch:ts watch:vite watch:serve",
     "lint": "eslint .",
     "prepublishOnly": "npm run build",
     "serve": "node bin/cli.js",
     "preserve": "npm run build",
-    "test": "vitest run",
+    "test": "vitest run -c vite.lib.config.ts",
     "typecheck": "tsc --noEmit",
     "url": "run-p -l watch:ts watch:vite watch:url",
     "watch:ts": "tsc --watch",
@@ -59,7 +59,6 @@
     "@types/react-dom": "19.0.3",
     "@vitejs/plugin-react": "4.3.4",
     "@vitest/coverage-v8": "3.0.7",
-    "copyfiles": "2.4.1",
     "eslint": "9.21.0",
     "eslint-plugin-react": "7.37.4",
     "eslint-plugin-react-hooks": "5.1.0",

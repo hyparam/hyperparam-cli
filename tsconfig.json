@@ -19,8 +19,8 @@
 
     "rootDir": "src",
     "outDir": "./lib",
-    "noEmit": false,
-    "emitDeclarationOnly": false,
+    "noEmit": true,
+    "emitDeclarationOnly": true,
     "declaration": true
   },
   "include": ["src"]
