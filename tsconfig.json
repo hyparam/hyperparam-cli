@@ -19,7 +19,6 @@
 
     "rootDir": "src",
     "outDir": "./lib",
-    "noEmit": true,
     "emitDeclarationOnly": true,
     "declaration": true
   },

@@ -27,10 +27,10 @@
     "lib"
   ],
   "scripts": {
-    "build:ts": "tsc -b",
+    "build:types": "tsc -b",
     "build:lib": "vite build -c vite.lib.config.ts",
     "build:app": "vite build -c vite.app.config.ts",
-    "build": "run-s build:ts build:lib build:app",
+    "build": "run-s build:lib build:types build:app",
     "coverage": "vitest run -c vite.lib.config.ts --coverage --coverage.include=src --coverage.include=bin",
     "dev": "run-p -l watch:ts watch:vite watch:serve",
     "lint": "eslint .",

@@ -59,14 +59,17 @@ To develop the CLI locally:
 
 ```sh
 npm i
-npm run build
-npm run serve
+npm run dev
 ```
 
-When you make changes, make sure to rebuild:
+The application will be rebuild automatically when you make changes, and the browser will refresh.
 
-```sh
-npm run build
+### Library and application
+
+Hyperparam is an application that relies on node.js scripts in the `bin/` directory and serves the static web application built in the `dist/` directory.
+
+The `hyperparam` package also includes a library that can be used in other applications. The library is in the `lib/` directory. For example:
+
+```js
+import { asyncBufferFrom, AsyncBufferFrom, parquetDataFrame } from "hyperparam";
 ```
-
-Then refresh the browser.
