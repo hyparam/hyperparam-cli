@@ -52,7 +52,7 @@ export default typescript.config(
       'no-multi-spaces': 'error',
       'no-multiple-empty-lines': ['error', { max: 1, maxEOF: 0 }],
       'no-trailing-spaces': 'error',
-      // 'no-undef': 'error',
+      'no-undef': 'error',
       'no-unused-vars': 'off',
       'no-useless-concat': 'error',
       'no-useless-rename': 'error',
