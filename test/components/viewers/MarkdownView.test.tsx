@@ -4,7 +4,7 @@ import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { MarkdownView, getHyperparamSource } from '../../../src/index.js'
 
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 describe('MarkdownView Component', () => {
   it('renders markdown correctly', async () => {
@@ -18,7 +18,7 @@ describe('MarkdownView Component', () => {
     assert(source?.kind === 'file')
 
     const { findByText } = render(
-      <MarkdownView source={source} setError={console.error} />,
+      <MarkdownView source={source} setError={console.error} />
     )
 
     expect(fetch).toHaveBeenCalled()

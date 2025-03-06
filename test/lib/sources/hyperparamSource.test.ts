@@ -1,7 +1,7 @@
 import { assert, describe, expect, it, test, vi } from 'vitest'
 import { HyperparamFileMetadata, getHyperparamSource } from '../../../src/lib/sources/hyperparamSource.js'
 
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 describe('getHyperparamSource', () => {
   const endpoint = 'http://localhost:3000'

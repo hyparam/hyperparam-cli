@@ -4,7 +4,7 @@ import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { ImageView, getHyperparamSource } from '../../../src/index.js'
 
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 describe('ImageView Component', () => {
   it('renders the image correctly', async () => {
@@ -18,7 +18,7 @@ describe('ImageView Component', () => {
     assert(source?.kind === 'file')
 
     const { findByRole, findByText } = render(
-      <ImageView source={source} setError={console.error} />,
+      <ImageView source={source} setError={console.error} />
     )
 
     // wait for asynchronous image loading

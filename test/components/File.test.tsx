@@ -16,7 +16,7 @@ const config: RoutesConfig = {
 // Mock fetch
 const text = vi.fn()
 const headers = { get: vi.fn() }
-global.fetch = vi.fn(() => Promise.resolve({ text, headers } as unknown as Response))
+globalThis.fetch = vi.fn(() => Promise.resolve({ text, headers } as unknown as Response))
 
 describe('File Component', () => {
   it('renders a local file path', async () => {
@@ -25,7 +25,7 @@ describe('File Component', () => {
     assert(source?.kind === 'file')
 
     const { getByText } = await act(() => render(
-      <File source={source} config={config}/>,
+      <File source={source} config={config}/>
     ))
 
     expect(getByText('/')).toBeDefined()
@@ -51,7 +51,7 @@ describe('File Component', () => {
     assert(source?.kind === 'file')
 
     const { getAllByRole } = await act(() => render(
-      <File source={source} config={config} />,
+      <File source={source} config={config} />
     ))
 
     const links = getAllByRole('link')

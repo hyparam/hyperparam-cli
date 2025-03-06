@@ -28,7 +28,7 @@ function getWorker() {
       const pendingQueryAgent = pending.get(data.queryId)
       if (!pendingQueryAgent) {
         console.warn(
-          `Unexpected: no pending promise found for queryId: ${data.queryId.toString()}`,
+          `Unexpected: no pending promise found for queryId: ${data.queryId.toString()}`
         )
         return
       }
