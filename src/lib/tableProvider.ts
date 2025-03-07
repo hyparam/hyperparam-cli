@@ -28,7 +28,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           for (let i = rowStart; i < rowEnd; i++) {
             data[i]?.index.resolve(i)
             for (const [key, value] of Object.entries(
-              groupData[i - rowStart],
+              groupData[i - rowStart]
             )) {
               data[i]?.cells[key].resolve(value)
             }
@@ -91,7 +91,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
         }).catch((error: unknown) => {
           console.error(
             'Error fetching sort index or resolving sorted rows',
-            error,
+            error
           )
         })
 

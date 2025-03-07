@@ -28,7 +28,7 @@ export default function Markdown({ text, className }: MarkdownProps) {
       function applyRegex(
         currentText: ReactNode[],
         regex: RegExp,
-        renderFn: (match: RegExpExecArray) => ReactNode,
+        renderFn: (match: RegExpExecArray) => ReactNode
       ) {
         const newResult: ReactNode[] = []
         for (const segment of currentText) {

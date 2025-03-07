@@ -1,7 +1,7 @@
 import { describe, expect, it, test, vi } from 'vitest'
 import { getHttpSource } from '../../../src/lib/sources/httpSource.js'
 
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 describe('getHttpSource', () => {
   test.for([

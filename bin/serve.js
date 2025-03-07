@@ -123,7 +123,7 @@ function handleRequest(req, serveDirectory) {
  */
 async function handleStatic(filePath, range) {
   const stats = await fs.stat(filePath).catch(() => undefined)
-  if (!stats || !stats.isFile()) {
+  if (!stats?.isFile()) {
     return { status: 404, content: 'not found' }
   }
   const contentLength = stats.size
@@ -164,7 +164,7 @@ async function handleStatic(filePath, range) {
  */
 async function handleHead(filePath) {
   const stats = await fs.stat(filePath).catch(() => undefined)
-  if (!stats || !stats.isFile()) {
+  if (!stats?.isFile()) {
     console.error(`file not found ${filePath}`)
     return { status: 404, content: 'not found' }
   }
@@ -271,7 +271,7 @@ function startServer(port, path) {
       if (result.contentType) headers['Content-Type'] = result.contentType
       if (status === 301 && typeof content === 'string') {
         // handle redirect
-        headers['Location'] = content
+        headers.Location = content
         content = ''
       }
       // compress content

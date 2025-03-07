@@ -16,7 +16,7 @@ const config: RoutesConfig = {
   },
 }
 
-global.fetch = vi.fn()
+globalThis.fetch = vi.fn()
 
 describe('Folder Component', () => {
   test.for([

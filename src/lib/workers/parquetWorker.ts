@@ -38,7 +38,7 @@ self.onmessage = async ({ data }: {
         throw new Error('sortIndex requires all rows')
       const sortColumn = await parquetQuery({ metadata, file, columns: [orderBy], compressors })
       const indices = Array.from(sortColumn, (_, index) => index).sort((a, b) =>
-        compare<unknown>(sortColumn[a][orderBy], sortColumn[b][orderBy]),
+        compare<unknown>(sortColumn[a][orderBy], sortColumn[b][orderBy])
       )
       postIndicesMessage({ indices, queryId })
     } catch (error) {

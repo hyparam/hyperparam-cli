@@ -105,7 +105,7 @@ export default function Folder({ source, config }: FolderProps) {
               </span>
             </>}
           </a>
-        </li>,
+        </li>
       )}
     </ul>}
     {files?.length === 0 && <div className='center'>No files</div>}

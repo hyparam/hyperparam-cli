@@ -26,9 +26,9 @@ export async function pipe(input, output) {
 export function readStreamToReadableStream(fsStream) {
   return new ReadableStream({
     start(/** @type {ReadableStreamDefaultController} */ controller) {
-      fsStream.on('data', (chunk) => controller.enqueue(chunk))
-      fsStream.on('end', () => controller.close())
-      fsStream.on('error', (error) => controller.error(error))
+      fsStream.on('data', (chunk) => { controller.enqueue(chunk) })
+      fsStream.on('end', () => { controller.close() })
+      fsStream.on('error', (error) => { controller.error(error) })
     },
     cancel() {
       fsStream.destroy()

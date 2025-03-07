@@ -23,7 +23,7 @@ if (arg === 'chat') {
   console.log(packageJson.version)
 } else if (!arg) {
   serve(process.cwd(), undefined) // current directory
-} else if (arg.match(/^https?:\/\//)) {
+} else if (/^https?:\/\//.exec(arg)) {
   serve(undefined, arg) // url
 } else {
   // resolve file or directory
