@@ -29,7 +29,7 @@
   "scripts": {
     "build:types": "tsc -b",
     "build:lib": "vite build -c vite.lib.config.js",
-    "build:app": "vite build -c vite.app.config.js",
+    "build:app": "vite build",
     "build": "run-s build:lib build:types build:app",
     "coverage": "vitest run -c vite.lib.config.js --coverage --coverage.include=src --coverage.include=bin",
     "dev": "run-p -l watch:ts watch:vite watch:serve",
@@ -38,7 +38,7 @@
     "prepublishOnly": "npm run build",
     "serve": "node bin/cli.js",
     "preserve": "npm run build",
-    "test": "vitest run -c vite.lib.config.js",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "url": "run-p -l watch:ts watch:vite watch:url",
     "watch:ts": "tsc --watch",
