@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
+import Welcome from './Welcome.js'
 
 interface LayoutProps {
   children: ReactNode
@@ -21,10 +22,25 @@ interface LayoutProps {
  * @param props.title - page title
  */
 export default function Layout({ children, className, progress, error, title }: LayoutProps) {
+  const [showWelcome, setShowWelcome] = useState(false)
+
+  // Check localStorage on mount to see if the user has seen the welcome popup
+  useEffect(() => {
+    const dismissed = localStorage.getItem('welcome:dismissed') === 'true'
+    setShowWelcome(!dismissed)
+  }, [])
+
+  // Handle closing the welcome popup
+  function handleCloseWelcome() {
+    setShowWelcome(false)
+    localStorage.setItem('welcome:dismissed', 'true')
+  }
+
   // Update title
   useEffect(() => {
     document.title = title ? `${title} - hyperparam` : 'hyperparam'
   }, [title])
+
   return <main className='main'>
     <Sidebar />
     <div className='content-container'>
@@ -38,6 +54,7 @@ export default function Layout({ children, className, progress, error, title }: 
         <div style={{ width: `${100 * progress}%` }} />
       </div>
     }
+    {showWelcome && <Welcome onClose={handleCloseWelcome} />}
   </main>
 }
 
