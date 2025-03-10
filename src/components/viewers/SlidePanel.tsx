@@ -39,7 +39,8 @@ export default function SlidePanel({
   // Load initial panel width from localStorage if available
   const [panelWidth, setPanelWidth] = useState<number>(() => {
     const savedWidth = typeof window !== 'undefined' ? localStorage.getItem('panelWidth') : null
-    return savedWidth ? parseInt(savedWidth, 10) : defaultWidth
+    const parsedWidth = savedWidth ? parseInt(savedWidth, 10) : NaN
+    return !isNaN(parsedWidth) ? parsedWidth : defaultWidth
   })
 
   useEffect(() => {
