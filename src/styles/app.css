@@ -525,6 +525,7 @@ button.close-button:hover {
   height: 24px;
   margin-right: auto;
   outline: none;
+  padding: 0;
   transition: color 0.3s;
 }
 .slideClose::before {
