@@ -95,8 +95,8 @@ function handleRequest(req, serveDirectory) {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
     if (Array.isArray(prefix)) return { status: 400, content: 'bad request' }
-    const perfixPath = `${serveDirectory}/${decodeURIComponent(prefix)}`
-    return handleListing(perfixPath)
+    const prefixPath = `${serveDirectory}/${decodeURIComponent(prefix)}`
+    return handleListing(prefixPath)
   } else if (serveDirectory && pathname === '/api/store/get') {
     // serve file content
     const key = parsedUrl.query.key || ''
