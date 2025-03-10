@@ -31,7 +31,7 @@
     "build:lib": "vite build -c vite.lib.config.ts",
     "build:app": "vite build",
     "build": "run-s build:lib build:types build:app",
-    "coverage": "vitest run -c vite.lib.config.ts --coverage --coverage.include=src --coverage.include=bin",
+    "coverage": "vitest run --coverage --coverage.include=src --coverage.include=bin",
     "dev": "run-p -l watch:ts watch:vite watch:serve",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
