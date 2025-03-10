@@ -46,7 +46,8 @@ describe('Folder Component', () => {
 
   it('displays the spinner while loading', async () => {
     vi.mocked(fetch).mockResolvedValueOnce({
-      json: () => Promise.resolve([]),
+      // resolve in 50ms
+      json: () => new Promise(resolve => setTimeout(() => { resolve([]) }, 50)),
       ok: true,
     } as Response)
 
@@ -54,7 +55,7 @@ describe('Folder Component', () => {
     assert(source?.kind === 'directory')
 
     const { container } = await act(() => render(<Folder source={source} />))
-    expect(container.querySelector('.spinner')).toBeDefined()
+    expect(container.querySelector('.spinner')).toBeTruthy()
   })
 
   it('handles file listing errors', async () => {
@@ -111,8 +112,10 @@ describe('Folder Component', () => {
     const { getByPlaceholderText, getByText, queryByText } = render(<Folder source={dirSource} />)
 
     // Type a search query
-    const searchInput = getByPlaceholderText('Search...')
-    fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
+    const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
+    act(() => {
+      fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
+    })
 
     // Only matching files are displayed
     await waitFor(() => {
@@ -122,7 +125,10 @@ describe('Folder Component', () => {
     })
 
     // Clear search with escape key
-    fireEvent.keyUp(searchInput, { key: 'Escape' })
+    act(() => {
+      fireEvent.keyUp(searchInput, { key: 'Escape' })
+    })
+
     await waitFor(() => {
       expect(getByText('file1.txt')).toBeDefined()
       expect(getByText('folder1/')).toBeDefined()
@@ -151,7 +157,7 @@ describe('Folder Component', () => {
     const { getByPlaceholderText, getByText } = render(<Folder source={dirSource} />)
 
     // Type a search query and hit enter
-    const searchInput = getByPlaceholderText('Search...')
+    const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
     act(() => {
       fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
     })
@@ -159,11 +165,15 @@ describe('Folder Component', () => {
     await waitFor(() => {
       expect(getByText('file1.txt')).toBeDefined()
     })
-    fireEvent.keyUp(searchInput, { key: 'Enter' })
+
+    act(() => {
+      fireEvent.keyUp(searchInput, { key: 'Enter' })
+    })
+
     expect(location.href).toBe('/files?key=file1.txt')
   })
 
-  it('jumps to search box when user types /', () => {
+  it('jumps to search box when user types /', async () => {
     const dirSource: DirSource = {
       sourceId: 'test-source',
       sourceParts: [{ text: 'test-source', sourceId: 'test-source' }],
@@ -173,21 +183,34 @@ describe('Folder Component', () => {
     }
     const { getByPlaceholderText } = render(<Folder source={dirSource} />)
 
+    // Wait for component to settle
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled()
+    })
+
     const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
+
     // Typing / should focus the search box
-    fireEvent.keyDown(document.body, { key: '/' })
+    act(() => {
+      fireEvent.keyDown(document.body, { key: '/' })
+    })
     expect(document.activeElement).toBe(searchInput)
 
     // Typing inside the search box should work including /
     act(() => {
       fireEvent.keyUp(searchInput, { target: { value: 'file1/' } })
-      expect(searchInput.value).toBe('file1/')
     })
+    expect(searchInput.value).toBe('file1/')
 
     // Unfocus and re-focus should select all text in search box
-    searchInput.blur()
+    act(() => {
+      searchInput.blur()
+    })
     expect(document.activeElement).not.toBe(searchInput)
-    fireEvent.keyDown(document.body, { key: '/' })
+
+    act(() => {
+      fireEvent.keyDown(document.body, { key: '/' })
+    })
     expect(document.activeElement).toBe(searchInput)
     expect(searchInput.selectionStart).toBe(0)
     expect(searchInput.selectionEnd).toBe(searchInput.value.length)

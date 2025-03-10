@@ -66,7 +66,7 @@ export default function Folder({ source, config }: FolderProps) {
     searchElement?.addEventListener('keyup', handleKeyup)
     // Clean up event listener
     return () => searchElement?.removeEventListener('keyup', handleKeyup)
-  })
+  }, [filtered, source.prefix])
 
   // Jump to search box if user types '/'
   useEffect(() => {
@@ -80,7 +80,7 @@ export default function Folder({ source, config }: FolderProps) {
     }
     document.addEventListener('keydown', handleKeydown)
     return () => { document.removeEventListener('keydown', handleKeydown) }
-  })
+  }, [])
 
   return <Layout error={error} title={source.prefix}>
     <Breadcrumb source={source} config={config}>

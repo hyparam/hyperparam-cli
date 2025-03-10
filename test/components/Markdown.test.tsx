@@ -283,7 +283,6 @@ describe('Markdown with nested elements', () => {
     const text = '![alt'
     const { container } = render(<Markdown text={text} />)
 
-    console.log(container.innerHTML)
     expect(container.textContent).toBe('![alt')
     expect(container.querySelector('img')).toBeNull()
   })
