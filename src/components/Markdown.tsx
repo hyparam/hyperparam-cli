@@ -1,252 +1,434 @@
-import type { ReactNode } from 'react'
+import { ReactNode, createElement } from 'react'
 
 interface MarkdownProps {
   text: string
   className?: string
 }
 
-export default function Markdown({ text, className }: MarkdownProps) {
-  // Inline parsing: parse bold, italic, underline, links, images, inline code
-  function parseInline(str: string): ReactNode[] {
-    const nodes: ReactNode[] = []
+type Token =
+  | { type: 'text', content: string }
+  | { type: 'bold', children: Token[] }
+  | { type: 'italic', children: Token[] }
+  | { type: 'code', content: string }
+  | { type: 'link', href: string, children: Token[] }
+  | { type: 'image', alt: string, src: string }
+  | { type: 'paragraph', children: Token[] }
+  | { type: 'heading', level: number, children: Token[] }
+  | { type: 'list', ordered: boolean, items: Token[][] }
+  | { type: 'blockquote', children: Token[] }
+  | { type: 'codeblock', language?: string, content: string }
 
-    // A helper function to safely parse inline and return an array of react nodes
-    function renderTextSegments(text: string): ReactNode[] {
-      let result: ReactNode[] = []
+function parseMarkdown(text: string): Token[] {
+  const tokens: Token[] = []
+  const lines = text.split('\n')
+  let i = 0
 
-      // Process in order: image links, images, regular links, and then formatting
-      const imageInsideLinkRegex = /\[!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/g
-      // Handle mixed content within links: [text ![img](img_url) more text](link_url)
-      const mixedContentLinkRegex = /\[([^\]]*?!\[[^\]]*?\]\([^)]+?\)[^\]]*?)\]\(([^)]+)\)/g
-      const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g
-      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g
-      const codeRegex = /`([^`]+)`/g
-      const boldRegex = /\*\*([^*]+)\*\*/g
-      const italicRegex = /\*(?!\s)([^*]+?)(?!\s)\*/g
-      const underlineRegex = /__(.+?)__/g
+  while (i < lines.length) {
+    const line = lines[i]
 
-      function applyRegex(
-        currentText: ReactNode[],
-        regex: RegExp,
-        renderFn: (match: RegExpExecArray) => ReactNode
-      ) {
-        const newResult: ReactNode[] = []
-        for (const segment of currentText) {
-          if (typeof segment === 'string') {
-            const str = segment
-            let lastIndex = 0
-            let match: RegExpExecArray | null
-            regex.lastIndex = 0 // Reset regex for safety
-            while ((match = regex.exec(str)) !== null) {
-              // Add text before match
-              if (match.index > lastIndex) {
-                newResult.push(str.slice(lastIndex, match.index))
-              }
-              // Add replaced node
-              newResult.push(renderFn(match))
-              lastIndex = match.index + match[0].length
-            }
-            if (lastIndex < str.length) {
-              newResult.push(str.slice(lastIndex))
-            }
-          } else {
-            // If it's already a ReactNode (not a string), just push it
-            newResult.push(segment)
-          }
-        }
-        return newResult
-      }
-
-      // Start with entire text as a single segment
-      result = [text]
-
-      // Apply in a specific order to handle nested elements:
-      // First handle image-inside-link pattern
-      result = applyRegex(result, imageInsideLinkRegex, (m) => <a href={m[3]} key={`imglink-${m[3]}`}>
-        <img alt={m[1]} src={m[2]} key={`img-in-link-${m[2]}`} />
-      </a>)
-
-      // Then handle mixed content links (with images and text)
-      result = applyRegex(result, mixedContentLinkRegex, (m) => <a href={m[2]} key={`mixed-${m[2]}`}>{parseInline(m[1])}</a>)
-
-      // Then handle regular images and links
-      result = applyRegex(result, imageRegex, (m) => <img key={`img-${m[2]}`} alt={m[1]} src={m[2]} />)
-      result = applyRegex(result, linkRegex, (m) => <a href={m[2]} key={`link-${m[2]}`}>{parseInline(m[1])}</a>)
-
-      // Finally handle text formatting
-      result = applyRegex(result, codeRegex, (m) => <code key={`code-${m.index}`}>{m[1]}</code>)
-      result = applyRegex(result, boldRegex, (m) => <strong key={`bold-${m.index}`}>{m[1]}</strong>)
-      result = applyRegex(result, italicRegex, (m) => <em key={`italic-${m.index}`}>{m[1]}</em>)
-      result = applyRegex(result, underlineRegex, (m) => <u key={`underline-${m.index}`}>{m[1]}</u>)
-
-      return result
+    // Skip blank lines
+    if (line.trim() === '') {
+      i++
+      continue
     }
 
-    nodes.push(...renderTextSegments(str))
-    return nodes
-  }
-
-  // Block-level parsing: paragraphs, headers, lists, code blocks
-  type NodeType =
-    | { type: 'paragraph', content: string }
-    | { type: 'header', level: number, content: string }
-    | { type: 'codeblock', content: string }
-    | { type: 'list', ordered: boolean, items: ListItemType[] }
-
-  interface ListItemType {
-    content: string
-    children: NodeType[]
-  }
-
-  function parseBlocks(lines: string[]): NodeType[] {
-    let i = 0
-    const nodes: NodeType[] = []
-
-    function parseList(startIndent: number, ordered: boolean): { node: NodeType, endIndex: number } {
-      const items: ListItemType[] = []
-      while (i < lines.length) {
-        const line = lines[i]
-        const indent = /^(\s*)/.exec(line)?.[1].length ?? 0
-
-        // Check if line is a list item at or deeper than startIndent
-        const liMatch = ordered
-          ? /^\s*\d+\.\s+(.*)/.exec(line)
-          : /^\s*-\s+(.*)/.exec(line)
-
-        if (!liMatch || indent < startIndent) {
-          break
-        }
-
-        const content = liMatch[1]
+    // Code fence at top-level
+    if (line.startsWith('```')) {
+      const language = line.slice(3).trim() || undefined
+      i++
+      const codeLines = []
+      while (i < lines.length && !lines[i].startsWith('```')) {
+        codeLines.push(lines[i])
         i++
-
-        // Check if next lines form sub-lists or paragraphs under this item
-        const children: NodeType[] = []
-        while (i < lines.length) {
-          const subline = lines[i]
-          const subIndent = /^(\s*)/.exec(subline)?.[1].length ?? 0
-          // Check for sub-list
-          const subOlMatch = /^\s*\d+\.\s+(.*)/.exec(subline)
-          const subUlMatch = /^\s*-\s+(.*)/.exec(subline)
-          if ((subOlMatch || subUlMatch) && subIndent > startIndent) {
-            const { node: sublist, endIndex } = parseList(subIndent, !!subOlMatch)
-            children.push(sublist)
-            i = endIndex
-          } else if (subline.trim().length === 0 || subIndent > startIndent) {
-            if (subline.trim().length !== 0) {
-              // paragraph under item
-              children.push({ type: 'paragraph', content: subline.trim() })
-            }
-            i++
-          } else {
-            break
-          }
-        }
-
-        items.push({ content, children })
       }
-
-      return { node: { type: 'list', ordered, items }, endIndex: i }
+      i++ // skip the closing ```
+      tokens.push({ type: 'codeblock', language, content: codeLines.join('\n') })
+      continue
     }
 
-    while (i < lines.length) {
-      const line = lines[i]
+    // Heading
+    const headingMatch = /^(#{1,6})\s+(.*)/.exec(line)
+    if (headingMatch) {
+      const level = headingMatch[1].length
+      tokens.push({
+        type: 'heading',
+        level,
+        children: parseInline(headingMatch[2]),
+      })
+      i++
+      continue
+    }
 
-      // Skip blank lines
-      if (line.trim() === '') {
+    // List (ordered or unordered)
+    const listMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(line)
+    if (listMatch) {
+      const baseIndent = listMatch[1].length
+      const ordered = /^\d+\./.test(listMatch[2])
+      const [items, newIndex] = parseList(lines, i, baseIndent)
+      tokens.push({ type: 'list', ordered, items })
+      i = newIndex
+      continue
+    }
+
+    // Blockquote
+    if (line.startsWith('>')) {
+      const quoteLines = []
+      while (i < lines.length && lines[i].startsWith('>')) {
+        quoteLines.push(lines[i].replace(/^>\s?/, ''))
         i++
-        continue
       }
+      tokens.push({
+        type: 'blockquote',
+        children: parseMarkdown(quoteLines.join('\n')),
+      })
+      continue
+    }
 
-      // Check for code block
-      if (line.trim().startsWith('```')) {
-        i++
-        const codeLines: string[] = []
-        while (i < lines.length && !lines[i].trim().startsWith('```')) {
-          codeLines.push(lines[i])
-          i++
-        }
-        i++ // skip the ending ```
-        nodes.push({ type: 'codeblock', content: codeLines.join('\n') })
-        continue
-      }
-
-      // Check for headers
-      const headerMatch = /^(#{1,3})\s+(.*)/.exec(line)
-      if (headerMatch) {
-        const level = headerMatch[1].length
-        const content = headerMatch[2]
-        nodes.push({ type: 'header', level, content })
-        i++
-        continue
-      }
-
-      // Check for list item
-      const olMatch = /^\s*\d+\.\s+(.*)/.exec(line)
-      const ulMatch = /^\s*-\s+(.*)/.exec(line)
-
-      if (olMatch || ulMatch) {
-        const indent = /^(\s*)/.exec(line)?.[1].length ?? 0
-        const ordered = !!olMatch
-        const { node, endIndex } = parseList(indent, ordered)
-        nodes.push(node)
-        i = endIndex
-        continue
-      }
-
-      // If not code block, header, or list, treat as paragraph
-      nodes.push({ type: 'paragraph', content: line })
+    // Paragraph
+    const paraLines = []
+    while (i < lines.length && lines[i].trim() !== '') {
+      paraLines.push(lines[i])
       i++
     }
-
-    return nodes
-  }
-
-  const lines = text.split('\n')
-  const ast = parseBlocks(lines)
-
-  // Convert AST to React elements
-  function renderNodes(nodes: NodeType[]): ReactNode {
-    return nodes.map((node, idx) => {
-      switch (node.type) {
-      case 'paragraph':
-        return <p key={idx}>{...parseInline(node.content)}</p>
-      case 'header':
-        if (node.level === 1) return <h1 key={idx}>{...parseInline(node.content)}</h1>
-        if (node.level === 2) return <h2 key={idx}>{...parseInline(node.content)}</h2>
-        if (node.level === 3) return <h3 key={idx}>{...parseInline(node.content)}</h3>
-        return <p key={idx}>{...parseInline(node.content)}</p>
-      case 'codeblock':
-        return (
-          <pre key={idx}>
-            <code>{node.content}</code>
-          </pre>
-        )
-      case 'list':
-        if (node.ordered) {
-          return (
-            <ol key={idx}>
-              {node.items.map((item, liIndex) => <li key={liIndex}>
-                {...parseInline(item.content)}
-                {renderNodes(item.children)}
-              </li>)}
-            </ol>
-          )
-        } else {
-          return (
-            <ul key={idx}>
-              {node.items.map((item, liIndex) => <li key={liIndex}>
-                {...parseInline(item.content)}
-                {renderNodes(item.children)}
-              </li>)}
-            </ul>
-          )
-        }
-      default:
-        return null
-      }
+    tokens.push({
+      type: 'paragraph',
+      children: parseInline(paraLines.join(' ')),
     })
   }
 
-  return <div className={className}>{renderNodes(ast)}</div>
+  return tokens
+}
+
+function parseList(lines: string[], start: number, baseIndent: number): [Token[][], number] {
+  const items: Token[][] = []
+  let i = start
+
+  while (i < lines.length) {
+    // End of list if blank line or no more lines
+    if (lines[i].trim() === '') {
+      i++
+      continue
+    }
+
+    // This matches a new top-level bullet/number for the list
+    const match = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(lines[i])
+    // If we don't find a bullet/number at the same indent, break out
+    if (!match || match[1].length !== baseIndent) {
+      break
+    }
+
+    // Begin a new list item: an array of block tokens
+    const itemTokens: Token[] = []
+    // Add the first line content directly without paragraph wrapper
+    const content = match[3]
+    if (content.trim()) {
+      // Use inline tokens directly without paragraph wrapper
+      itemTokens.push(...parseInline(content))
+    }
+    i++
+
+    // Now parse subsequent indented lines as sub-items or sub-blocks
+    while (i < lines.length) {
+      const subline = lines[i]
+      if (subline.trim() === '') {
+        i++
+        continue
+      }
+      const subIndent = subline.search(/\S/)
+      if (subIndent > baseIndent) {
+        const trimmed = subline.trimStart()
+        if (trimmed.startsWith('```')) {
+          // If it’s a fenced code block, parse until closing fence
+          const language = trimmed.slice(3).trim() || undefined
+          i++
+          const codeLines = []
+          while (i < lines.length && !lines[i].trimStart().startsWith('```')) {
+            codeLines.push(lines[i])
+            i++
+          }
+          i++ // skip the closing ```
+          itemTokens.push({
+            type: 'codeblock',
+            language,
+            content: codeLines.join('\n'),
+          })
+          continue
+        }
+
+        // Check for nested list
+        const sublistMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(subline)
+        if (sublistMatch && sublistMatch[1].length > baseIndent) {
+          const newBaseIndent = sublistMatch[1].length
+          const ordered = /^\d+\./.test(sublistMatch[2])
+          const [subItems, newIndex] = parseList(lines, i, newBaseIndent)
+          itemTokens.push({ type: 'list', ordered, items: subItems })
+          i = newIndex
+        } else {
+          // Otherwise, additional paragraph in the same list item
+          itemTokens.push({
+            type: 'paragraph',
+            children: parseInline(subline.trim()),
+          })
+          i++
+        }
+      } else {
+        // Not further-indented => break sub-block parsing for this item
+        break
+      }
+    }
+
+    items.push(itemTokens)
+  }
+
+  return [items, i]
+}
+
+function tokensToString(tokens: Token[]): string {
+  return tokens
+    .map(token => {
+      switch (token.type) {
+        case 'text':
+          return token.content
+        case 'bold':
+        case 'italic':
+        case 'link':
+          return tokensToString(token.children)
+        default:
+          return ''
+      }
+    })
+    .join('')
+}
+
+function parseInline(text: string): Token[] {
+  const [tokens] = parseInlineRecursive(text)
+  return tokens
+}
+
+function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
+  const tokens: Token[] = []
+  let i = 0
+
+  while (i < text.length) {
+    if (stop && text.startsWith(stop, i)) {
+      return [tokens, i]
+    }
+
+    // Image: ![alt](src)
+    if (text[i] === '!' && i + 1 < text.length && text[i + 1] === '[') {
+      const start = i
+      i += 2
+      const [altTokens, consumedAlt] = parseInlineRecursive(text.slice(i), ']')
+      i += consumedAlt
+      if (i >= text.length || text[i] !== ']') {
+        // For incomplete image syntax without closing bracket, preserve the whole text
+        tokens.push({ type: 'text', content: text.slice(start, start + 2 + consumedAlt) })
+        continue
+      }
+      i++
+      if (i < text.length && text[i] === '(') {
+        i++
+        const endParen = text.indexOf(')', i)
+        if (endParen === -1) {
+          tokens.push({ type: 'text', content: text.slice(start, i) })
+          continue
+        }
+        const src = text.slice(i, endParen).trim()
+        const alt = tokensToString(altTokens)
+        i = endParen + 1
+        tokens.push({ type: 'image', alt, src })
+        continue
+      } else {
+        tokens.push({ type: 'text', content: '![' })
+        tokens.push(...altTokens)
+        tokens.push({ type: 'text', content: ']' })
+        continue
+      }
+    }
+
+    // Link: [text](url)
+    if (text[i] === '[') {
+      const start = i
+      i++
+      const [linkTextTokens, consumed] = parseInlineRecursive(text.slice(i), ']')
+      i += consumed
+      if (i >= text.length || text[i] !== ']') {
+        tokens.push({ type: 'text', content: text[start] })
+        continue
+      }
+      i++ // skip ']'
+      if (i < text.length && text[i] === '(') {
+        i++ // skip '('
+        const endParen = text.indexOf(')', i)
+        if (endParen === -1) {
+          tokens.push({ type: 'text', content: text.slice(start, i) })
+          continue
+        }
+        const href = text.slice(i, endParen).trim()
+        i = endParen + 1
+        tokens.push({
+          type: 'link',
+          href,
+          children: linkTextTokens,
+        })
+        continue
+      } else {
+        tokens.push({ type: 'text', content: '[' })
+        tokens.push(...linkTextTokens)
+        tokens.push({ type: 'text', content: ']' })
+        continue
+      }
+    }
+
+    // Inline code
+    if (text[i] === '`') {
+      i++
+      let code = ''
+      while (i < text.length && text[i] !== '`') {
+        code += text[i]
+        i++
+      }
+      i++
+      tokens.push({ type: 'code', content: code })
+      continue
+    }
+
+    // Bold (** or __)
+    if (text.startsWith('**', i) || text.startsWith('__', i)) {
+      const delimiter = text.slice(i, i + 2)
+      i += 2
+      const [innerTokens, consumed] = parseInlineRecursive(text.slice(i), delimiter)
+      i += consumed
+      i += 2
+      tokens.push({ type: 'bold', children: innerTokens })
+      continue
+    }
+
+    // Italic (* or _)
+    if (text[i] === '*' || text[i] === '_') {
+      const delimiter = text[i]
+      // For '*' only: if surrounding non-space chars are digits, treat as literal
+      if (delimiter === '*') {
+        let j = i - 1
+        while (j >= 0 && text[j] === ' ') j--
+        const prevIsDigit = j >= 0 && /\d/.test(text[j])
+        let k = i + 1
+        while (k < text.length && text[k] === ' ') k++
+        const nextIsDigit = k < text.length && /\d/.test(text[k])
+        if (prevIsDigit && nextIsDigit) {
+          tokens.push({ type: 'text', content: delimiter })
+          i++
+          continue
+        }
+      }
+      i++
+      const [innerTokens, consumed] = parseInlineRecursive(text.slice(i), delimiter)
+      i += consumed
+      i++ // skip closing delimiter
+      tokens.push({ type: 'italic', children: innerTokens })
+      continue
+    }
+
+    // Otherwise, consume plain text until next special character or end
+    let j = i
+    while (
+      j < text.length
+      && text[j] !== '`'
+      && !(text.startsWith('**', j) || text.startsWith('__', j))
+      && text[j] !== '*'
+      && text[j] !== '_'
+      && text[j] !== '['
+      // && text[j] !== '!'
+      && !(stop && text.startsWith(stop, j))
+      // handle ![alt](src) for images but not for `text!`
+      && !(text[j] === '!' && j + 1 < text.length && text[j + 1] === '[')
+    ) {
+      j++
+    }
+    tokens.push({ type: 'text', content: text.slice(i, j) })
+    i = j
+  }
+
+  return [tokens, i]
+}
+
+function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
+  return tokens.map((token, index) => {
+    const key = `${keyPrefix}${index}`
+    switch (token.type) {
+      case 'text':
+        return token.content
+      case 'code':
+        return createElement('code', { key }, token.content)
+      case 'bold':
+        return createElement(
+          'strong',
+          { key },
+          renderTokens(token.children, key + '-')
+        )
+      case 'italic':
+        return createElement(
+          'em',
+          { key },
+          renderTokens(token.children, key + '-')
+        )
+      case 'link':
+        return createElement(
+          'a',
+          { key, href: token.href },
+          renderTokens(token.children, key + '-')
+        )
+      case 'image':
+        return createElement('img', {
+          key,
+          src: token.src,
+          alt: token.alt,
+        })
+      case 'paragraph':
+        return createElement(
+          'p',
+          { key },
+          renderTokens(token.children, key + '-')
+        )
+      case 'heading':
+        return createElement(
+          `h${token.level}`,
+          { key },
+          renderTokens(token.children, key + '-')
+        )
+      case 'list': {
+        const ListTag = token.ordered ? 'ol' : 'ul'
+        return createElement(
+          ListTag,
+          { key },
+          token.items.map((item, i) =>
+            createElement(
+              'li',
+              { key: `${key}-${i}` },
+              renderTokens(item, `${key}-${i}`)
+            )
+          )
+        )
+      }
+      case 'blockquote':
+        return createElement(
+          'blockquote',
+          { key },
+          renderTokens(token.children, key + '-')
+        )
+      case 'codeblock':
+        return createElement(
+          'pre',
+          { key },
+          createElement('code', null, token.content)
+        )
+      default:
+        return null
+    }
+  })
+}
+
+export default function Markdown({ text, className }: MarkdownProps) {
+  const tokens = parseMarkdown(text)
+  return createElement('div', { className }, renderTokens(tokens))
 }
