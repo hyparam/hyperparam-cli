@@ -57,10 +57,13 @@ export async function serve(serveDirectory, key) {
     }
   }
   console.log(`hyperparam server running on http://localhost:${port}`)
-  if (!key) openUrl(`http://localhost:${port}`)
-  else {
-    key = encodeURIComponent(key)
-    openUrl(`http://localhost:${port}/files?key=${key}`)
+  const isDev = process.env.NODE_ENV === 'development'
+  if (!isDev) {
+    if (!key) openUrl(`http://localhost:${port}`)
+    else {
+      key = encodeURIComponent(key)
+      openUrl(`http://localhost:${port}/files?key=${key}`)
+    }
   }
 }
 
