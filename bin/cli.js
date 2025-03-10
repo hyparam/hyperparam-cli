@@ -49,7 +49,7 @@ if (arg === 'chat') {
  */
 function checkForUpdates() {
   const currentVersion = packageJson.version
-  return void fetch('https://registry.npmjs.org/hyperparam/latest')
+  return fetch('https://registry.npmjs.org/hyperparam/latest')
     .then(response => response.json())
     .then(data => {
       const latestVersion = data.version
