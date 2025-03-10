@@ -91,9 +91,6 @@ function handleRequest(req, serveDirectory) {
   } else if (pathname.startsWith('/assets/') || pathname.startsWith('/favicon') ) {
     // serve static files
     return handleStatic(`${hyperparamPath}/dist${pathname}`)
-  // else if (pathname.startsWith('/public/')) {
-  //   // serve static files
-  //   return handleStatic(`${hyperparamPath}${pathname.replace(/^(\/public).*/, '/dist')}`)
   } else if (serveDirectory && pathname === '/api/store/list') {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
