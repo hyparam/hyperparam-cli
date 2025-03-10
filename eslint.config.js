@@ -25,7 +25,6 @@ export default typescript.config(
     rules: {
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
-      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
@@ -78,6 +77,9 @@ export default typescript.config(
       '@typescript-eslint/restrict-template-expressions': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/require-await': 'warn',
+      // react hooks
+      'react-hooks/rules-of-hooks': 'error',
+      'react-hooks/exhaustive-deps': 'error',
     },
     settings: { react: { version: 'detect' } },
   },
