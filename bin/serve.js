@@ -57,10 +57,13 @@ export async function serve(serveDirectory, key) {
     }
   }
   console.log(`hyperparam server running on http://localhost:${port}`)
-  if (!key) openUrl(`http://localhost:${port}`)
-  else {
-    key = encodeURIComponent(key)
-    openUrl(`http://localhost:${port}/files?key=${key}`)
+  const isDev = process.env.NODE_ENV === 'development'
+  if (!isDev) {
+    if (!key) openUrl(`http://localhost:${port}`)
+    else {
+      key = encodeURIComponent(key)
+      openUrl(`http://localhost:${port}/files?key=${key}`)
+    }
   }
 }
 
@@ -91,15 +94,12 @@ function handleRequest(req, serveDirectory) {
   } else if (pathname.startsWith('/assets/') || pathname.startsWith('/favicon') ) {
     // serve static files
     return handleStatic(`${hyperparamPath}/dist${pathname}`)
-  // else if (pathname.startsWith('/public/')) {
-  //   // serve static files
-  //   return handleStatic(`${hyperparamPath}${pathname.replace(/^(\/public).*/, '/dist')}`)
   } else if (serveDirectory && pathname === '/api/store/list') {
     // serve file list
     const prefix = parsedUrl.query.prefix || ''
     if (Array.isArray(prefix)) return { status: 400, content: 'bad request' }
-    const perfixPath = `${serveDirectory}/${decodeURIComponent(prefix)}`
-    return handleListing(perfixPath)
+    const prefixPath = `${serveDirectory}/${decodeURIComponent(prefix)}`
+    return handleListing(prefixPath)
   } else if (serveDirectory && pathname === '/api/store/get') {
     // serve file content
     const key = parsedUrl.query.key || ''

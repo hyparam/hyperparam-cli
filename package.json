@@ -43,8 +43,8 @@
     "url": "run-p -l watch:ts watch:vite watch:url",
     "watch:ts": "tsc --watch",
     "watch:vite": "vite build --watch",
-    "watch:serve": "nodemon bin/cli.js",
-    "watch:url": "nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
+    "watch:serve": "NODE_ENV=development nodemon bin/cli.js",
+    "watch:url": "NODE_ENV=development nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
   },
   "dependencies": {
     "hightable": "0.12.1",
