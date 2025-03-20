@@ -30,6 +30,7 @@
   font-size: 10pt;
   margin-left: -12px;
   margin-right: 4px;
+  padding: 2px 0;
   user-select: none;
 }
 .clickable:hover .drill {
