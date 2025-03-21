@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { RoutesConfig, appendSearchParams } from '../../lib/routes.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
+import classes from '../../styles/ParquetView.module.css'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
@@ -100,7 +101,9 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
-      onError={setError} />}
+      onError={setError}
+      className={classes.hightable}
+    />}
 
     {isLoading && <div className='center'><Spinner /></div>}
   </ContentHeader>

@@ -1,0 +1,17 @@
+/* table overrides */
+.hightable {
+  /* table corner */
+  thead td:first-child {
+    background: url("https://hyperparam.app/assets/table/hyperparam.svg")
+      #f9f4ff no-repeat center 6px;
+  }
+  /* cells */
+  tbody td {
+    cursor: pointer;
+  }
+  /* row numbers */
+  tbody tr:hover [role="rowheader"] {
+    background-color: #ccd;
+    border-right: 1px solid #ccc;
+  }
+}
