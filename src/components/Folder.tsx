@@ -47,7 +47,7 @@ export default function Folder({ source, config }: FolderProps) {
         setSearchQuery('')
       } else if (e.key === 'Enter') {
         // if there is only one result, view it
-        if (filtered?.length === 1) {
+        if (filtered?.length === 1 && 0 in filtered) {
           const key = join(source.prefix, filtered[0].name)
           if (key.endsWith('/')) {
             // clear search because we're about to change folder

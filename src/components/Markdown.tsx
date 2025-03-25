@@ -27,7 +27,7 @@ function parseMarkdown(text: string): Token[] {
     const line = lines[i]
 
     // Skip blank lines
-    if (line.trim() === '') {
+    if (line === undefined || line.trim() === '') {
       i++
       continue
     }
@@ -36,9 +36,13 @@ function parseMarkdown(text: string): Token[] {
     if (line.startsWith('```')) {
       const language = line.slice(3).trim() || undefined
       i++
-      const codeLines = []
-      while (i < lines.length && !lines[i].startsWith('```')) {
-        codeLines.push(lines[i])
+      const codeLines: string[] = []
+      while (i < lines.length && !lines[i]?.startsWith('```')) {
+        const currentLine = lines[i]
+        if (currentLine === undefined) {
+          throw new Error(`Line is undefined at index ${i}.`)
+        }
+        codeLines.push(currentLine)
         i++
       }
       i++ // skip the closing ```
@@ -48,7 +52,10 @@ function parseMarkdown(text: string): Token[] {
 
     // Heading
     const headingMatch = /^(#{1,6})\s+(.*)/.exec(line)
-    if (headingMatch) {
+    if (headingMatch !== null) {
+      if (!(1 in headingMatch) || !(2 in headingMatch)) {
+        throw new Error('Missing entries in regex matches')
+      }
       const level = headingMatch[1].length
       tokens.push({
         type: 'heading',
@@ -61,7 +68,10 @@ function parseMarkdown(text: string): Token[] {
 
     // List (ordered or unordered)
     const listMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(line)
-    if (listMatch) {
+    if (listMatch !== null) {
+      if (!(1 in listMatch) || !(2 in listMatch)) {
+        throw new Error('Missing entries in regex matches')
+      }
       const baseIndent = listMatch[1].length
       const ordered = /^\d+\./.test(listMatch[2])
       const [items, newIndex] = parseList(lines, i, baseIndent)
@@ -72,9 +82,13 @@ function parseMarkdown(text: string): Token[] {
 
     // Blockquote
     if (line.startsWith('>')) {
-      const quoteLines = []
-      while (i < lines.length && lines[i].startsWith('>')) {
-        quoteLines.push(lines[i].replace(/^>\s?/, ''))
+      const quoteLines: string[] = []
+      while (i < lines.length && lines[i]?.startsWith('>')) {
+        const line = lines[i]
+        if (line === undefined) {
+          throw new Error(`Index ${i} not found in lines`)
+        }
+        quoteLines.push(line.replace(/^>\s?/, ''))
         i++
       }
       tokens.push({
@@ -85,9 +99,13 @@ function parseMarkdown(text: string): Token[] {
     }
 
     // Paragraph
-    const paraLines = []
-    while (i < lines.length && lines[i].trim() !== '') {
-      paraLines.push(lines[i])
+    const paraLines: string[] = []
+    while (i < lines.length && lines[i]?.trim() !== '') {
+      const line = lines[i]
+      if (line === undefined) {
+        throw new Error(`Index ${i} not found in lines`)
+      }
+      paraLines.push(line)
       i++
     }
     tokens.push({
@@ -104,16 +122,18 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
   let i = start
 
   while (i < lines.length) {
+    const line = lines[i]
+
     // End of list if blank line or no more lines
-    if (lines[i].trim() === '') {
+    if (line === undefined || line.trim() === '') {
       i++
       continue
     }
 
     // This matches a new top-level bullet/number for the list
-    const match = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(lines[i])
+    const match = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(line)
     // If we don't find a bullet/number at the same indent, break out
-    if (!match || match[1].length !== baseIndent) {
+    if (match === null || !(1 in match) || match[1].length !== baseIndent || !(3 in match)) {
       break
     }
 
@@ -130,7 +150,7 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
     // Now parse subsequent indented lines as sub-items or sub-blocks
     while (i < lines.length) {
       const subline = lines[i]
-      if (subline.trim() === '') {
+      if (subline === undefined || subline.trim() === '') {
         i++
         continue
       }
@@ -141,9 +161,13 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
           // If it’s a fenced code block, parse until closing fence
           const language = trimmed.slice(3).trim() || undefined
           i++
-          const codeLines = []
-          while (i < lines.length && !lines[i].trimStart().startsWith('```')) {
-            codeLines.push(lines[i])
+          const codeLines: string[] = []
+          while (i < lines.length && !lines[i]?.trimStart().startsWith('```')) {
+            const line = lines[i]
+            if (line === undefined) {
+              throw new Error(`Line is undefined at index ${i}`)
+            }
+            codeLines.push(line)
             i++
           }
           i++ // skip the closing ```
@@ -157,7 +181,7 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
 
         // Check for nested list
         const sublistMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(subline)
-        if (sublistMatch && sublistMatch[1].length > baseIndent) {
+        if (sublistMatch && 1 in sublistMatch && sublistMatch[1].length > baseIndent && 2 in sublistMatch) {
           const newBaseIndent = sublistMatch[1].length
           const ordered = /^\d+\./.test(sublistMatch[2])
           const [subItems, newIndex] = parseList(lines, i, newBaseIndent)
@@ -253,7 +277,11 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       const [linkTextTokens, consumed] = parseInlineRecursive(text.slice(i), ']')
       i += consumed
       if (i >= text.length || text[i] !== ']') {
-        tokens.push({ type: 'text', content: text[start] })
+        const startText = text[start]
+        if (startText === undefined) {
+          throw new Error(`Text is undefined at index ${start}`)
+        }
+        tokens.push({ type: 'text', content: startText })
         continue
       }
       i++ // skip ']'
@@ -285,7 +313,11 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       i++
       let code = ''
       while (i < text.length && text[i] !== '`') {
-        code += text[i]
+        const character = text[i]
+        if (character === undefined) {
+          throw new Error(`Character is undefined at index ${i}`)
+        }
+        code += character
         i++
       }
       i++
@@ -311,10 +343,18 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       if (delimiter === '*') {
         let j = i - 1
         while (j >= 0 && text[j] === ' ') j--
-        const prevIsDigit = j >= 0 && /\d/.test(text[j])
+        const characterAtJ = text[j]
+        if (characterAtJ === undefined) {
+          throw new Error(`Character at index ${j} is undefined`)
+        }
+        const prevIsDigit = j >= 0 && /\d/.test(characterAtJ)
         let k = i + 1
         while (k < text.length && text[k] === ' ') k++
-        const nextIsDigit = k < text.length && /\d/.test(text[k])
+        const characterAtK = text[k]
+        if (characterAtK === undefined) {
+          throw new Error(`Character at index ${j} is undefined`)
+        }
+        const nextIsDigit = k < text.length && /\d/.test(characterAtK)
         if (prevIsDigit && nextIsDigit) {
           tokens.push({ type: 'text', content: delimiter })
           i++

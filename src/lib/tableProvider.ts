@@ -17,8 +17,11 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
   function fetchRowGroup(groupIndex: number) {
     if (!groups[groupIndex]) {
-      const rowStart = groupEnds[groupIndex - 1] || 0
+      const rowStart = groupEnds[groupIndex - 1] ?? 0
       const rowEnd = groupEnds[groupIndex]
+      if (rowEnd === undefined) {
+        throw new Error(`Missing groupEnd for groupIndex: ${groupIndex}`)
+      }
       // Initialize with resolvable promises
       for (let i = rowStart; i < rowEnd; i++) {
         data[i] = resolvableRow(header)
@@ -26,11 +29,21 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       parquetQueryWorker({ from, metadata, rowStart, rowEnd })
         .then((groupData) => {
           for (let i = rowStart; i < rowEnd; i++) {
-            data[i]?.index.resolve(i)
-            for (const [key, value] of Object.entries(
-              groupData[i - rowStart]
-            )) {
-              data[i]?.cells[key].resolve(value)
+            const dataRow = data[i]
+            if (dataRow === undefined) {
+              throw new Error(`Missing data row for index ${i}`)
+            }
+            dataRow.index.resolve(i)
+            const row = groupData[i - rowStart]
+            if (row === undefined) {
+              throw new Error(`Missing row in groupData for index: ${i - rowStart}`)
+            }
+            for (const [key, value] of Object.entries(row)) {
+              const cell = dataRow.cells[key]
+              if (cell === undefined) {
+                throw new Error(`Missing column in dataRow for column ${key}`)
+              }
+              cell.resolve(value)
             }
           }
         })
@@ -68,19 +81,31 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           // Re-assemble data in sorted order into wrapped
           for (let i = start; i < end; i++) {
             const index = indices[i]
+            if (index === undefined) {
+              throw new Error(`index ${i} not found in indices`)
+            }
             const row = data[index]
             if (row === undefined) {
               throw new Error('Row not fetched')
             }
             const { cells } = row
-            wrapped[i - start].index.resolve(index)
+            const wrappedRow = wrapped[i - start]
+            if (wrappedRow === undefined) {
+              throw new Error(`Wrapped row missing at index ${i - start}`)
+            }
+            wrappedRow.index.resolve(index)
             for (const key of header) {
-              if (key in cells) {
+              const cell = cells[key]
+              if (cell) {
                 // TODO(SL): should we remove this check? It makes sense only if header change
                 // but if so, I guess we will have more issues
-                cells[key]
+                cell
                   .then((value: unknown) => {
-                    wrapped[i - start]?.cells[key].resolve(value)
+                    const wrappedCell = wrappedRow.cells[key]
+                    if (wrappedCell === undefined) {
+                      throw new Error(`Wrapped cell not found for column ${key}`)
+                    }
+                    wrappedCell.resolve(value)
                   })
                   .catch((error: unknown) => {
                     console.error('Error resolving sorted row', error)
@@ -98,8 +123,12 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
         return wrapped
       } else {
         for (let i = 0; i < groups.length; i++) {
-          const groupStart = groupEnds[i - 1] || 0
-          if (start < groupEnds[i] && end > groupStart) {
+          const groupStart = groupEnds[i - 1] ?? 0
+          const groupEnd = groupEnds[i]
+          if (groupEnd === undefined) {
+            throw new Error(`Missing group end at index ${i}`)
+          }
+          if (start < groupEnd && end > groupStart) {
             fetchRowGroup(i)
           }
         }
