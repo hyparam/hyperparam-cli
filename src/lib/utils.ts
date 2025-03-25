@@ -103,7 +103,7 @@ export const imageTypes = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.tiff', '.w
  */
 export function stringify(value: unknown): string {
   if (typeof value === 'string') return value
-  if (typeof value === 'number') return value.toLocaleString('en-US')
+  if (typeof value === 'number' || typeof value === 'bigint') return value.toLocaleString('en-US')
   if (Array.isArray(value)) {
     return `[\n${value.map((v) => indent(stringify(v), 2)).join(',\n')}\n]`
   }
