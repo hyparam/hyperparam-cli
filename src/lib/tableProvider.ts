@@ -1,7 +1,32 @@
-import { DataFrame, ResolvableRow, resolvableRow } from 'hightable'
+import { DataFrame, OrderBy, ResolvableRow, resolvableRow } from 'hightable'
 import { FileMetaData, parquetSchema } from 'hyparquet'
-import { parquetQueryWorker, parquetSortIndexWorker } from './workers/parquetWorkerClient.js'
+import { parquetColumnRanksWorker, parquetQueryWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
+
+/*
+ * sortIndex[0] gives the index of the first row in the sorted table
+ */
+export function computeSortIndex(orderByRanks: { direction: 'ascending' | 'descending', ranks: number[] }[]): number[] {
+  if (!(0 in orderByRanks)) {
+    throw new Error('orderByRanks should have at least one element')
+  }
+  const numRows = orderByRanks[0].ranks.length
+  return Array
+    .from({ length: numRows }, (_, i) => i)
+    .sort((a, b) => {
+      for (const { direction, ranks } of orderByRanks) {
+        const rankA = ranks[a]
+        const rankB = ranks[b]
+        if (rankA === undefined || rankB === undefined) {
+          throw new Error('Invalid ranks')
+        }
+        const value = direction === 'ascending' ? 1 : -1
+        if (rankA < rankB) return -value
+        if (rankA > rankB) return value
+      }
+      return 0
+    })
+}
 
 /**
  * Convert a parquet file into a dataframe.
@@ -10,6 +35,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
   const { children } = parquetSchema(metadata)
   const header = children.map(child => child.element.name)
   const sortCache = new Map<string, Promise<number[]>>()
+  const columnRanksCache = new Map<string, Promise<number[]>>()
   const data = new Array<ResolvableRow | undefined>(Number(metadata.num_rows))
   const groups = new Array(metadata.row_groups.length).fill(false)
   let groupStart = 0
@@ -34,7 +60,8 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
               throw new Error(`Missing data row for index ${i}`)
             }
             dataRow.index.resolve(i)
-            const row = groupData[i - rowStart]
+            const j = i - rowStart
+            const row = groupData[j]
             if (row === undefined) {
               throw new Error(`Missing row in groupData for index: ${i - rowStart}`)
             }
@@ -54,11 +81,24 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     }
   }
 
-  function getSortIndex(orderBy: string) {
-    let sortIndex = sortCache.get(orderBy)
+  function getColumnRanks(column: string): Promise<number[]> {
+    let columnRanks = columnRanksCache.get(column)
+    if (!columnRanks) {
+      columnRanks = parquetColumnRanksWorker({ from, metadata, column })
+      columnRanksCache.set(column, columnRanks)
+    }
+    return columnRanks
+  }
+
+  function getSortIndex(orderBy: OrderBy): Promise<number[]> {
+    const orderByKey = JSON.stringify(orderBy)
+    let sortIndex = sortCache.get(orderByKey)
     if (!sortIndex) {
-      sortIndex = parquetSortIndexWorker({ from, metadata, orderBy })
-      sortCache.set(orderBy, sortIndex)
+      const orderByRanksPromise = Promise.all(
+        orderBy.map(({ column, direction }) => getColumnRanks(column).then(ranks => ({ direction, ranks })))
+      )
+      sortIndex = orderByRanksPromise.then(orderByRanks => computeSortIndex(orderByRanks))
+      sortCache.set(orderByKey, sortIndex)
     }
     return sortIndex
   }
@@ -66,8 +106,8 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
   return {
     header,
     numRows: Number(metadata.num_rows),
-    rows({ start, end, orderBy }: { start: number, end: number, orderBy?: string}) {
-      if (orderBy) {
+    rows({ start, end, orderBy }: { start: number, end: number, orderBy?: OrderBy}) {
+      if (orderBy?.length) {
         const numRows = end - start
         const wrapped = new Array(numRows).fill(null).map(() => resolvableRow(header))
 

@@ -1,4 +1,4 @@
-import { ColumnData, FileMetaData, ParquetReadOptions } from 'hyparquet'
+import { ColumnData, FileMetaData } from 'hyparquet'
 
 // Serializable constructors for AsyncBuffers
 interface AsyncBufferFromFile {
@@ -11,37 +11,48 @@ interface AsyncBufferFromUrl {
   requestInit?: RequestInit
 }
 export type AsyncBufferFrom = AsyncBufferFromFile | AsyncBufferFromUrl
+// Cells is defined in hightable, but uses any, not unknown
+export type Cells = Record<string, unknown> ;
 
-// Same as ParquetReadOptions, but AsyncBufferFrom instead of AsyncBuffer
-export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'file'> {
+export interface CommonWorkerOptions {
+  metadata: FileMetaData,
   from: AsyncBufferFrom
-  orderBy?: string
-  sortIndex?: boolean
 }
-// Row is defined in hightable, but not exported + we change any to unknown
-export type Row = Record<string, unknown> ;
-
 interface Message {
   queryId: number
-}
-export interface ChunkMessage extends Message {
-  chunk: ColumnData
-}
-export interface ResultMessage extends Message {
-  result: Row[]
-}
-export interface IndicesMessage extends Message {
-  indices: number[]
 }
 export interface ErrorMessage extends Message {
   error: Error
 }
 
-export type ParquetMessage = ChunkMessage | ResultMessage | ErrorMessage
-export type SortParquetMessage = IndicesMessage | ErrorMessage
-
-export interface ParquetSortIndexOptions {
-  metadata: FileMetaData
-  from: AsyncBufferFrom
-  orderBy: string
+/* Query worker */
+export interface QueryWorkerOptions extends CommonWorkerOptions {
+  rowStart?: number,
+  rowEnd?: number,
+  onChunk?: (chunk: ColumnData) => void
 }
+export interface QueryClientMessage extends QueryWorkerOptions, Message {
+  kind: 'query',
+  chunks?: boolean
+}
+export interface ChunkMessage extends Message {
+  chunk: ColumnData
+}
+export interface ResultMessage extends Message {
+  result: Cells[]
+}
+export type QueryWorkerMessage = ChunkMessage | ResultMessage | ErrorMessage
+
+/* ColumnRanks worker */
+export interface ColumnRanksWorkerOptions extends CommonWorkerOptions {
+  column: string
+}
+export interface ColumnRanksClientMessage extends ColumnRanksWorkerOptions, Message {
+  kind: 'columnRanks'
+}
+export interface ColumnRanksMessage extends Message {
+  columnRanks: number[]
+}
+export type ColumnRanksWorkerMessage = ColumnRanksMessage | ErrorMessage
+
+export type ClientMessage = QueryClientMessage | ColumnRanksClientMessage

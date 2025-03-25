@@ -2,29 +2,29 @@ import ParquetWorker from './parquetWorker?worker&inline'
 /// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
 /// (no need to copy the worker file to the right place)
 import { ColumnData } from 'hyparquet'
-import type { ParquetMessage, ParquetReadWorkerOptions, ParquetSortIndexOptions, Row, SortParquetMessage } from './types.js'
+import type { Cells, ColumnRanksClientMessage, ColumnRanksWorkerMessage, ColumnRanksWorkerOptions, QueryClientMessage, QueryWorkerMessage, QueryWorkerOptions } from './types.js'
 
 let worker: Worker | undefined
 let nextQueryId = 0
-interface SortQueryAgent {
-  kind: 'sortIndex';
-  resolve: (value: number[]) => void;
-  reject: (error: Error) => void;
-}
 interface RowsQueryAgent {
   kind: 'query';
-  resolve: (value: Row[]) => void;
+  resolve: (value: Cells[]) => void;
   reject: (error: Error) => void;
   onChunk?: (chunk: ColumnData) => void;
 }
-type QueryAgent = SortQueryAgent | RowsQueryAgent
+interface ColumnRanksQueryAgent {
+  kind: 'columnRanks';
+  resolve: (value: number[]) => void;
+  reject: (error: Error) => void;
+}
+type QueryAgent = RowsQueryAgent | ColumnRanksQueryAgent
 
 const pending = new Map<number, QueryAgent>()
 
 function getWorker() {
   if (!worker) {
     worker = new ParquetWorker()
-    worker.onmessage = ({ data }: { data: ParquetMessage | SortParquetMessage }) => {
+    worker.onmessage = ({ data }: { data: QueryWorkerMessage | ColumnRanksWorkerMessage }) => {
       const pendingQueryAgent = pending.get(data.queryId)
       if (!pendingQueryAgent) {
         console.warn(
@@ -32,8 +32,10 @@ function getWorker() {
         )
         return
       }
+
       if (pendingQueryAgent.kind === 'query') {
-        const { resolve, reject, onChunk } = pendingQueryAgent
+        const { resolve, reject } = pendingQueryAgent
+        const { onChunk } = pendingQueryAgent
         if ('error' in data) {
           reject(data.error)
         } else if ('result' in data) {
@@ -43,15 +45,16 @@ function getWorker() {
         } else {
           reject(new Error('Unexpected message from worker'))
         }
+        return
+      }
+
+      const { resolve, reject } = pendingQueryAgent
+      if ('error' in data) {
+        reject(data.error)
+      } else if ('columnRanks' in data) {
+        resolve(data.columnRanks)
       } else {
-        const { resolve, reject } = pendingQueryAgent
-        if ('error' in data) {
-          reject(data.error)
-        } else if ('indices' in data) {
-          resolve(data.indices)
-        } else {
-          reject(new Error('Unexpected message from worker'))
-        }
+        reject(new Error('Unexpected message from worker'))
       }
     }
   }
@@ -64,7 +67,8 @@ function getWorker() {
  * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker.
  */
-export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, orderBy, onChunk }: ParquetReadWorkerOptions): Promise<Row[]> {
+export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, onChunk }: QueryWorkerOptions): Promise<Cells[]> {
+  // TODO(SL) Support passing columns?
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
     pending.set(queryId, { kind: 'query', resolve, reject, onChunk })
@@ -72,17 +76,17 @@ export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, orderBy, 
 
     // If caller provided an onChunk callback, worker will send chunks as they are parsed
     const chunks = onChunk !== undefined
-    worker.postMessage({ queryId, metadata, from, rowStart, rowEnd, orderBy, chunks })
+    const message: QueryClientMessage = { queryId, metadata, from, rowStart, rowEnd, chunks, kind: 'query' }
+    worker.postMessage(message)
   })
 }
 
-export function parquetSortIndexWorker({ metadata, from, orderBy }: ParquetSortIndexOptions): Promise<number[]> {
+export function parquetColumnRanksWorker({ metadata, from, column }: ColumnRanksWorkerOptions): Promise<number[]> {
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
-    pending.set(queryId, { kind: 'sortIndex', resolve, reject })
+    pending.set(queryId, { kind: 'columnRanks', resolve, reject })
     const worker = getWorker()
-    worker.postMessage({
-      queryId, metadata, from, orderBy, sortIndex: true,
-    })
+    const message: ColumnRanksClientMessage = { queryId, metadata, from, column, kind: 'columnRanks' }
+    worker.postMessage(message)
   })
 }

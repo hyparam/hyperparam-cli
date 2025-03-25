@@ -1,7 +1,7 @@
 import { ColumnData, parquetQuery } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
 import { asyncBufferFrom } from '../utils.js'
-import type { ChunkMessage, ErrorMessage, IndicesMessage, ParquetReadWorkerOptions, ResultMessage } from './types.js'
+import type { ChunkMessage, ClientMessage, ColumnRanksMessage, ErrorMessage, ResultMessage } from './types.js'
 
 function postChunkMessage ({ chunk, queryId }: ChunkMessage) {
   self.postMessage({ chunk, queryId })
@@ -12,35 +12,51 @@ function postResultMessage ({ result, queryId }: ResultMessage) {
 function postErrorMessage ({ error, queryId }: ErrorMessage) {
   self.postMessage({ error, queryId })
 }
-function postIndicesMessage ({ indices, queryId }: IndicesMessage) {
-  self.postMessage({ indices, queryId })
+function postColumnRanksMessage ({ columnRanks, queryId }: ColumnRanksMessage) {
+  self.postMessage({ columnRanks, queryId })
 }
 
-self.onmessage = async ({ data }: {
-  data: ParquetReadWorkerOptions & { queryId: number; chunks: boolean };
-}) => {
-  const { metadata, from, rowStart, rowEnd, orderBy, columns, queryId, chunks, sortIndex } = data
+self.onmessage = async ({ data }: { data: ClientMessage }) => {
+  const { metadata, from, kind, queryId } = data
   const file = await asyncBufferFrom(from)
-  if (sortIndex === undefined) {
-    const onChunk = chunks ? (chunk: ColumnData) => { postChunkMessage({ chunk, queryId }) } : undefined
+  if (kind === 'columnRanks') {
+    const { column } = data
+    // return the column ranks in ascending order
+    // we can get the descending order replacing the rank with numRows - rank - 1. It's not exactly the rank of
+    // the descending order, because the rank is the first, not the last, of the ties. But it's enough for the
+    // purpose of sorting.
+
+    // TODO(SL): ensure only the expected column is fetched
     try {
-      const result = await parquetQuery({ metadata, file, rowStart, rowEnd, orderBy, columns, compressors, onChunk })
-      postResultMessage({ result, queryId })
+      const sortColumn = await parquetQuery({ metadata, file, columns: [column], compressors })
+      const valuesWithIndex = sortColumn.map((row, index) => ({ value: row[column] as unknown, index }))
+      const sortedValuesWithIndex = Array.from(valuesWithIndex).sort(({ value: a }, { value: b }) => compare<unknown>(a, b))
+      const numRows = sortedValuesWithIndex.length
+      const columnRanks = sortedValuesWithIndex.reduce((accumulator, currentValue, rank) => {
+        const { lastValue, lastRank, ranks } = accumulator
+        const { value, index } = currentValue
+        if (value === lastValue) {
+          ranks[index] = lastRank
+          return { ranks, lastValue, lastRank }
+        } else {
+          ranks[index] = rank
+          return { ranks, lastValue: value, lastRank: rank }
+        }
+      }, {
+        ranks: Array(numRows).fill(-1) as number[],
+        lastValue: undefined as unknown,
+        lastRank: 0,
+      }).ranks
+      postColumnRanksMessage({ columnRanks: columnRanks, queryId })
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
     }
   } else {
+    const { rowStart, rowEnd, chunks } = data
+    const onChunk = chunks ? (chunk: ColumnData) => { postChunkMessage({ chunk, queryId }) } : undefined
     try {
-      // Special case for sorted index
-      if (orderBy === undefined)
-        throw new Error('sortParquetWorker requires orderBy')
-      if (rowStart !== undefined || rowEnd !== undefined)
-        throw new Error('sortIndex requires all rows')
-      const sortColumn = await parquetQuery({ metadata, file, columns: [orderBy], compressors })
-      const indices = Array.from(sortColumn, (_, index) => index).sort((a, b) =>
-        compare<unknown>(sortColumn[a]?.[orderBy], sortColumn[b]?.[orderBy])
-      )
-      postIndicesMessage({ indices, queryId })
+      const result = await parquetQuery({ metadata, file, rowStart, rowEnd, compressors, onChunk })
+      postResultMessage({ result, queryId })
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
     }
