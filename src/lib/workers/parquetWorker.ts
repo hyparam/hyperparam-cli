@@ -1,5 +1,6 @@
 import { ColumnData, parquetQuery } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
+import { getParquetColumn } from '../getParquetColumn.js'
 import { asyncBufferFrom } from '../utils.js'
 import type { ChunkMessage, ClientMessage, ColumnRanksMessage, ErrorMessage, ResultMessage } from './types.js'
 
@@ -26,10 +27,9 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
     // the descending order, because the rank is the first, not the last, of the ties. But it's enough for the
     // purpose of sorting.
 
-    // TODO(SL): ensure only the expected column is fetched
     try {
-      const sortColumn = await parquetQuery({ metadata, file, columns: [column], compressors })
-      const valuesWithIndex = sortColumn.map((row, index) => ({ value: row[column] as unknown, index }))
+      const sortColumn = await getParquetColumn({ metadata, file, column, compressors })
+      const valuesWithIndex = sortColumn.map((value, index) => ({ value, index }))
       const sortedValuesWithIndex = Array.from(valuesWithIndex).sort(({ value: a }, { value: b }) => compare<unknown>(a, b))
       const numRows = sortedValuesWithIndex.length
       const columnRanks = sortedValuesWithIndex.reduce((accumulator, currentValue, rank) => {

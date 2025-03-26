@@ -34,8 +34,7 @@ function getWorker() {
       }
 
       if (pendingQueryAgent.kind === 'query') {
-        const { resolve, reject } = pendingQueryAgent
-        const { onChunk } = pendingQueryAgent
+        const { onChunk, resolve, reject } = pendingQueryAgent
         if ('error' in data) {
           reject(data.error)
         } else if ('result' in data) {
