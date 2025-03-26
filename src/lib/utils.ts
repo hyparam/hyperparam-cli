@@ -63,11 +63,15 @@ export function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 b'
   const i = Math.floor(Math.log2(bytes) / 10)
   if (i === 0) return bytes.toLocaleString('en-US') + ' b'
+  const size = sizes[i]
+  if (size === undefined) {
+    throw new Error(`Size not found at index ${i}`)
+  }
   const base = bytes / Math.pow(1024, i)
   return (
     (base < 10 ? base.toFixed(1) : Math.round(base)).toLocaleString('en-US') +
     ' ' +
-    sizes[i]
+    size
   )
 }
 

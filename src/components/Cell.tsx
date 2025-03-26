@@ -38,12 +38,20 @@ export default function CellView({ source, row, col, config }: CellProps) {
         setProgress(0.75)
         const df = parquetDataFrame(from, metadata)
         const asyncRows = df.rows({ start: row, end: row + 1 })
-        if (asyncRows.length !== 1) {
+        if (asyncRows.length > 1 || !(0 in asyncRows)) {
           throw new Error(`Expected 1 row, got ${asyncRows.length}`)
         }
         const asyncRow = asyncRows[0]
         // Await cell data
-        const text = await asyncRow.cells[df.header[col]].then(stringify)
+        const columnName = df.header[col]
+        if (columnName === undefined) {
+          throw new Error(`Column name missing at index col=${col}`)
+        }
+        const asyncCell = asyncRow.cells[columnName]
+        if (asyncCell === undefined) {
+          throw new Error(`Cell missing at column ${columnName}`)
+        }
+        const text = await asyncCell.then(stringify)
         setText(text)
         setError(undefined)
       } catch (error) {

@@ -70,13 +70,13 @@ export default function ImageView({ source, setError }: ViewerProps) {
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   let binary = ''
   const bytes = new Uint8Array(buffer)
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i])
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte)
   }
   return btoa(binary)
 }
 
 function contentType(filename: string): string {
   const ext = filename.split('.').pop() ?? ''
-  return contentTypes[ext] || 'image/png'
+  return contentTypes[ext] ?? 'image/png'
 }

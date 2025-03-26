@@ -23,12 +23,21 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
       try {
         setProgress(0.5)
         const asyncRows = df.rows({ start: row, end: row + 1 })
-        if (asyncRows.length !== 1) {
+        if (asyncRows.length > 1 || !(0 in asyncRows)) {
           throw new Error(`Expected 1 row, got ${asyncRows.length}`)
         }
         const asyncRow = asyncRows[0]
         // Await cell data
-        const text = await asyncRow.cells[df.header[col]].then(stringify)
+        const columnName = df.header[col]
+        if (columnName === undefined) {
+          throw new Error(`Column name missing at index col=${col}`)
+        }
+        const asyncCell = asyncRow.cells[columnName]
+        if (asyncCell === undefined) {
+          throw new Error(`Cell missing at column ${columnName}`)
+        }
+        /* TODO(SL): use the same implementation of stringify, here and in Cell.tsx */
+        const text = await asyncCell.then(cell => stringify(cell as unknown) ?? '{}')
         setText(text)
       } catch (error) {
         setError(error as Error)
