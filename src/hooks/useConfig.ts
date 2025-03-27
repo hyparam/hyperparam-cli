@@ -11,6 +11,7 @@ export interface Config {
   customClass?: {
     brand?: string
     contentWrapper?: string
+    errorBar?: string
     highTable?: string
     imageView?: string
     markdownView?: string

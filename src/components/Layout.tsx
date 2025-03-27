@@ -1,5 +1,6 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
+import ErrorBar from './ErrorBar.js'
 import SideBar from './SideBar.js'
 import Welcome from './Welcome.js'
 
@@ -57,28 +58,4 @@ export default function Layout({ children, className, progress, error, title }: 
     }
     {showWelcome && <Welcome onClose={handleCloseWelcome} />}
   </main>
-}
-
-export function ErrorBar({ error }: { error?: Error }) {
-  const [showError, setShowError] = useState(error !== undefined)
-  const [prevError, setPrevError] = useState(error)
-
-  if (error) console.error(error)
-  /// Reset error visibility when error prop changes
-  if (error !== prevError) {
-    setPrevError(error)
-    setShowError(error !== undefined)
-  }
-
-  return <div className={cn('error-bar', showError && 'show-error')}>
-    <div className='error-content'>
-      <span>{error?.toString()}</span>
-      <button
-        aria-label='Close error message'
-        className='close-button'
-        onClick={() => { setShowError(false) }}>
-      &times;
-      </button>
-    </div>
-  </div>
 }
