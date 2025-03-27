@@ -3,7 +3,7 @@ import { cn } from '../lib/utils.js'
 import styles from '../styles/Welcome.module.css'
 
 export interface WelcomeConfig {
-  welcome: {
+  welcome?: {
     className?: string
   }
 }
@@ -38,7 +38,7 @@ export default function Welcome({ onClose, config }: WelcomePopupProps) {
   }, [onClose])
 
   return (
-    <div className={cn(styles.welcome, config?.welcome.className)} onClick={handleBackdropClick}>
+    <div className={cn(styles.welcome, config?.welcome?.className)} onClick={handleBackdropClick}>
       <div>
         <h2>npx hyperparam</h2>
         <p>
