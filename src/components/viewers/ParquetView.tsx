@@ -5,7 +5,7 @@ import { RoutesConfig, appendSearchParams } from '../../lib/routes.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { stringify } from '../../lib/utils.js'
-import classes from '../../styles/ParquetView.module.css'
+import styles from '../../styles/ParquetView.module.css'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
@@ -103,7 +103,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
       onError={setError}
-      className={classes.hightable}
+      className={styles.hightable}
       stringify={stringify}
     />}
 
