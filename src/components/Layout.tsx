@@ -1,8 +1,9 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
+import SideBar, { SideBarConfig } from './SideBar.js'
 import Welcome, { WelcomeConfig } from './Welcome.js'
 
-export type LayoutConfig = WelcomeConfig
+export type LayoutConfig = WelcomeConfig & SideBarConfig
 
 interface LayoutProps {
   children: ReactNode
@@ -46,7 +47,7 @@ export default function Layout({ children, className, progress, error, title, co
   }, [title])
 
   return <main className='main'>
-    <Sidebar />
+    <SideBar config={config} />
     <div className='content-container'>
       <div className={cn('content', className)}>
         {children}
@@ -60,14 +61,6 @@ export default function Layout({ children, className, progress, error, title, co
     }
     {showWelcome && <Welcome onClose={handleCloseWelcome} config={config}/>}
   </main>
-}
-
-function Sidebar() {
-  return <nav className='nav'>
-    <div>
-      <a className="brand" href='/'>hyperparam</a>
-    </div>
-  </nav>
 }
 
 export function Spinner({ className }: { className?: string }) {
