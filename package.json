@@ -15,7 +15,8 @@
       "types": "./lib/index.d.ts",
       "import": "./lib/index.es.min.js",
       "require": "./lib/index.umd.min.js"
-    }
+    },
+    "./hyperparam.css": "./lib/hyperparam.css"
   },
   "bin": {
     "hyp": "bin/cli.js",
