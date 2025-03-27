@@ -29,7 +29,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
-  const { highTable, routes } = useConfig()
+  const { customClass, routes } = useConfig()
 
   useEffect(() => {
     async function loadParquetDataFrame() {
@@ -102,7 +102,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
       onError={setError}
-      className={cn(styles.hightable, highTable?.className)}
+      className={cn(styles.hightable, customClass?.highTable)}
     />}
 
     {isLoading && <div className='center'><Spinner /></div>}

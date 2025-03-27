@@ -1,23 +1,12 @@
+import { useConfig } from '../hooks/useConfig.js'
 import { cn } from '../lib/utils.js'
 import styles from '../styles/SideBar.module.css'
 
-export interface SideBarConfig {
-  sideBar?: {
-    className?: string
-  },
-  brand?: {
-    className?: string
-  }
-}
-
-interface SideBarProps {
-  config?: SideBarConfig
-}
-
-export default function SideBar({ config }: SideBarProps) {
-  return <nav className={cn(styles.sideBar, config?.sideBar?.className)}>
+export default function SideBar() {
+  const { customClass } = useConfig()
+  return <nav className={cn(styles.sideBar, customClass?.sideBar)}>
     <div>
-      <a className={cn(styles.brand, config?.brand?.className)} href='/'>hyperparam</a>
+      <a className={cn(styles.brand, customClass?.brand)} href='/'>hyperparam</a>
     </div>
   </nav>
 }

@@ -1,9 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
-import SideBar, { SideBarConfig } from './SideBar.js'
-import Welcome, { WelcomeConfig } from './Welcome.js'
-
-export type LayoutConfig = WelcomeConfig & SideBarConfig
+import SideBar from './SideBar.js'
+import Welcome from './Welcome.js'
 
 interface LayoutProps {
   children: ReactNode
@@ -11,7 +9,6 @@ interface LayoutProps {
   progress?: number
   error?: Error
   title?: string
-  config?: LayoutConfig
 }
 
 /**
@@ -24,9 +21,8 @@ interface LayoutProps {
  * @param props.progress - progress bar value
  * @param props.error - error message to display
  * @param props.title - page title
- * @param props.config - configuration for the layout
  */
-export default function Layout({ children, className, progress, error, title, config }: LayoutProps) {
+export default function Layout({ children, className, progress, error, title }: LayoutProps) {
   const [showWelcome, setShowWelcome] = useState(false)
 
   // Check localStorage on mount to see if the user has seen the welcome popup
@@ -47,7 +43,7 @@ export default function Layout({ children, className, progress, error, title, co
   }, [title])
 
   return <main className='main'>
-    <SideBar config={config} />
+    <SideBar />
     <div className='content-container'>
       <div className={cn('content', className)}>
         {children}
@@ -59,7 +55,7 @@ export default function Layout({ children, className, progress, error, title, co
         <div style={{ width: `${100 * progress}%` }} />
       </div>
     }
-    {showWelcome && <Welcome onClose={handleCloseWelcome} config={config}/>}
+    {showWelcome && <Welcome onClose={handleCloseWelcome} />}
   </main>
 }
 
