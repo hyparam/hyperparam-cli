@@ -10,6 +10,7 @@ import { createContext, useContext } from 'react'
 export interface Config {
   customClass?: {
     brand?: string
+    contentWrapper?: string
     highTable?: string
     imageView?: string
     markdownView?: string

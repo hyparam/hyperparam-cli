@@ -332,28 +332,6 @@ button.close-button:hover {
   background-image: url("../assets/folder.svg");
 }
 
-/* viewer */
-.viewer {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  white-space: pre-wrap;
-  overflow-y: auto;
-}
-.view-header {
-  align-items: center;
-  background-color: #f2f2f2;
-  color: #444;
-  display: flex;
-  gap: 16px;
-  height: 24px;
-  overflow: hidden;
-  padding: 0 16px;
-  /* all one line */
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .slideContainer {
   display: flex;
   flex: 1;

@@ -1,5 +1,7 @@
 import { ReactNode } from 'react'
-import { formatFileSize } from '../../lib/utils.js'
+import { useConfig } from '../../hooks/useConfig.js'
+import { cn, formatFileSize } from '../../lib/utils.js'
+import styles from '../../styles/viewers/ContentHeader.module.css'
 
 export interface ContentSize {
   fileSize?: number
@@ -16,13 +18,14 @@ interface ContentHeaderProps {
 }
 
 export default function ContentHeader({ content, headers, children }: ContentHeaderProps) {
-  return <div className='viewer'>
-    <div className='view-header'>
+  const { customClass } = useConfig()
+  return <div className={cn(styles.contentWrapper, customClass?.contentWrapper)}>
+    <header>
       {content?.fileSize && <span title={content.fileSize.toLocaleString('en-US') + ' bytes'}>
         {formatFileSize(content.fileSize)}
       </span>}
       {headers}
-    </div>
+    </header>
     {children}
   </div>
 }
