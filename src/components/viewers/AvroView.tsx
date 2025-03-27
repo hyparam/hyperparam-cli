@@ -4,7 +4,7 @@ import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/Json.module.css'
 import Json from '../Json.js'
-import { Spinner } from '../Layout.js'
+import Spinner from '../Spinner.js'
 import ContentWrapper, { ContentSize } from './ContentWrapper.js'
 
 interface ViewerProps {

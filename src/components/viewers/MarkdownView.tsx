@@ -3,8 +3,8 @@ import { useConfig } from '../../hooks/useConfig.js'
 import type { FileSource } from '../../lib/sources/types.js'
 import { cn, parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/viewers/MarkdownView.module.css'
-import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
+import Spinner from '../Spinner.js'
 import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {

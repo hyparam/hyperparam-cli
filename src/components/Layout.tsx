@@ -59,10 +59,6 @@ export default function Layout({ children, className, progress, error, title }: 
   </main>
 }
 
-export function Spinner({ className }: { className?: string }) {
-  return <div className={cn('spinner', className)}></div>
-}
-
 export function ErrorBar({ error }: { error?: Error }) {
   const [showError, setShowError] = useState(error !== undefined)
   const [prevError, setPrevError] = useState(error)

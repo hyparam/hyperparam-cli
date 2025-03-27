@@ -73,22 +73,6 @@ main {
   max-width: 100vw;
 }
 
-.spinner {
-  border: 6px solid #e8e8e8;
-  border-top: 6px solid #68a;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  animation: spin 1s linear infinite, fadeIn 3s, ease-in-out forwards;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-@keyframes fadeIn {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
-}
 .center {
   flex: 1;
   display: flex;

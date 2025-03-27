@@ -3,7 +3,8 @@ import { useConfig } from '../hooks/useConfig.js'
 import type { DirSource, FileMetadata } from '../lib/sources/types.js'
 import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
 import Breadcrumb from './Breadcrumb.js'
-import Layout, { Spinner } from './Layout.js'
+import Layout from './Layout.js'
+import Spinner from './Spinner.js'
 
 interface FolderProps {
   source: DirSource

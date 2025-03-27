@@ -3,7 +3,7 @@ import { useConfig } from '../../hooks/useConfig.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { cn, parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/viewers/TextView.module.css'
-import { Spinner } from '../Layout.js'
+import Spinner from '../Spinner.js'
 import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
