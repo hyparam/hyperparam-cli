@@ -1,0 +1,11 @@
+.textView {
+  background-color: #22222b;
+  color: #d6d6d6;
+  display: block;
+  flex: 1;
+  font-family: monospace;
+  padding: 8px;
+  width: 100%;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}

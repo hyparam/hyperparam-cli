@@ -354,17 +354,7 @@ button.close-button:hover {
   white-space: nowrap;
 }
 /* viewers */
-.text {
-  background-color: #22222b;
-  color: #d6d6d6;
-  display: block;
-  flex: 1;
-  font-family: monospace;
-  padding: 8px;
-  width: 100%;
-  overflow-x: auto;
-  white-space: pre-wrap;
-}
+
 /* images */
 .image {
   display: block;
@@ -469,16 +459,4 @@ button.close-button:hover {
 }
 .slideClose:hover {
   color: #000;
-}
-
-/* viewers */
-.text {
-  background-color: #22222b;
-  color: #d6d6d6;
-  display: block;
-  flex: 1;
-  padding: 8px;
-  width: 100%;
-  overflow-x: auto;
-  white-space: pre-wrap;
 }

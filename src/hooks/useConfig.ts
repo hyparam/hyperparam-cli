@@ -12,6 +12,7 @@ export interface Config {
     brand?: string
     highTable?: string
     sideBar?: string
+    textView?: string
     welcome?: string
   }
   routes?: {
