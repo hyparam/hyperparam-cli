@@ -9,7 +9,7 @@ import { cn } from '../../lib/utils.js'
 import styles from '../../styles/ParquetView.module.css'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
-import ContentHeader, { ContentSize } from './ContentHeader.js'
+import ContentWrapper, { ContentSize } from './ContentWrapper.js'
 import SlidePanel from './SlidePanel.js'
 
 interface ViewerProps {
@@ -95,7 +95,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
 
   const headers = <span>{content?.dataframe.numRows.toLocaleString() ?? '...'} rows</span>
 
-  const mainContent = <ContentHeader content={content} headers={headers}>
+  const mainContent = <ContentWrapper content={content} headers={headers}>
     {content?.dataframe && <HighTable
       cacheKey={source.resolveUrl}
       data={content.dataframe}
@@ -106,7 +106,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
     />}
 
     {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 
   let panelContent
   if (content?.dataframe && cell) {

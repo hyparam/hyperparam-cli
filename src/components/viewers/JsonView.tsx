@@ -4,7 +4,7 @@ import { parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/Json.module.css'
 import Json from '../Json.js'
 import { Spinner } from '../Layout.js'
-import ContentHeader, { TextContent } from './ContentHeader.js'
+import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -63,7 +63,7 @@ export default function JsonView({ source, setError }: ViewerProps) {
   // If json failed to parse, show the text instead
   const showFallbackText = content?.text !== undefined && json === undefined
 
-  return <ContentHeader content={content} headers={headers}>
+  return <ContentWrapper content={content} headers={headers}>
     {!isLarge && <>
       {!showFallbackText && <code className={styles.jsonView}>
         <Json json={json} />
@@ -77,5 +77,5 @@ export default function JsonView({ source, setError }: ViewerProps) {
     </div>}
 
     {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 }

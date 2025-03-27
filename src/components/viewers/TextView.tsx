@@ -4,7 +4,7 @@ import { FileSource } from '../../lib/sources/types.js'
 import { cn, parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/viewers/TextView.module.css'
 import { Spinner } from '../Layout.js'
-import ContentHeader, { TextContent } from './ContentHeader.js'
+import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -51,13 +51,13 @@ export default function TextView({ source, setError }: ViewerProps) {
   </>
 
   // Simple text viewer
-  return <ContentHeader content={content} headers={headers}>
+  return <ContentWrapper content={content} headers={headers}>
     {content && <code className={cn(styles.text, customClass?.textView)}>
       {content.text}
     </code>}
 
     {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 }
 
 function newlines(str: string): string {

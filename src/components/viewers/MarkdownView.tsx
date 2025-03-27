@@ -5,7 +5,7 @@ import { cn, parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/viewers/MarkdownView.module.css'
 import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
-import ContentHeader, { TextContent } from './ContentHeader.js'
+import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -47,9 +47,9 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
     void loadContent()
   }, [resolveUrl, requestInit, setError])
 
-  return <ContentHeader content={content}>
+  return <ContentWrapper content={content}>
     <Markdown className={cn(styles.markdownView, customClass?.markdownView)} text={content?.text ?? ''} />
 
     { isLoading && <div className='center'><Spinner /></div> }
-  </ContentHeader>
+  </ContentWrapper>
 }

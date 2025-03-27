@@ -1,7 +1,7 @@
 import { ReactNode } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import { cn, formatFileSize } from '../../lib/utils.js'
-import styles from '../../styles/viewers/ContentHeader.module.css'
+import styles from '../../styles/viewers/ContentWrapper.module.css'
 
 export interface ContentSize {
   fileSize?: number
@@ -11,13 +11,13 @@ export interface TextContent extends ContentSize {
   text: string
 }
 
-interface ContentHeaderProps {
+interface ContentWrapperProps {
   content?: ContentSize
   headers?: ReactNode
   children?: ReactNode
 }
 
-export default function ContentHeader({ content, headers, children }: ContentHeaderProps) {
+export default function ContentWrapper({ content, headers, children }: ContentWrapperProps) {
   const { customClass } = useConfig()
   return <div className={cn(styles.contentWrapper, customClass?.contentWrapper)}>
     <header>

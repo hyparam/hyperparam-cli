@@ -4,7 +4,7 @@ import { FileSource } from '../../lib/sources/types.js'
 import { cn, contentTypes, parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/viewers/ImageView.module.css'
 import { Spinner } from '../Layout.js'
-import ContentHeader from './ContentHeader.js'
+import ContentWrapper from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -54,14 +54,14 @@ export default function ImageView({ source, setError }: ViewerProps) {
     void loadContent()
   }, [fileName, resolveUrl, requestInit, setError])
 
-  return <ContentHeader content={content}>
+  return <ContentWrapper content={content}>
     {content?.dataUri && <img
       alt={source.sourceId}
       className={cn(styles.image, customClass?.imageView)}
       src={content.dataUri} />}
 
     {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 }
 
 /**
