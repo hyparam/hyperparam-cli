@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { cn, parseFileSize } from '../../lib/utils.js'
-import styles from '../../styles/TextView.module.css'
+import styles from '../../styles/viewers/TextView.module.css'
 import { Spinner } from '../Layout.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
 
