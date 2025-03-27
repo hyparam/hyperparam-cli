@@ -36,8 +36,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
         if (asyncCell === undefined) {
           throw new Error(`Cell missing at column ${columnName}`)
         }
-        /* TODO(SL): use the same implementation of stringify, here and in Cell.tsx */
-        const text = await asyncCell.then(cell => stringify(cell as unknown) ?? '{}')
+        const text = await asyncCell.then(stringify)
         setText(text)
       } catch (error) {
         setError(error as Error)

@@ -47,7 +47,7 @@
     "watch:url": "NODE_ENV=development nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
   },
   "dependencies": {
-    "hightable": "0.12.1",
+    "hightable": "0.13.1",
     "hyparquet": "1.9.1",
     "hyparquet-compressors": "1.0.0",
     "icebird": "0.1.8",
