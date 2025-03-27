@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
 import { FileSource } from '../../lib/sources/types.js'
-import { contentTypes, parseFileSize } from '../../lib/utils.js'
+import { cn, contentTypes, parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/viewers/ImageView.module.css'
 import { Spinner } from '../Layout.js'
 import ContentHeader from './ContentHeader.js'
 
@@ -20,6 +22,7 @@ interface Content {
 export default function ImageView({ source, setError }: ViewerProps) {
   const [content, setContent] = useState<Content>()
   const [isLoading, setIsLoading] = useState(true)
+  const { customClass } = useConfig()
 
   const { fileName, resolveUrl, requestInit } = source
 
@@ -54,7 +57,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
   return <ContentHeader content={content}>
     {content?.dataUri && <img
       alt={source.sourceId}
-      className='image'
+      className={cn(styles.image, customClass?.imageView)}
       src={content.dataUri} />}
 
     {isLoading && <div className='center'><Spinner /></div>}
