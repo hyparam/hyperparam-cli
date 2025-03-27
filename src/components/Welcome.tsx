@@ -1,14 +1,23 @@
 import { MouseEvent, useEffect } from 'react'
+import { cn } from '../lib/utils.js'
+import styles from '../styles/Welcome.module.css'
+
+export interface WelcomeConfig {
+  welcome: {
+    className?: string
+  }
+}
 
 interface WelcomePopupProps {
-  onClose: () => void
+  onClose: () => void,
+  config?: WelcomeConfig
 }
 
 /**
  * Welcome popup component shown to first-time users.
  * Clicking outside the popup or pressing Escape will dismiss it.
  */
-export default function Welcome({ onClose }: WelcomePopupProps) {
+export default function Welcome({ onClose, config }: WelcomePopupProps) {
   // Close popup when clicking outside
   function handleBackdropClick(e: MouseEvent) {
     if (e.target === e.currentTarget) {
@@ -29,7 +38,7 @@ export default function Welcome({ onClose }: WelcomePopupProps) {
   }, [onClose])
 
   return (
-    <div className="welcome" onClick={handleBackdropClick}>
+    <div className={cn(styles.welcome, config?.welcome.className)} onClick={handleBackdropClick}>
       <div>
         <h2>npx hyperparam</h2>
         <p>
