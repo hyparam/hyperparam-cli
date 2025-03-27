@@ -1,17 +1,10 @@
 import React, { ReactNode, useCallback, useEffect, useState } from 'react'
-
-export interface SlidePanelConfig {
-  slidePanel?: {
-    minWidth?: number
-    defaultWidth?: number
-  }
-}
+import { useConfig } from '../../hooks/useConfig.js'
 
 interface SlidePanelProps {
   mainContent: ReactNode
   panelContent: ReactNode
   isPanelOpen: boolean
-  config?: SlidePanelConfig
 }
 
 const WIDTH = {
@@ -22,17 +15,16 @@ const WIDTH = {
 /**
  * Slide out panel component with resizing.
  */
-export default function SlidePanel({
-  mainContent, panelContent, isPanelOpen, config,
-}: SlidePanelProps) {
-  const minWidth = config?.slidePanel?.minWidth && config.slidePanel.minWidth > 0 ? config.slidePanel.minWidth : WIDTH.MIN
+export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: SlidePanelProps) {
+  const { slidePanel } = useConfig()
+  const minWidth = slidePanel?.minWidth && slidePanel.minWidth > 0 ? slidePanel.minWidth : WIDTH.MIN
   function validWidth(width?: number): number | undefined {
     if (width && minWidth <= width) {
       return width
     }
     return undefined
   }
-  const defaultWidth = validWidth(config?.slidePanel?.defaultWidth) ?? WIDTH.DEFAULT
+  const defaultWidth = validWidth(slidePanel?.defaultWidth) ?? WIDTH.DEFAULT
   const [resizingClientX, setResizingClientX] = useState(-1)
   const panelRef = React.createRef<HTMLDivElement>()
 

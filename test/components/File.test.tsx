@@ -2,11 +2,12 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React, { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { File, RoutesConfig, getHttpSource, getHyperparamSource } from '../../src/index.js'
+import { Config, ConfigProvider } from '../../src/hooks/useConfig.js'
+import { File, getHttpSource, getHyperparamSource } from '../../src/index.js'
 
 const endpoint = 'http://localhost:3000'
 
-const config: RoutesConfig = {
+const config: Config = {
   routes: {
     getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
     getCellRouteUrl: ({ sourceId, col, row }) => `/files?key=${sourceId}&col=${col}&row=${row}`,
@@ -25,7 +26,9 @@ describe('File Component', () => {
     assert(source?.kind === 'file')
 
     const { getByText } = await act(() => render(
-      <File source={source} config={config}/>
+      <ConfigProvider value={config}>
+        <File source={source}/>
+      </ConfigProvider>
     ))
 
     expect(getByText('/')).toBeDefined()
@@ -51,7 +54,9 @@ describe('File Component', () => {
     assert(source?.kind === 'file')
 
     const { getAllByRole } = await act(() => render(
-      <File source={source} config={config} />
+      <ConfigProvider value={config}>
+        <File source={source} />
+      </ConfigProvider>
     ))
 
     const links = getAllByRole('link')

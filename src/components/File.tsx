@@ -1,25 +1,22 @@
 import { useState } from 'react'
 import type { FileSource } from '../lib/sources/types.js'
-import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
+import Breadcrumb from './Breadcrumb.js'
 import Layout from './Layout.js'
-import Viewer, { ViewerConfig } from './viewers/Viewer.js'
-
-export type FileConfig = ViewerConfig & BreadcrumbConfig
+import Viewer from './viewers/Viewer.js'
 
 interface FileProps {
   source: FileSource
-  config?: FileConfig
 }
 
 /**
  * File viewer page
  */
-export default function File({ source, config }: FileProps) {
+export default function File({ source }: FileProps) {
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
 
   return <Layout progress={progress} error={error} title={source.fileName}>
-    <Breadcrumb source={source} config={config} />
-    <Viewer source={source} setProgress={setProgress} setError={setError} config={config} />
+    <Breadcrumb source={source} />
+    <Viewer source={source} setProgress={setProgress} setError={setError} />
   </Layout>
 }

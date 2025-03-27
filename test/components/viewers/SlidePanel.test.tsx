@@ -1,8 +1,9 @@
 /* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
+import { act, fireEvent, render } from '@testing-library/react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { act, fireEvent, render } from '@testing-library/react'
 import SlidePanel from '../../../src/components/viewers/SlidePanel.js'
+import { ConfigProvider } from '../../../src/hooks/useConfig.js'
 
 describe('SlidePanel', () => {
   // Minimal localStorage mock
@@ -87,12 +88,13 @@ describe('SlidePanel', () => {
 
   it('respects minWidth from config', () => {
     const { container } = render(
-      <SlidePanel
-        mainContent={<div>Main</div>}
-        panelContent={<div>Panel</div>}
-        isPanelOpen
-        config={{ slidePanel: { minWidth: 300 } }}
-      />
+      <ConfigProvider value={{ slidePanel: { minWidth: 300 } }}>
+        <SlidePanel
+          mainContent={<div>Main</div>}
+          panelContent={<div>Panel</div>}
+          isPanelOpen
+        />
+      </ConfigProvider>
     )
     const resizer = container.querySelector('.resizer') as HTMLElement
     const panel = container.querySelector('.slidePanel') as HTMLElement
@@ -150,12 +152,13 @@ describe('SlidePanel', () => {
 
   it('uses config defaultWidth if valid', () => {
     const { container } = render(
-      <SlidePanel
-        mainContent={<div>Main</div>}
-        panelContent={<div>Panel</div>}
-        isPanelOpen
-        config={{ slidePanel: { defaultWidth: 500 } }}
-      />
+      <ConfigProvider value={{ slidePanel: { defaultWidth: 500 } }}>
+        <SlidePanel
+          mainContent={<div>Main</div>}
+          panelContent={<div>Panel</div>}
+          isPanelOpen
+        />
+      </ConfigProvider>
     )
     const panel = container.querySelector('.slidePanel') as HTMLElement
     expect(panel.style.width).toBe('500px')
@@ -163,12 +166,13 @@ describe('SlidePanel', () => {
 
   it('ignores negative config.defaultWidth and uses 400 instead', () => {
     const { container } = render(
-      <SlidePanel
-        mainContent={<div>Main</div>}
-        panelContent={<div>Panel</div>}
-        isPanelOpen
-        config={{ slidePanel: { defaultWidth: -10 } }}
-      />
+      <ConfigProvider value={{ slidePanel: { defaultWidth: -10 } }}>
+        <SlidePanel
+          mainContent={<div>Main</div>}
+          panelContent={<div>Panel</div>}
+          isPanelOpen
+        />
+      </ConfigProvider>
     )
     const panel = container.querySelector('.slidePanel') as HTMLElement
     expect(panel.style.width).toBe('400px')

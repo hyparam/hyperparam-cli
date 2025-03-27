@@ -3,22 +3,19 @@ import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
 import type { FileSource } from '../lib/sources/types.js'
 import { parquetDataFrame } from '../lib/tableProvider.js'
-import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
+import Breadcrumb from './Breadcrumb.js'
 import Layout from './Layout.js'
-
-export type CellConfig = BreadcrumbConfig
 
 interface CellProps {
   source: FileSource;
   row: number;
   col: number;
-  config?: CellConfig
 }
 
 /**
  * Cell viewer displays a single cell from a table.
  */
-export default function CellView({ source, row, col, config }: CellProps) {
+export default function CellView({ source, row, col }: CellProps) {
   const [text, setText] = useState<string | undefined>()
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
@@ -69,7 +66,7 @@ export default function CellView({ source, row, col, config }: CellProps) {
 
   return (
     <Layout progress={progress} error={error} title={fileName}>
-      <Breadcrumb source={source} config={config} />
+      <Breadcrumb source={source} />
 
       {/* <Highlight text={text || ''} /> */}
       <pre className="viewer text">{text}</pre>

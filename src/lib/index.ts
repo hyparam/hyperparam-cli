@@ -1,5 +1,4 @@
 export { appendSearchParams, replaceSearchParams } from './routes.js'
-export type { RoutesConfig } from './routes.js'
 export * from './sources/index.js'
 export { parquetDataFrame } from './tableProvider.js'
 export { asyncBufferFrom, cn, contentTypes, formatFileSize, getFileDate, getFileDateShort, imageTypes, parseFileSize } from './utils.js'

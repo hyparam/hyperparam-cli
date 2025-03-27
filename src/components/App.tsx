@@ -1,3 +1,5 @@
+import { useMemo } from 'react'
+import { Config, ConfigProvider } from '../hooks/useConfig.js'
 import { getHttpSource } from '../lib/sources/httpSource.js'
 import { getHyperparamSource } from '../lib/sources/hyperparamSource.js'
 import Page from './Page.js'
@@ -10,20 +12,20 @@ export default function App() {
 
   const source = getHttpSource(sourceId) ?? getHyperparamSource(sourceId, { endpoint: location.origin })
 
+  // Memoize the config to avoid creating a new object on each render
+  const config: Config = useMemo(() => ({
+    routes: {
+      getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
+      getCellRouteUrl: ({ sourceId, col, row }) => `/files?key=${sourceId}&col=${col}&row=${row}`,
+    },
+  }), [])
+
   if (!source) {
     return <div>Could not load a data source. You have to pass a valid source in the url.</div>
   }
   return (
-    <Page
-      source={source}
-      navigation={{ row, col }}
-      config={{
-        slidePanel: {},
-        routes: {
-          getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
-          getCellRouteUrl: ({ sourceId, col, row }) => `/files?key=${sourceId}&col=${col}&row=${row}`,
-        },
-      }}
-    />
+    <ConfigProvider value={config}>
+      <Page source={source} navigation={{ row, col }} />
+    </ConfigProvider>
   )
 }
