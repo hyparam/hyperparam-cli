@@ -1,6 +1,5 @@
-import { DataFrame } from 'hightable'
+import { DataFrame, stringify } from 'hightable'
 import { useEffect, useState } from 'react'
-import { stringify } from '../../lib/utils.js'
 import ContentHeader from './ContentHeader.js'
 
 interface ViewerProps {

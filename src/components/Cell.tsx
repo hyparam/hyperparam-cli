@@ -1,8 +1,8 @@
+import { stringify } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
 import type { FileSource } from '../lib/sources/types.js'
 import { parquetDataFrame } from '../lib/tableProvider.js'
-import { stringify } from '../lib/utils.js'
 import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
 import Layout from './Layout.js'
 
