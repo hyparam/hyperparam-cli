@@ -1,16 +1,22 @@
-import HighTable, { DataFrame, rowCache, stringify } from 'hightable'
+import HighTable, { DataFrame, rowCache } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
 import { RoutesConfig, appendSearchParams } from '../../lib/routes.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
+import { cn } from '../../lib/utils.js'
 import styles from '../../styles/ParquetView.module.css'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
 import SlidePanel, { SlidePanelConfig } from './SlidePanel.js'
 
-export type ParquetViewConfig = SlidePanelConfig & RoutesConfig
+interface HighTableConfig {
+  hightable?: {
+    className?: string;
+  }
+}
+export type ParquetViewConfig = SlidePanelConfig & RoutesConfig & HighTableConfig
 
 interface ViewerProps {
   source: FileSource
@@ -102,8 +108,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
       onError={setError}
-      className={styles.hightable}
-      stringify={stringify}
+      className={cn(styles.hightable, config?.hightable?.className)}
     />}
 
     {isLoading && <div className='center'><Spinner /></div>}

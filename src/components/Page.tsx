@@ -1,10 +1,9 @@
 import { Source } from '../lib/sources/types.js'
-import { BreadcrumbConfig } from './Breadcrumb.js'
 import Cell from './Cell.js'
 import File, { FileConfig } from './File.js'
 import Folder from './Folder.js'
 
-export type PageConfig = FileConfig & BreadcrumbConfig
+export type PageConfig = FileConfig
 export interface Navigation {
   col?: number
   row?: number
