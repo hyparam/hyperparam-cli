@@ -17,11 +17,11 @@ export interface Config {
   routes?: {
     getSourceRouteUrl?: (params: { sourceId: string }) => string
     getCellRouteUrl?: (params: { sourceId: string, col: number, row: number }) => string
-  },
+  }
   slidePanel?: {
     minWidth?: number
     defaultWidth?: number
-  },
+  }
 }
 
 const ConfigContext = createContext<Config>({})

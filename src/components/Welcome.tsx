@@ -4,7 +4,7 @@ import { cn } from '../lib/utils.js'
 import styles from '../styles/Welcome.module.css'
 
 interface WelcomePopupProps {
-  onClose: () => void,
+  onClose: () => void
 }
 
 /**
