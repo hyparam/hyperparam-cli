@@ -12,7 +12,7 @@ export default function App() {
 
   const source = getHttpSource(sourceId) ?? getHyperparamSource(sourceId, { endpoint: location.origin })
 
-  // Use memo to avoid creating a new object on each render
+  // Memoize the config to avoid creating a new object on each render
   const config: Config = useMemo(() => ({
     routes: {
       getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
