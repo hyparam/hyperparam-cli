@@ -11,6 +11,7 @@ export interface Config {
   customClass?: {
     brand?: string
     highTable?: string
+    markdownView?: string
     sideBar?: string
     textView?: string
     welcome?: string

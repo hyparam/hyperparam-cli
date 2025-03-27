@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
 import type { FileSource } from '../../lib/sources/types.js'
-import { parseFileSize } from '../../lib/utils.js'
+import { cn, parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/MarkdownView.module.css'
 import { Spinner } from '../Layout.js'
 import Markdown from '../Markdown.js'
 import ContentHeader, { TextContent } from './ContentHeader.js'
@@ -16,6 +18,7 @@ interface ViewerProps {
 export default function MarkdownView({ source, setError }: ViewerProps) {
   const [content, setContent] = useState<TextContent>()
   const [isLoading, setIsLoading] = useState(true)
+  const { customClass } = useConfig()
 
   const { resolveUrl, requestInit } = source
 
@@ -45,7 +48,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
   }, [resolveUrl, requestInit, setError])
 
   return <ContentHeader content={content}>
-    <Markdown className='markdown' text={content?.text ?? ''} />
+    <Markdown className={cn(styles.markdownView, customClass?.markdownView)} text={content?.text ?? ''} />
 
     { isLoading && <div className='center'><Spinner /></div> }
   </ContentHeader>
