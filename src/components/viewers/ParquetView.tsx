@@ -1,7 +1,8 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
-import { RoutesConfig, appendSearchParams } from '../../lib/routes.js'
+import { useConfig } from '../../hooks/useConfig.js'
+import { appendSearchParams } from '../../lib/routes.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { cn } from '../../lib/utils.js'
@@ -9,20 +10,12 @@ import styles from '../../styles/ParquetView.module.css'
 import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
 import ContentHeader, { ContentSize } from './ContentHeader.js'
-import SlidePanel, { SlidePanelConfig } from './SlidePanel.js'
-
-interface HighTableConfig {
-  hightable?: {
-    className?: string;
-  }
-}
-export type ParquetViewConfig = SlidePanelConfig & RoutesConfig & HighTableConfig
+import SlidePanel from './SlidePanel.js'
 
 interface ViewerProps {
   source: FileSource
   setProgress: (progress: number | undefined) => void
   setError: (error: Error | undefined) => void
-  config?: ParquetViewConfig
 }
 
 interface Content extends ContentSize {
@@ -32,10 +25,11 @@ interface Content extends ContentSize {
 /**
  * Parquet file viewer
  */
-export default function ParquetView({ source, setProgress, setError, config }: ViewerProps) {
+export default function ParquetView({ source, setProgress, setError }: ViewerProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
+  const { highTable, routes } = useConfig()
 
   useEffect(() => {
     async function loadParquetDataFrame() {
@@ -77,12 +71,12 @@ export default function ParquetView({ source, setProgress, setError, config }: V
 
   const { sourceId } = source
   const getCellRouteUrl = useCallback(({ col, row }: {col: number, row: number}) => {
-    const url = config?.routes?.getCellRouteUrl?.({ sourceId, col, row })
+    const url = routes?.getCellRouteUrl?.({ sourceId, col, row })
     if (url) {
       return url
     }
     return appendSearchParams({ col: col.toString(), row: row.toString() })
-  }, [config, sourceId])
+  }, [routes, sourceId])
 
   const onDoubleClickCell = useCallback((_event: React.MouseEvent, col: number, row: number) => {
     if (cell?.col === col && cell.row === row) {
@@ -108,7 +102,7 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
       onError={setError}
-      className={cn(styles.hightable, config?.hightable?.className)}
+      className={cn(styles.hightable, highTable?.className)}
     />}
 
     {isLoading && <div className='center'><Spinner /></div>}
@@ -132,7 +126,6 @@ export default function ParquetView({ source, setProgress, setError, config }: V
       isPanelOpen={!!(content?.dataframe && cell)}
       mainContent={mainContent}
       panelContent={panelContent}
-      config={config}
     />
   )
 }

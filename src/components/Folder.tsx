@@ -1,26 +1,26 @@
 import { useEffect, useRef, useState } from 'react'
+import { useConfig } from '../hooks/useConfig.js'
 import type { DirSource, FileMetadata } from '../lib/sources/types.js'
 import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
-import Breadcrumb, { BreadcrumbConfig } from './Breadcrumb.js'
+import Breadcrumb from './Breadcrumb.js'
 import Layout, { Spinner } from './Layout.js'
-
-export type FolderConfig = BreadcrumbConfig
 
 interface FolderProps {
   source: DirSource
-  config?: FolderConfig
 }
 
 /**
  * Folder browser page
  */
-export default function Folder({ source, config }: FolderProps) {
+export default function Folder({ source }: FolderProps) {
   // State to hold file listing
   const [files, setFiles] = useState<FileMetadata[]>()
   const [error, setError] = useState<Error>()
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
+
+  const { routes } = useConfig()
 
   // Fetch files on component mount
   useEffect(() => {
@@ -83,7 +83,7 @@ export default function Folder({ source, config }: FolderProps) {
   }, [])
 
   return <Layout error={error} title={source.prefix}>
-    <Breadcrumb source={source} config={config}>
+    <Breadcrumb source={source}>
       <div className='top-actions'>
         <input autoFocus className='search' placeholder='Search...' ref={searchRef} />
       </div>
@@ -92,7 +92,7 @@ export default function Folder({ source, config }: FolderProps) {
     {files && files.length > 0 && <ul className='file-list' ref={listRef}>
       {filtered?.map((file, index) =>
         <li key={index}>
-          <a href={config?.routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
+          <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
             <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
               {file.name}
             </span>

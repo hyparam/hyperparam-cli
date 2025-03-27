@@ -2,7 +2,8 @@ import { fireEvent, render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React, { act } from 'react'
 import { describe, expect, it, test, vi } from 'vitest'
-import { DirSource, FileMetadata, Folder, HyperparamFileMetadata, RoutesConfig, getHyperparamSource } from '../../src/index.js'
+import { Config, ConfigProvider } from '../../src/hooks/useConfig.js'
+import { DirSource, FileMetadata, Folder, HyperparamFileMetadata, getHyperparamSource } from '../../src/index.js'
 
 const endpoint = 'http://localhost:3000'
 const mockFiles: HyperparamFileMetadata[] = [
@@ -10,7 +11,7 @@ const mockFiles: HyperparamFileMetadata[] = [
   { key: 'file1.txt', fileSize: 8196, lastModified: '2023-01-01T12:00:00Z' },
 ]
 
-const config: RoutesConfig = {
+const config: Config = {
   routes: {
     getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
   },
@@ -31,7 +32,10 @@ describe('Folder Component', () => {
     const source = getHyperparamSource(path, { endpoint })
     assert(source?.kind === 'directory')
 
-    const { findByText, getByText } = render(<Folder source={source} config={config} />)
+    const { findByText, getByText } = render(
+      <ConfigProvider value={config}>
+        <Folder source={source} />
+      </ConfigProvider>)
 
     const folderLink = await findByText('folder1/')
     expect(folderLink.closest('a')?.getAttribute('href')).toBe(`/files?key=${path}folder1/`)
@@ -86,7 +90,9 @@ describe('Folder Component', () => {
     const source = getHyperparamSource('subdir1/subdir2/', { endpoint })
     assert(source?.kind === 'directory')
 
-    const { findByText, getByText } = render(<Folder source={source} config={config} />)
+    const { findByText, getByText } = render(<ConfigProvider value={config}>
+      <Folder source={source} />
+    </ConfigProvider>)
     await waitFor(() => { expect(fetch).toHaveBeenCalled() })
 
     const subdir1Link = await findByText('subdir1/')

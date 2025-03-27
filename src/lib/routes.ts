@@ -1,10 +1,3 @@
-export interface RoutesConfig {
-  routes?: {
-    getSourceRouteUrl?: (params: { sourceId: string }) => string
-    getCellRouteUrl?: (params: { sourceId: string, col: number, row: number }) => string
-  }
-}
-
 /**
  * Replace the search params in the current url.
  *
