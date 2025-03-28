@@ -16,6 +16,9 @@ function canParse(sourceId: string): boolean {
 
 function getSourceParts(sourceId: string): SourcePart[] {
   const parts = sourceId.split('/')
+  if (parts[parts.length - 1] === '') {
+    parts.pop()
+  }
   return [
     { 'text': '/', 'sourceId': '' },
     ...parts.map((part, depth) => {
