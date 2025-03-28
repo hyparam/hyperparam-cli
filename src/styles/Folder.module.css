@@ -1,0 +1,67 @@
+.fileList {
+  /* file list */
+  flex: 1;
+  list-style: none;
+  overflow-y: auto;
+  padding-left: 0;
+  /* browsers like to cover the bottom row */
+  padding-bottom: 24px;
+
+  & > li {
+    margin: 0;
+
+    &:first-child > a {
+      border-top: none;
+    }
+
+    & > a {
+      border-top: 1px solid #ddd;
+      color: #444;
+      display: flex;
+      padding: 8px 16px 8px 20px;
+      text-decoration: none;
+
+      &:hover {
+        background-color: #e2e2ee;
+      }
+
+      & > span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        &[data-file-kind] {
+          /* file name + icon */
+          flex: 1;
+          min-width: 80px;
+
+          background-position: left center;
+          background-repeat: no-repeat;
+          background-size: 12px;
+          padding-left: 22px;
+
+          &[data-file-kind="directory"] {
+            background-image: url("../assets/folder.svg");
+          }
+
+          &[data-file-kind="file"] {
+            background-image: url("../assets/file.svg");
+          }
+        }
+
+        &[data-file-size] {
+          /* file size */
+          color: #666;
+          margin: 0 16px;
+          text-align: right;
+        }
+
+        &[data-file-date] {
+          /* file date */
+          min-width: 90px;
+          text-align: right;
+        }
+      }
+    }
+  }
+}

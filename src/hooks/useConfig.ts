@@ -14,6 +14,7 @@ export interface Config {
     center?: string
     contentWrapper?: string
     errorBar?: string
+    fileList?: string
     highTable?: string
     imageView?: string
     layout?: string

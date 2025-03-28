@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useConfig } from '../hooks/useConfig.js'
 import type { DirSource, FileMetadata } from '../lib/sources/types.js'
 import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
+import styles from '../styles/Folder.module.css'
 import Breadcrumb from './Breadcrumb.js'
 import Center from './Center.js'
 import Layout from './Layout.js'
@@ -21,8 +22,7 @@ export default function Folder({ source }: FolderProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
-
-  const { routes } = useConfig()
+  const { routes, customClass } = useConfig()
 
   // Fetch files on component mount
   useEffect(() => {
@@ -98,18 +98,18 @@ export default function Folder({ source }: FolderProps) {
       <Center><Spinner /></Center> :
       filtered.length === 0 ?
         <Center>No files</Center> :
-        <ul className='file-list' ref={listRef}>
+        <ul className={cn(styles.fileList, customClass?.fileList)} ref={listRef}>
           {filtered.map((file, index) =>
             <li key={index}>
               <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
-                <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
+                <span data-file-kind={file.kind}>
                   {file.name}
                 </span>
                 {file.kind === 'file' && <>
-                  {file.size !== undefined && <span className='file-size' title={file.size.toLocaleString() + ' bytes'}>
+                  {file.size !== undefined && <span data-file-size title={file.size.toLocaleString() + ' bytes'}>
                     {formatFileSize(file.size)}
                   </span>}
-                  <span className='file-date' title={getFileDate(file)}>
+                  <span data-file-date title={getFileDate(file)}>
                     {getFileDateShort(file)}
                   </span>
                 </>}
