@@ -15,6 +15,7 @@ export interface Config {
     highTable?: string
     imageView?: string
     markdownView?: string
+    progressBar?: string
     sideBar?: string
     slideCloseButton?: string
     slidePanel?: string

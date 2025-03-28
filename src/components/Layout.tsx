@@ -1,6 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react'
 import { cn } from '../lib/utils.js'
 import ErrorBar from './ErrorBar.js'
+import ProgressBar from './ProgressBar.js'
 import SideBar from './SideBar.js'
 import Welcome from './Welcome.js'
 
@@ -51,11 +52,7 @@ export default function Layout({ children, className, progress, error, title }: 
       </div>
       <ErrorBar error={error}></ErrorBar>
     </div>
-    {progress !== undefined && progress < 1 &&
-      <div className={'progress-bar'} role='progressbar'>
-        <div style={{ width: `${100 * progress}%` }} />
-      </div>
-    }
+    {progress !== undefined && progress < 1 && <ProgressBar value={progress} />}
     {showWelcome && <Welcome onClose={handleCloseWelcome} />}
   </main>
 }
