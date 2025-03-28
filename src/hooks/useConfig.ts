@@ -21,6 +21,7 @@ export interface Config {
     markdownView?: string
     path?: string
     progressBar?: string
+    search?: string
     sideBar?: string
     slideCloseButton?: string
     slidePanel?: string

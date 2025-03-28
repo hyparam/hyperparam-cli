@@ -65,3 +65,27 @@
     }
   }
 }
+
+/* search */
+.search {
+  background: #fff url("../assets/search.svg") no-repeat center right 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  flex-shrink: 1;
+  font-size: 12px;
+  height: 24px;
+  min-width: 0;
+  outline: none;
+  padding: 4px 20px 2px 8px;
+  width: 100px;
+  transition-duration: 0.3s;
+  transition-property: border, width;
+
+  &:focus {
+    border-color: #778;
+    box-shadow: 0 0 1px #556;
+    color: #444;
+    padding-left: 8px;
+    width: 180px;
+  }
+}

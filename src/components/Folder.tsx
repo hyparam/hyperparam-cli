@@ -90,7 +90,7 @@ export default function Folder({ source }: FolderProps) {
   return <Layout error={error} title={source.prefix}>
     <Breadcrumb source={source}>
       <div className='top-actions'>
-        <input autoFocus className='search' placeholder='Search...' ref={searchRef} />
+        <input autoFocus className={cn(styles.search, customClass?.search)} placeholder='Search...' ref={searchRef} />
       </div>
     </Breadcrumb>
 
