@@ -58,8 +58,9 @@ describe('Folder Component', () => {
     const source = getHyperparamSource('', { endpoint })
     assert(source?.kind === 'directory')
 
-    const { container } = await act(() => render(<Folder source={source} />))
-    expect(container.querySelector('.spinner')).toBeTruthy()
+    const { getByText } = await act(() => render(<Folder source={source} />))
+    const spinner = getByText('Loading...')
+    expect(spinner).toBeDefined()
   })
 
   it('handles file listing errors', async () => {
