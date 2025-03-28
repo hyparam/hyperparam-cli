@@ -16,10 +16,7 @@ function canParse(sourceId: string): boolean {
 
 function getSourceParts(sourceId: string): SourcePart[] {
   const parts = sourceId.split('/')
-  if (parts[parts.length - 1] === '') {
-    parts.pop()
-  }
-  return [
+  const sourceParts = [
     { 'text': '/', 'sourceId': '' },
     ...parts.map((part, depth) => {
       const slashSuffix = depth === parts.length - 1 ? '' : '/'
@@ -29,6 +26,10 @@ function getSourceParts(sourceId: string): SourcePart[] {
       }
     }),
   ]
+  if (sourceParts[sourceParts.length - 1]?.text === '') {
+    sourceParts.pop()
+  }
+  return sourceParts
 }
 
 function getKind(sourceId: string): FileKind {
