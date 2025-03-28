@@ -98,28 +98,6 @@ main {
   overflow: hidden;
 }
 
-/* top navbar */
-.top-header {
-  align-items: center;
-  display: flex;
-  font-size: 18px;
-  height: 32px;
-  justify-content: space-between;
-  min-height: 32px;
-  padding-left: 20px;
-  padding-right: 10px;
-}
-.top-header h1 {
-  font-size: 18px;
-  margin: 4px 0 0 0; /* top */
-  user-select: none;
-}
-
-.top-header-divided {
-  border-bottom: 1px solid #ddd;
-  background: #eee;
-}
-
 .top-actions {
   left: auto;
 }
@@ -144,32 +122,6 @@ input.search:focus {
   color: #444;
   padding-left: 8px;
   width: 180px;
-}
-
-/* file path */
-.path {
-  margin: 0 2px;
-  margin-right: 4px;
-  min-width: 0;
-  overflow: auto;
-}
-.path::-webkit-scrollbar {
-  display: none;
-}
-.path a {
-  color: #222622;
-  font-family: 'Courier New', Courier, monospace;
-  font-weight: 600;
-  font-size: 18px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-decoration-thickness: 1px;
-}
-/* hide all but the last path link on small screens */
-@media (max-width: 360px) {
-  .path a:not(:last-child) {
-    display: none;
-  }
 }
 
 /* file list */

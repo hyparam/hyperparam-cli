@@ -10,11 +10,13 @@ import { createContext, useContext } from 'react'
 export interface Config {
   customClass?: {
     brand?: string
+    breadcrumb?: string
     contentWrapper?: string
     errorBar?: string
     highTable?: string
     imageView?: string
     markdownView?: string
+    path?: string
     progressBar?: string
     sideBar?: string
     slideCloseButton?: string

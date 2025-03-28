@@ -82,27 +82,6 @@ describe('Folder Component', () => {
     expect(queryByText('folder1/')).toBeNull()
   })
 
-  it('renders breadcrumbs correctly', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      json: () => Promise.resolve(mockFiles),
-      ok: true,
-    } as Response)
-
-    const source = getHyperparamSource('subdir1/subdir2/', { endpoint })
-    assert(source?.kind === 'directory')
-
-    const { findByText, getByText } = render(<ConfigProvider value={config}>
-      <Folder source={source} />
-    </ConfigProvider>)
-    await waitFor(() => { expect(fetch).toHaveBeenCalled() })
-
-    const subdir1Link = await findByText('subdir1/')
-    expect(subdir1Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/')
-
-    const subdir2Link = getByText('subdir2/')
-    expect(subdir2Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/subdir2/')
-  })
-
   it('filters files based on search query', async () => {
     const mockFiles: FileMetadata[] = [
       { sourceId: 'folder1', name: 'folder1/', kind: 'directory', lastModified: '2023-01-01T00:00:00Z' },
