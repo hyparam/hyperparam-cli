@@ -6,6 +6,6 @@ import styles from '../styles/SlideCloseButton.module.css'
 export default function SlideCloseButton({ onClick }: { onClick: MouseEventHandler<HTMLButtonElement> | undefined }) {
   const { customClass } = useConfig()
   return (
-    <button className={ cn( styles.slideCloseButton, customClass?.slideCloseButton ) } onClick={onClick}>&nbsp;</button>
+    <button className={ cn( styles.slideClose, customClass?.slideCloseButton ) } onClick={onClick}>&nbsp;</button>
   )
 }
