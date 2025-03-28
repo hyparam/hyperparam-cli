@@ -1,0 +1,39 @@
+.slidePanel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+
+  & > article {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* main content */
+  & > article:nth-of-type(1) {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+  /* panel content */
+  & > article:nth-of-type(2) {
+    width: var(--panel-width, 0);
+    transition: width 0.2s;
+
+    &[data-resizing="true"] {
+      transition: none;
+    }
+  }
+
+  /* resizer separator */
+  & > [role="separator"] {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #bfbbbb;
+    transition: background-color 0.2s;
+    user-select: none;
+
+    &:hover {
+      background-color: #9f9999;
+    }
+  }
+}

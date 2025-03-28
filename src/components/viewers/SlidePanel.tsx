@@ -1,5 +1,7 @@
-import React, { ReactNode, useCallback, useEffect, useState } from 'react'
+import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
+import { cn } from '../../lib/utils.js'
+import styles from '../../styles/viewers/SlidePanel.module.css'
 
 interface SlidePanelProps {
   mainContent: ReactNode
@@ -16,7 +18,7 @@ const WIDTH = {
  * Slide out panel component with resizing.
  */
 export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: SlidePanelProps) {
-  const { slidePanel } = useConfig()
+  const { slidePanel, customClass } = useConfig()
   const minWidth = slidePanel?.minWidth && slidePanel.minWidth > 0 ? slidePanel.minWidth : WIDTH.MIN
   function validWidth(width?: number): number | undefined {
     if (width && minWidth <= width) {
@@ -74,24 +76,32 @@ export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: S
     }
   }, [panelRef, panelWidth])
 
+  const panelWidthStyle = useMemo(() => {
+    return isPanelOpen ? {
+      '--panel-width': `${panelWidth}px`,
+    } as CSSProperties :
+      undefined
+  }, [panelWidth, isPanelOpen])
+
   return (
-    <div className="slideContainer">
-      <div className="slideMain">
+    <div className={cn(styles.slidePanel, customClass?.slidePanel)}>
+      <article>
         {mainContent}
-      </div>
+      </article>
       {isPanelOpen &&
         <div
-          className="resizer"
+          role="separator"
+          aria-orientation="vertical"
           onMouseDown={handleMouseDown}
         />
       }
-      <div
-        className={resizingClientX === -1 ? 'slidePanel' : 'slidePanel slideDragging'}
+      <article
         ref={panelRef}
-        style={isPanelOpen ? { width: panelWidth } : undefined}
+        data-resizing={resizingClientX !== -1}
+        style={panelWidthStyle}
       >
         {panelContent}
-      </div>
+      </article>
     </div>
   )
 }
