@@ -94,27 +94,30 @@ export default function Folder({ source }: FolderProps) {
       </div>
     </Breadcrumb>
 
-    {files && files.length > 0 && <ul className='file-list' ref={listRef}>
-      {filtered?.map((file, index) =>
-        <li key={index}>
-          <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
-            <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
-              {file.name}
-            </span>
-            {file.kind === 'file' && <>
-              {file.size !== undefined && <span className='file-size' title={file.size.toLocaleString() + ' bytes'}>
-                {formatFileSize(file.size)}
-              </span>}
-              <span className='file-date' title={getFileDate(file)}>
-                {getFileDateShort(file)}
-              </span>
-            </>}
-          </a>
-        </li>
-      )}
-    </ul>}
-    {files?.length === 0 && <Center>No files</Center>}
-    {files === undefined && <Center><Spinner /></Center>}
+    {files === undefined ?
+      <Center><Spinner /></Center> :
+      files.length === 0 ?
+        <Center>No files</Center> :
+        <ul className='file-list' ref={listRef}>
+          {filtered?.map((file, index) =>
+            <li key={index}>
+              <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
+                <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
+                  {file.name}
+                </span>
+                {file.kind === 'file' && <>
+                  {file.size !== undefined && <span className='file-size' title={file.size.toLocaleString() + ' bytes'}>
+                    {formatFileSize(file.size)}
+                  </span>}
+                  <span className='file-date' title={getFileDate(file)}>
+                    {getFileDateShort(file)}
+                  </span>
+                </>}
+              </a>
+            </li>
+          )}
+        </ul>
+    }
   </Layout>
 }
 
