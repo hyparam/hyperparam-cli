@@ -1,4 +1,4 @@
-import { CSSProperties, useState } from 'react'
+import { useState } from 'react'
 import { useConfig } from '../hooks/useConfig.js'
 import { cn } from '../lib/utils.js'
 import styles from '../styles/ErrorBar.module.css'
@@ -21,7 +21,7 @@ export default function ErrorBar({ error }: ErrorBarProps) {
 
   return <div
     className={cn(styles.errorBar, customClass?.errorBar)}
-    style={{ '--error-bar-visibility': showError ? 'visible' : 'hidden' } as CSSProperties}
+    data-visible={showError}
   >
     <div>
       <span>{error?.toString()}</span>

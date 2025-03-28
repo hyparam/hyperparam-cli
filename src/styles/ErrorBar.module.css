@@ -1,5 +1,5 @@
 .errorBar {
-  visibility: var(--error-bar-visibility, hidden);
+  display: none;
   max-height: 30%;
   padding: 0;
   background-color: #dd111199;
@@ -7,6 +7,10 @@
   transition: max-height 0.3s;
   white-space: pre-wrap;
   font-family: monospace;
+
+  &[data-visible="true"] {
+    display: block;
+  }
 
   & > div {
     display: flex;
