@@ -15,6 +15,7 @@ export interface Config {
     errorBar?: string
     highTable?: string
     imageView?: string
+    layout?: string
     markdownView?: string
     path?: string
     progressBar?: string
