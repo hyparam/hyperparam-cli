@@ -8,13 +8,31 @@ import { createContext, useContext } from 'react'
  * It gives a way to pass additional values to the components, for example custom CSS classes.
  */
 export interface Config {
-  highTable?: {
-    className?: string;
+  customClass?: {
+    brand?: string
+    breadcrumb?: string
+    center?: string
+    contentWrapper?: string
+    errorBar?: string
+    fileList?: string
+    highTable?: string
+    imageView?: string
+    layout?: string
+    markdownView?: string
+    path?: string
+    progressBar?: string
+    search?: string
+    sideBar?: string
+    slideCloseButton?: string
+    slidePanel?: string
+    spinner?: string
+    textView?: string
+    welcome?: string
   }
   routes?: {
     getSourceRouteUrl?: (params: { sourceId: string }) => string
     getCellRouteUrl?: (params: { sourceId: string, col: number, row: number }) => string
-  },
+  }
   slidePanel?: {
     minWidth?: number
     defaultWidth?: number

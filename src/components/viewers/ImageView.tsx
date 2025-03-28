@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
 import { FileSource } from '../../lib/sources/types.js'
-import { contentTypes, parseFileSize } from '../../lib/utils.js'
-import { Spinner } from '../Layout.js'
-import ContentHeader from './ContentHeader.js'
+import { cn, contentTypes, parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/viewers/ImageView.module.css'
+import ContentWrapper from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -20,6 +21,7 @@ interface Content {
 export default function ImageView({ source, setError }: ViewerProps) {
   const [content, setContent] = useState<Content>()
   const [isLoading, setIsLoading] = useState(true)
+  const { customClass } = useConfig()
 
   const { fileName, resolveUrl, requestInit } = source
 
@@ -51,14 +53,12 @@ export default function ImageView({ source, setError }: ViewerProps) {
     void loadContent()
   }, [fileName, resolveUrl, requestInit, setError])
 
-  return <ContentHeader content={content}>
+  return <ContentWrapper content={content} isLoading={isLoading}>
     {content?.dataUri && <img
       alt={source.sourceId}
-      className='image'
+      className={cn(styles.image, customClass?.imageView)}
       src={content.dataUri} />}
-
-    {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 }
 
 /**

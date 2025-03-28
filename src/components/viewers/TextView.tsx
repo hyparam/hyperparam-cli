@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
 import { FileSource } from '../../lib/sources/types.js'
-import { parseFileSize } from '../../lib/utils.js'
-import { Spinner } from '../Layout.js'
-import ContentHeader, { TextContent } from './ContentHeader.js'
+import { cn, parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/viewers/TextView.module.css'
+import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -15,6 +16,7 @@ interface ViewerProps {
 export default function TextView({ source, setError }: ViewerProps) {
   const [content, setContent] = useState<TextContent>()
   const [isLoading, setIsLoading] = useState(true)
+  const { customClass } = useConfig()
 
   const { resolveUrl, requestInit } = source
 
@@ -48,13 +50,11 @@ export default function TextView({ source, setError }: ViewerProps) {
   </>
 
   // Simple text viewer
-  return <ContentHeader content={content} headers={headers}>
-    {content && <code className='text'>
+  return <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
+    {content && <code className={cn(styles.text, customClass?.textView)}>
       {content.text}
     </code>}
-
-    {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 }
 
 function newlines(str: string): string {

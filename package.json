@@ -16,6 +16,7 @@
       "import": "./lib/index.es.min.js",
       "require": "./lib/index.umd.min.js"
     },
+    "./global.css": "./lib/global.css",
     "./hyperparam.css": "./lib/hyperparam.css"
   },
   "bin": {
@@ -29,7 +30,7 @@
   ],
   "scripts": {
     "build:types": "tsc -b",
-    "build:lib": "vite build -c vite.lib.config.ts",
+    "build:lib": "vite build -c vite.lib.config.ts && cp src/styles/global.css lib/global.css",
     "build:app": "vite build",
     "build": "run-s build:lib build:types build:app",
     "coverage": "vitest run --coverage --coverage.include=src --coverage.include=bin",

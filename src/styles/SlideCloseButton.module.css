@@ -1,0 +1,21 @@
+/* slide panel close button */
+.slideClose,
+.slideClose:active,
+.slideClose:focus,
+.slideClose:hover {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 16px;
+  height: 24px;
+  margin-right: auto;
+  outline: none;
+  padding: 0;
+  transition: color 0.3s;
+}
+.slideClose::before {
+  content: "\27E9\27E9";
+}
+.slideClose:hover {
+  color: #000;
+}

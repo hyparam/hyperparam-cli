@@ -1,4 +1,5 @@
 import HighTable, { DataFrame, rowCache } from 'hightable'
+import 'hightable/src/HighTable.css'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
@@ -7,9 +8,8 @@ import { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { cn } from '../../lib/utils.js'
 import styles from '../../styles/ParquetView.module.css'
-import { Spinner } from '../Layout.js'
 import CellPanel from './CellPanel.js'
-import ContentHeader, { ContentSize } from './ContentHeader.js'
+import ContentWrapper, { ContentSize } from './ContentWrapper.js'
 import SlidePanel from './SlidePanel.js'
 
 interface ViewerProps {
@@ -29,7 +29,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
-  const { highTable, routes } = useConfig()
+  const { customClass, routes } = useConfig()
 
   useEffect(() => {
     async function loadParquetDataFrame() {
@@ -95,18 +95,16 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
 
   const headers = <span>{content?.dataframe.numRows.toLocaleString() ?? '...'} rows</span>
 
-  const mainContent = <ContentHeader content={content} headers={headers}>
+  const mainContent = <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
     {content?.dataframe && <HighTable
       cacheKey={source.resolveUrl}
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
       onError={setError}
-      className={cn(styles.hightable, highTable?.className)}
+      className={cn(styles.hightable, customClass?.highTable)}
     />}
-
-    {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 
   let panelContent
   if (content?.dataframe && cell) {

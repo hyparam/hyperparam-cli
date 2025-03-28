@@ -1,0 +1,39 @@
+.slidePanel {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+
+  & > article {
+    /* main content */
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+  }
+
+  /* resizer separator */
+  & > [role="separator"] {
+    width: 5px;
+    cursor: col-resize;
+    background-color: #bfbbbb;
+    transition: background-color 0.2s;
+    user-select: none;
+
+    &:hover {
+      background-color: #9f9999;
+    }
+  }
+
+  /* panel content */
+  & > aside {
+    display: flex;
+    flex-direction: column;
+    width: 0;
+    transition: width 0.2s;
+
+    &[data-resizing="true"] {
+      transition: none;
+    }
+  }
+}

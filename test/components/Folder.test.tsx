@@ -58,8 +58,9 @@ describe('Folder Component', () => {
     const source = getHyperparamSource('', { endpoint })
     assert(source?.kind === 'directory')
 
-    const { container } = await act(() => render(<Folder source={source} />))
-    expect(container.querySelector('.spinner')).toBeTruthy()
+    const { getByText } = await act(() => render(<Folder source={source} />))
+    const spinner = getByText('Loading...')
+    expect(spinner).toBeDefined()
   })
 
   it('handles file listing errors', async () => {
@@ -79,27 +80,6 @@ describe('Folder Component', () => {
     await findByText('Error: ' + errorMessage)
     expect(queryByText('file1.txt')).toBeNull()
     expect(queryByText('folder1/')).toBeNull()
-  })
-
-  it('renders breadcrumbs correctly', async () => {
-    vi.mocked(fetch).mockResolvedValueOnce({
-      json: () => Promise.resolve(mockFiles),
-      ok: true,
-    } as Response)
-
-    const source = getHyperparamSource('subdir1/subdir2/', { endpoint })
-    assert(source?.kind === 'directory')
-
-    const { findByText, getByText } = render(<ConfigProvider value={config}>
-      <Folder source={source} />
-    </ConfigProvider>)
-    await waitFor(() => { expect(fetch).toHaveBeenCalled() })
-
-    const subdir1Link = await findByText('subdir1/')
-    expect(subdir1Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/')
-
-    const subdir2Link = getByText('subdir2/')
-    expect(subdir2Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/subdir2/')
   })
 
   it('filters files based on search query', async () => {

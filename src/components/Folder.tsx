@@ -1,9 +1,12 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useConfig } from '../hooks/useConfig.js'
 import type { DirSource, FileMetadata } from '../lib/sources/types.js'
 import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
+import styles from '../styles/Folder.module.css'
 import Breadcrumb from './Breadcrumb.js'
-import Layout, { Spinner } from './Layout.js'
+import Center from './Center.js'
+import Layout from './Layout.js'
+import Spinner from './Spinner.js'
 
 interface FolderProps {
   source: DirSource
@@ -19,8 +22,7 @@ export default function Folder({ source }: FolderProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const searchRef = useRef<HTMLInputElement>(null)
   const listRef = useRef<HTMLUListElement>(null)
-
-  const { routes } = useConfig()
+  const { routes, customClass } = useConfig()
 
   // Fetch files on component mount
   useEffect(() => {
@@ -33,7 +35,10 @@ export default function Folder({ source }: FolderProps) {
   }, [source])
 
   // File search
-  const filtered = files?.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filtered = useMemo(() => {
+    return files?.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [files, searchQuery])
+
   useEffect(() => {
     const searchElement = searchRef.current
     function handleKeyup(e: KeyboardEvent) {
@@ -84,32 +89,33 @@ export default function Folder({ source }: FolderProps) {
 
   return <Layout error={error} title={source.prefix}>
     <Breadcrumb source={source}>
-      <div className='top-actions'>
-        <input autoFocus className='search' placeholder='Search...' ref={searchRef} />
-      </div>
+      <input autoFocus className={cn(styles.search, customClass?.search)} placeholder='Search...' ref={searchRef} />
     </Breadcrumb>
 
-    {files && files.length > 0 && <ul className='file-list' ref={listRef}>
-      {filtered?.map((file, index) =>
-        <li key={index}>
-          <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
-            <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
-              {file.name}
-            </span>
-            {file.kind === 'file' && <>
-              {file.size !== undefined && <span className='file-size' title={file.size.toLocaleString() + ' bytes'}>
-                {formatFileSize(file.size)}
-              </span>}
-              <span className='file-date' title={getFileDate(file)}>
-                {getFileDateShort(file)}
-              </span>
-            </>}
-          </a>
-        </li>
-      )}
-    </ul>}
-    {files?.length === 0 && <div className='center'>No files</div>}
-    {files === undefined && <div className='center'><Spinner /></div>}
+    {filtered === undefined ?
+      <Center><Spinner /></Center> :
+      filtered.length === 0 ?
+        <Center>No files</Center> :
+        <ul className={cn(styles.fileList, customClass?.fileList)} ref={listRef}>
+          {filtered.map((file, index) =>
+            <li key={index}>
+              <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
+                <span data-file-kind={file.kind}>
+                  {file.name}
+                </span>
+                {file.kind === 'file' && <>
+                  {file.size !== undefined && <span data-file-size title={file.size.toLocaleString() + ' bytes'}>
+                    {formatFileSize(file.size)}
+                  </span>}
+                  <span data-file-date title={getFileDate(file)}>
+                    {getFileDateShort(file)}
+                  </span>
+                </>}
+              </a>
+            </li>
+          )}
+        </ul>
+    }
   </Layout>
 }
 

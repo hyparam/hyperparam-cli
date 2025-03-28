@@ -1,11 +1,10 @@
+import { avroData, avroMetadata } from 'icebird'
 import { useEffect, useState } from 'react'
 import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/Json.module.css'
 import Json from '../Json.js'
-import { Spinner } from '../Layout.js'
-import ContentHeader, { ContentSize } from './ContentHeader.js'
-import { avroData, avroMetadata } from 'icebird'
+import ContentWrapper, { ContentSize } from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -54,11 +53,9 @@ export default function AvroView({ source, setError }: ViewerProps) {
 
   const headers = content === undefined && <span>Loading...</span>
 
-  return <ContentHeader content={content} headers={headers}>
+  return <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
     <code className={styles.jsonView}>
       <Json json={json} />
     </code>
-
-    {isLoading && <div className='center'><Spinner /></div>}
-  </ContentHeader>
+  </ContentWrapper>
 }

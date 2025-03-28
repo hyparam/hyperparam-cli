@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
+
 import { act, fireEvent, render } from '@testing-library/react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -36,58 +36,59 @@ describe('SlidePanel', () => {
   })
 
   it('does not render the resizer if panel is closed', () => {
-    const { container } = render(
+    const { queryByRole } = render(
       <SlidePanel
         mainContent={<div>Main</div>}
         panelContent={<div>Panel</div>}
         isPanelOpen={false}
       />
     )
-    const resizer = container.querySelector('.resizer')
-    expect(resizer).toBeNull()
+    expect(queryByRole('separator')).toBeNull()
   })
 
   it('uses default width of 400 when localStorage is empty', () => {
-    const { container } = render(
+    const { getByRole } = render(
       <SlidePanel
         mainContent={<div>Main</div>}
         panelContent={<div>Panel</div>}
         isPanelOpen
       />
     )
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    // Panel is an <aside> element, and has the implicit role 'complementary'
+    const panel = getByRole('complementary')
+    expect(panel.textContent).toBe('Panel')
     expect(panel.style.width).toBe('400px')
   })
 
   it('loads width from localStorage if present', () => {
     localStorage.setItem('panelWidth', '250')
-    const { container } = render(
+    const { getByRole } = render(
       <SlidePanel
         mainContent={<div>Main</div>}
         panelContent={<div>Panel</div>}
         isPanelOpen
       />
     )
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    const panel = getByRole('complementary')
     expect(panel.style.width).toBe('250px')
   })
 
   it('falls back to default width if localStorage width is invalid', () => {
     localStorage.setItem('panelWidth', 'not-a-number')
-    const { container } = render(
+    const { getByRole } = render(
       <SlidePanel
         mainContent={<div>Main</div>}
         panelContent={<div>Panel</div>}
         isPanelOpen
       />
     )
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    const panel = getByRole('complementary')
     // parseInt of 'not-a-number' yields NaN so default width of 400 is expected
     expect(panel.style.width).toBe('400px')
   })
 
   it('respects minWidth from config', () => {
-    const { container } = render(
+    const { getByRole } = render(
       <ConfigProvider value={{ slidePanel: { minWidth: 300 } }}>
         <SlidePanel
           mainContent={<div>Main</div>}
@@ -96,8 +97,8 @@ describe('SlidePanel', () => {
         />
       </ConfigProvider>
     )
-    const resizer = container.querySelector('.resizer') as HTMLElement
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    const resizer = getByRole('separator')
+    const panel = getByRole('complementary')
     expect(panel.style.width).toBe('400px')
 
     // Simulate mousedown on resizer with clientX 800
@@ -116,15 +117,15 @@ describe('SlidePanel', () => {
   })
 
   it('handles dragging to resize', () => {
-    const { container } = render(
+    const { getByRole } = render(
       <SlidePanel
         mainContent={<div>Main</div>}
         panelContent={<div>Panel</div>}
         isPanelOpen
       />
     )
-    const resizer = container.querySelector('.resizer') as HTMLElement
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    const resizer = getByRole('separator')
+    const panel = getByRole('complementary')
     expect(panel.style.width).toBe('400px')
 
     // Mock panel's offsetWidth to be 400px
@@ -151,7 +152,7 @@ describe('SlidePanel', () => {
   })
 
   it('uses config defaultWidth if valid', () => {
-    const { container } = render(
+    const { getByRole } = render(
       <ConfigProvider value={{ slidePanel: { defaultWidth: 500 } }}>
         <SlidePanel
           mainContent={<div>Main</div>}
@@ -160,12 +161,12 @@ describe('SlidePanel', () => {
         />
       </ConfigProvider>
     )
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    const panel = getByRole('complementary')
     expect(panel.style.width).toBe('500px')
   })
 
   it('ignores negative config.defaultWidth and uses 400 instead', () => {
-    const { container } = render(
+    const { getByRole } = render(
       <ConfigProvider value={{ slidePanel: { defaultWidth: -10 } }}>
         <SlidePanel
           mainContent={<div>Main</div>}
@@ -174,7 +175,7 @@ describe('SlidePanel', () => {
         />
       </ConfigProvider>
     )
-    const panel = container.querySelector('.slidePanel') as HTMLElement
+    const panel = getByRole('complementary')
     expect(panel.style.width).toBe('400px')
   })
 })
