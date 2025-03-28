@@ -94,12 +94,12 @@ export default function Folder({ source }: FolderProps) {
       </div>
     </Breadcrumb>
 
-    {files === undefined ?
+    {filtered === undefined ?
       <Center><Spinner /></Center> :
-      files.length === 0 ?
+      filtered.length === 0 ?
         <Center>No files</Center> :
         <ul className='file-list' ref={listRef}>
-          {filtered?.map((file, index) =>
+          {filtered.map((file, index) =>
             <li key={index}>
               <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
                 <span className={cn('file-name', 'file', file.kind === 'directory' && 'folder')}>
