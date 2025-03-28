@@ -8,7 +8,6 @@ import { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
 import { cn } from '../../lib/utils.js'
 import styles from '../../styles/ParquetView.module.css'
-import Spinner from '../Spinner.js'
 import CellPanel from './CellPanel.js'
 import ContentWrapper, { ContentSize } from './ContentWrapper.js'
 import SlidePanel from './SlidePanel.js'
@@ -96,7 +95,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
 
   const headers = <span>{content?.dataframe.numRows.toLocaleString() ?? '...'} rows</span>
 
-  const mainContent = <ContentWrapper content={content} headers={headers}>
+  const mainContent = <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
     {content?.dataframe && <HighTable
       cacheKey={source.resolveUrl}
       data={content.dataframe}
@@ -105,8 +104,6 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
       onError={setError}
       className={cn(styles.hightable, customClass?.highTable)}
     />}
-
-    {isLoading && <div className='center'><Spinner /></div>}
   </ContentWrapper>
 
   let panelContent

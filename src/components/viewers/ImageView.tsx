@@ -3,7 +3,6 @@ import { useConfig } from '../../hooks/useConfig.js'
 import { FileSource } from '../../lib/sources/types.js'
 import { cn, contentTypes, parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/viewers/ImageView.module.css'
-import Spinner from '../Spinner.js'
 import ContentWrapper from './ContentWrapper.js'
 
 interface ViewerProps {
@@ -54,13 +53,11 @@ export default function ImageView({ source, setError }: ViewerProps) {
     void loadContent()
   }, [fileName, resolveUrl, requestInit, setError])
 
-  return <ContentWrapper content={content}>
+  return <ContentWrapper content={content} isLoading={isLoading}>
     {content?.dataUri && <img
       alt={source.sourceId}
       className={cn(styles.image, customClass?.imageView)}
       src={content.dataUri} />}
-
-    {isLoading && <div className='center'><Spinner /></div>}
   </ContentWrapper>
 }
 

@@ -66,13 +66,6 @@ a:hover {
   text-decoration: underline;
 }
 
-.center {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .top-actions {
   left: auto;
 }

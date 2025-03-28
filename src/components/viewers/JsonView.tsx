@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/Json.module.css'
+import Center from '../Center.js'
 import Json from '../Json.js'
-import Spinner from '../Spinner.js'
 import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
@@ -63,19 +63,18 @@ export default function JsonView({ source, setError }: ViewerProps) {
   // If json failed to parse, show the text instead
   const showFallbackText = content?.text !== undefined && json === undefined
 
-  return <ContentWrapper content={content} headers={headers}>
-    {!isLarge && <>
-      {!showFallbackText && <code className={styles.jsonView}>
-        <Json json={json} />
-      </code>}
-      {showFallbackText && <code className={styles.text}>
-        {content.text}
-      </code>}
-    </>}
-    {isLarge && <div className='center'>
-      File is too large to display
-    </div>}
-
-    {isLoading && <div className='center'><Spinner /></div>}
+  return <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
+    {isLarge ?
+      <Center>File is too large to display</Center>
+      :
+      <>
+        {!showFallbackText && <code className={styles.jsonView}>
+          <Json json={json} />
+        </code>}
+        {showFallbackText && <code className={styles.text}>
+          {content.text}
+        </code>}
+      </>
+    }
   </ContentWrapper>
 }

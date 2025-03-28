@@ -11,6 +11,7 @@ export interface Config {
   customClass?: {
     brand?: string
     breadcrumb?: string
+    center?: string
     contentWrapper?: string
     errorBar?: string
     highTable?: string

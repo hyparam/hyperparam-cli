@@ -4,7 +4,6 @@ import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
 import styles from '../../styles/Json.module.css'
 import Json from '../Json.js'
-import Spinner from '../Spinner.js'
 import ContentWrapper, { ContentSize } from './ContentWrapper.js'
 
 interface ViewerProps {
@@ -54,11 +53,9 @@ export default function AvroView({ source, setError }: ViewerProps) {
 
   const headers = content === undefined && <span>Loading...</span>
 
-  return <ContentWrapper content={content} headers={headers}>
+  return <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
     <code className={styles.jsonView}>
       <Json json={json} />
     </code>
-
-    {isLoading && <div className='center'><Spinner /></div>}
   </ContentWrapper>
 }
