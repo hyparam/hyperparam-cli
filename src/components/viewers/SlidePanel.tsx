@@ -1,4 +1,4 @@
-import React, { CSSProperties, ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import { cn } from '../../lib/utils.js'
 import styles from '../../styles/viewers/SlidePanel.module.css'
@@ -77,10 +77,7 @@ export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: S
   }, [panelRef, panelWidth])
 
   const panelWidthStyle = useMemo(() => {
-    return isPanelOpen ? {
-      '--panel-width': `${panelWidth}px`,
-    } as CSSProperties :
-      undefined
+    return isPanelOpen ? { width: `${panelWidth}px` } : undefined
   }, [panelWidth, isPanelOpen])
 
   return (
@@ -95,13 +92,13 @@ export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: S
           onMouseDown={handleMouseDown}
         />
       }
-      <article
+      <aside
         ref={panelRef}
         data-resizing={resizingClientX !== -1}
         style={panelWidthStyle}
       >
         {panelContent}
-      </article>
+      </aside>
     </div>
   )
 }
