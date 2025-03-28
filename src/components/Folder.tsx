@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useConfig } from '../hooks/useConfig.js'
 import type { DirSource, FileMetadata } from '../lib/sources/types.js'
 import { cn, formatFileSize, getFileDate, getFileDateShort } from '../lib/utils.js'
@@ -35,7 +35,10 @@ export default function Folder({ source }: FolderProps) {
   }, [source])
 
   // File search
-  const filtered = files?.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  const filtered = useMemo(() => {
+    return files?.filter(file => file.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [files, searchQuery])
+
   useEffect(() => {
     const searchElement = searchRef.current
     function handleKeyup(e: KeyboardEvent) {
