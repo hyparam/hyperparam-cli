@@ -1,5 +1,6 @@
 import { DataFrame, stringify } from 'hightable'
 import { useEffect, useState } from 'react'
+import SlideCloseButton from '../SlideCloseButton.js'
 import ContentWrapper from './ContentWrapper.js'
 
 interface ViewerProps {
@@ -49,7 +50,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
   }, [df, col, row, setProgress, setError])
 
   const headers = <>
-    <button className="slideClose" onClick={onClose}>&nbsp;</button>
+    <SlideCloseButton onClick={onClose} />
     <span>column `{df.header[col]}`</span>
     <span>row {row + 1}</span>
   </>

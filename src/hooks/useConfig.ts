@@ -16,6 +16,7 @@ export interface Config {
     imageView?: string
     markdownView?: string
     sideBar?: string
+    slideCloseButton?: string
     spinner?: string
     textView?: string
     welcome?: string
