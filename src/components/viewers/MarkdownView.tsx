@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
 import type { FileSource } from '../../lib/sources/types.js'
-import { parseFileSize } from '../../lib/utils.js'
-import { Spinner } from '../Layout.js'
+import { cn, parseFileSize } from '../../lib/utils.js'
+import styles from '../../styles/viewers/MarkdownView.module.css'
 import Markdown from '../Markdown.js'
-import ContentHeader, { TextContent } from './ContentHeader.js'
+import ContentWrapper, { TextContent } from './ContentWrapper.js'
 
 interface ViewerProps {
   source: FileSource
@@ -16,6 +17,7 @@ interface ViewerProps {
 export default function MarkdownView({ source, setError }: ViewerProps) {
   const [content, setContent] = useState<TextContent>()
   const [isLoading, setIsLoading] = useState(true)
+  const { customClass } = useConfig()
 
   const { resolveUrl, requestInit } = source
 
@@ -44,9 +46,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
     void loadContent()
   }, [resolveUrl, requestInit, setError])
 
-  return <ContentHeader content={content}>
-    <Markdown className='markdown' text={content?.text ?? ''} />
-
-    { isLoading && <div className='center'><Spinner /></div> }
-  </ContentHeader>
+  return <ContentWrapper content={content} isLoading={isLoading}>
+    <Markdown className={cn(styles.markdownView, customClass?.markdownView)} text={content?.text ?? ''} />
+  </ContentWrapper>
 }

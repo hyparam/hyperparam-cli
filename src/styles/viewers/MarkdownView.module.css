@@ -1,0 +1,32 @@
+/* markdownView */
+.markdownView {
+  background-color: #222226;
+  color: #ddd;
+  flex: 1;
+  padding: 8px 20px;
+  white-space: pre-wrap;
+  overflow-y: auto;
+}
+.markdownView a {
+  color: #cdf;
+}
+.markdownView p {
+  margin-block: 1em;
+}
+.markdownView pre {
+  background-color: #34343a;
+  border-left: #446 solid 5px;
+  margin: 0;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+}
+.markdownView h1 {
+  font-size: 32px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.markdownView h2 {
+  font-weight: 500;
+  margin-bottom: 8px;
+  margin-top: 16px;
+}

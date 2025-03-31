@@ -1,8 +1,7 @@
-import 'hightable/src/HighTable.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './components/App.js'
-import './styles/app.css'
+import './styles/global.css'
 
 const root = document.getElementById('app')
 if (!root) throw new Error('missing root element')

@@ -1,4 +1,7 @@
 import { MouseEvent, useEffect } from 'react'
+import { useConfig } from '../hooks/useConfig.js'
+import { cn } from '../lib/utils.js'
+import styles from '../styles/Welcome.module.css'
 
 interface WelcomePopupProps {
   onClose: () => void
@@ -9,6 +12,7 @@ interface WelcomePopupProps {
  * Clicking outside the popup or pressing Escape will dismiss it.
  */
 export default function Welcome({ onClose }: WelcomePopupProps) {
+  const { customClass } = useConfig()
   // Close popup when clicking outside
   function handleBackdropClick(e: MouseEvent) {
     if (e.target === e.currentTarget) {
@@ -29,7 +33,7 @@ export default function Welcome({ onClose }: WelcomePopupProps) {
   }, [onClose])
 
   return (
-    <div className="welcome" onClick={handleBackdropClick}>
+    <div className={cn(styles.welcome, customClass?.welcome)} onClick={handleBackdropClick}>
       <div>
         <h2>npx hyperparam</h2>
         <p>
