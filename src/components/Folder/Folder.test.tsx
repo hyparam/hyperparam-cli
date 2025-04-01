@@ -1,9 +1,10 @@
 import { fireEvent, render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
-import React, { act } from 'react'
+import { act } from 'react'
 import { describe, expect, it, test, vi } from 'vitest'
-import { Config, ConfigProvider } from '../../src/hooks/useConfig.js'
-import { DirSource, FileMetadata, Folder, HyperparamFileMetadata, getHyperparamSource } from '../../src/index.js'
+import { Config, ConfigProvider } from '../../hooks/useConfig.js'
+import { DirSource, FileMetadata, HyperparamFileMetadata, getHyperparamSource } from '../../lib/sources/index.js'
+import Folder from './Folder.js'
 
 const endpoint = 'http://localhost:3000'
 const mockFiles: HyperparamFileMetadata[] = [

@@ -1,9 +1,9 @@
 import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
-import React from 'react'
 import { describe, expect, it } from 'vitest'
-import { Config, ConfigProvider } from '../../src/hooks/useConfig.js'
-import { Breadcrumb, getHyperparamSource } from '../../src/index.js'
+import { Config, ConfigProvider } from '../../hooks/useConfig.js'
+import { getHyperparamSource } from '../../lib/sources/hyperparamSource.js'
+import Breadcrumb from './Breadcrumb.js'
 
 const endpoint = 'http://localhost:3000'
 

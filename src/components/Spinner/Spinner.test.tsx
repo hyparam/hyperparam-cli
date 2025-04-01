@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
-import React from 'react'
 import { describe, expect, it } from 'vitest'
-import { ConfigProvider, Spinner } from '../../src/index.js'
+import { ConfigProvider } from '../../hooks/useConfig.js'
+import Spinner from './Spinner.js'
 
 describe('Spinner Component', () => {
   it('renders with base and additional class names', () => {

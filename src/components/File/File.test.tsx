@@ -1,9 +1,10 @@
 import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
-import React, { act } from 'react'
+import { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { Config, ConfigProvider } from '../../src/hooks/useConfig.js'
-import { File, getHttpSource, getHyperparamSource } from '../../src/index.js'
+import { Config, ConfigProvider } from '../../hooks/useConfig.js'
+import { getHttpSource, getHyperparamSource } from '../../lib/sources/index.js'
+import File from './File.js'
 
 const endpoint = 'http://localhost:3000'
 
@@ -60,11 +61,11 @@ describe('File Component', () => {
     ))
 
     const links = getAllByRole('link')
-    expect(links[0].getAttribute('href')).toBe('/')
-    expect(links[1].getAttribute('href')).toBe('/files?key=')
-    expect(links[2].getAttribute('href')).toBe('/files?key=folder1/')
-    expect(links[3].getAttribute('href')).toBe('/files?key=folder1/folder2/')
-    expect(links[4].getAttribute('href')).toBe('/files?key=folder1/folder2/folder3/')
-    expect(links[5].getAttribute('href')).toBe('/files?key=folder1/folder2/folder3/test.txt')
+    expect(links[0]?.getAttribute('href')).toBe('/')
+    expect(links[1]?.getAttribute('href')).toBe('/files?key=')
+    expect(links[2]?.getAttribute('href')).toBe('/files?key=folder1/')
+    expect(links[3]?.getAttribute('href')).toBe('/files?key=folder1/folder2/')
+    expect(links[4]?.getAttribute('href')).toBe('/files?key=folder1/folder2/folder3/')
+    expect(links[5]?.getAttribute('href')).toBe('/files?key=folder1/folder2/folder3/test.txt')
   })
 })

@@ -1,7 +1,6 @@
 import { render } from '@testing-library/react'
-import React from 'react'
 import { describe, expect, it } from 'vitest'
-import { Layout } from '../../src/index.js'
+import Layout from './Layout.js'
 
 describe('Layout Component', () => {
   it('renders children', () => {

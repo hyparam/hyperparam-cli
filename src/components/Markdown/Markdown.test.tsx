@@ -1,7 +1,6 @@
 import { render } from '@testing-library/react'
-import React from 'react'
 import { describe, expect, it } from 'vitest'
-import { Markdown } from '../../src/index.js'
+import Markdown from './Markdown.js'
 
 describe('Markdown', () => {
   it('renders plain text as a paragraph', () => {
@@ -57,8 +56,8 @@ describe('Markdown', () => {
     expect(getByText('Hyp')).toBeDefined()
     expect(getByText('GitHub')).toBeDefined()
     const links = getAllByRole('link')
-    expect(links[0].getAttribute('href')).toBe('https://hyperparam.app')
-    expect(links[1].getAttribute('href')).toBe('https://github.com/hyparam')
+    expect(links[0]?.getAttribute('href')).toBe('https://hyperparam.app')
+    expect(links[1]?.getAttribute('href')).toBe('https://github.com/hyparam')
   })
 
   it('renders blockquote', () => {
@@ -247,15 +246,18 @@ describe('Markdown with nested elements', () => {
 
     const images = container.querySelectorAll('img')
     expect(images.length).toBe(2)
+    if (!(0 in images && 1 in images)) {
+      throw new Error('should not occur')
+    }
 
     // First link contains first image
-    expect(links[0].getAttribute('href')).toBe('https://opensource.org/licenses/MIT')
-    expect(links[0].contains(images[0])).toBe(true)
+    expect(links[0]?.getAttribute('href')).toBe('https://opensource.org/licenses/MIT')
+    expect(links[0]?.contains(images[0])).toBe(true)
     expect(images[0].getAttribute('alt')).toBe('license')
 
     // Second link contains second image
-    expect(links[1].getAttribute('href')).toBe('https://www.npmjs.com/package')
-    expect(links[1].contains(images[1])).toBe(true)
+    expect(links[1]?.getAttribute('href')).toBe('https://www.npmjs.com/package')
+    expect(links[1]?.contains(images[1])).toBe(true)
     expect(images[1].getAttribute('alt')).toBe('npm')
   })
 
