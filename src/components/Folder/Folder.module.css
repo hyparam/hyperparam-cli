@@ -41,11 +41,11 @@
           padding-left: 22px;
 
           &[data-file-kind="directory"] {
-            background-image: url("../assets/folder.svg");
+            background-image: url("../../assets/folder.svg");
           }
 
           &[data-file-kind="file"] {
-            background-image: url("../assets/file.svg");
+            background-image: url("../../assets/file.svg");
           }
         }
 
@@ -68,7 +68,7 @@
 
 /* search */
 .search {
-  background: #fff url("../assets/search.svg") no-repeat center right 8px;
+  background: #fff url("../../assets/search.svg") no-repeat center right 8px;
   border: 1px solid transparent;
   border-radius: 8px;
   flex-shrink: 1;

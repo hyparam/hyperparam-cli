@@ -37,7 +37,7 @@
 }
 .brand::before {
   content: "";
-  background: url("../assets/logo.svg") no-repeat 0 center;
+  background: url("../../assets/logo.svg") no-repeat 0 center;
   background-size: 26px;
   height: 26px;
   width: 26px;
