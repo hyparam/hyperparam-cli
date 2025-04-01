@@ -1,10 +1,10 @@
 import { avroData, avroMetadata } from 'icebird'
 import { useEffect, useState } from 'react'
-import type { FileSource } from '../../lib/sources/types.js'
-import { parseFileSize } from '../../lib/utils.js'
-import styles from '../../styles/Json.module.css'
-import Json from '../Json.js'
+import type { FileSource } from '../lib/sources/types.js'
+import { parseFileSize } from '../lib/utils.js'
+import styles from '../styles/Json.module.css'
 import ContentWrapper, { ContentSize } from './ContentWrapper.js'
+import Json from './Json.js'
 
 interface ViewerProps {
   source: FileSource

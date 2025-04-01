@@ -2,7 +2,7 @@ import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import { MarkdownView, getHyperparamSource } from '../../../src/index.js'
+import { MarkdownView, getHyperparamSource } from '../../src/index.js'
 
 globalThis.fetch = vi.fn()
 

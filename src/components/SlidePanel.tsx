@@ -1,7 +1,7 @@
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
-import { useConfig } from '../../hooks/useConfig.js'
-import { cn } from '../../lib/utils.js'
-import styles from '../../styles/viewers/SlidePanel.module.css'
+import { useConfig } from '../hooks/useConfig.js'
+import { cn } from '../lib/utils.js'
+import styles from '../styles/SlidePanel.module.css'
 
 interface SlidePanelProps {
   mainContent: ReactNode

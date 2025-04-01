@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import type { FileSource } from '../../lib/sources/types.js'
-import { parseFileSize } from '../../lib/utils.js'
-import styles from '../../styles/Json.module.css'
-import Center from '../Center.js'
-import Json from '../Json.js'
+import type { FileSource } from '../lib/sources/types.js'
+import { parseFileSize } from '../lib/utils.js'
+import styles from '../styles/Json.module.css'
+import Center from './Center.js'
 import ContentWrapper, { TextContent } from './ContentWrapper.js'
+import Json from './Json.js'
 
 interface ViewerProps {
   source: FileSource

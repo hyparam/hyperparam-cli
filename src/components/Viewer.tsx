@@ -1,5 +1,5 @@
-import { FileSource } from '../../lib/sources/types.js'
-import { imageTypes } from '../../lib/utils.js'
+import { FileSource } from '../lib/sources/types.js'
+import { imageTypes } from '../lib/utils.js'
 import AvroView from './AvroView.js'
 import ImageView from './ImageView.js'
 import JsonView from './JsonView.js'

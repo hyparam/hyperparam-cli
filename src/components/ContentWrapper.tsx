@@ -1,9 +1,9 @@
 import { ReactNode } from 'react'
-import { useConfig } from '../../hooks/useConfig.js'
-import { cn, formatFileSize } from '../../lib/utils.js'
-import styles from '../../styles/viewers/ContentWrapper.module.css'
-import Center from '../Center.js'
-import Spinner from '../Spinner.js'
+import { useConfig } from '../hooks/useConfig.js'
+import { cn, formatFileSize } from '../lib/utils.js'
+import styles from '../styles/ContentWrapper.module.css'
+import Center from './Center.js'
+import Spinner from './Spinner.js'
 
 export interface ContentSize {
   fileSize?: number

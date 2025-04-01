@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
-import { useConfig } from '../../hooks/useConfig.js'
-import type { FileSource } from '../../lib/sources/types.js'
-import { cn, parseFileSize } from '../../lib/utils.js'
-import styles from '../../styles/viewers/MarkdownView.module.css'
-import Markdown from '../Markdown.js'
+import { useConfig } from '../hooks/useConfig.js'
+import type { FileSource } from '../lib/sources/types.js'
+import { cn, parseFileSize } from '../lib/utils.js'
+import styles from '../styles/MarkdownView.module.css'
 import ContentWrapper, { TextContent } from './ContentWrapper.js'
+import Markdown from './Markdown.js'
 
 interface ViewerProps {
   source: FileSource

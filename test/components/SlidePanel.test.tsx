@@ -2,8 +2,8 @@
 import { act, fireEvent, render } from '@testing-library/react'
 import React from 'react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import SlidePanel from '../../../src/components/viewers/SlidePanel.js'
-import { ConfigProvider } from '../../../src/hooks/useConfig.js'
+import SlidePanel from '../../src/components/SlidePanel.js'
+import { ConfigProvider } from '../../src/hooks/useConfig.js'
 
 describe('SlidePanel', () => {
   // Minimal localStorage mock

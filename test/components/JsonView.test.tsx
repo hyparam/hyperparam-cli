@@ -1,8 +1,8 @@
 import { render, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import JsonView from '../../../src/components/viewers/JsonView'
-import { FileSource } from '../../../src/lib/sources/types.js'
+import JsonView from '../../src/components/JsonView'
+import { FileSource } from '../../src/lib/sources/types.js'
 
 vi.mock('../../../src/lib/utils.js', async () => {
   const actual = await vi.importActual('../../../src/lib/utils.js')

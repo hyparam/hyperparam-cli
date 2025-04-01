@@ -1,7 +1,7 @@
 import { DataFrame, stringify } from 'hightable'
 import { useEffect, useState } from 'react'
-import SlideCloseButton from '../SlideCloseButton.js'
 import ContentWrapper from './ContentWrapper.js'
+import SlideCloseButton from './SlideCloseButton.js'
 
 interface ViewerProps {
   df: DataFrame

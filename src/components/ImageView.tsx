@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useConfig } from '../../hooks/useConfig.js'
-import { FileSource } from '../../lib/sources/types.js'
-import { cn, contentTypes, parseFileSize } from '../../lib/utils.js'
-import styles from '../../styles/viewers/ImageView.module.css'
+import { useConfig } from '../hooks/useConfig.js'
+import { FileSource } from '../lib/sources/types.js'
+import { cn, contentTypes, parseFileSize } from '../lib/utils.js'
+import styles from '../styles/ImageView.module.css'
 import ContentWrapper from './ContentWrapper.js'
 
 interface ViewerProps {

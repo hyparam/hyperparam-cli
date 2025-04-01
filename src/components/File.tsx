@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FileSource } from '../lib/sources/types.js'
 import Breadcrumb from './Breadcrumb.js'
 import Layout from './Layout.js'
-import Viewer from './viewers/Viewer.js'
+import Viewer from './Viewer.js'
 
 interface FileProps {
   source: FileSource
