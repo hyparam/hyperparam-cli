@@ -1,7 +1,7 @@
 import { render, waitFor } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
-import JsonView from '../../src/components/JsonView'
+import JsonView from '../../src/components/JsonView/JsonView.js'
 import { FileSource } from '../../src/lib/sources/types.js'
 
 vi.mock('../../../src/lib/utils.js', async () => {

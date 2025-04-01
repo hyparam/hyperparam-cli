@@ -30,7 +30,7 @@
   ],
   "scripts": {
     "build:types": "tsc -b",
-    "build:lib": "vite build -c vite.lib.config.ts && cp src/styles/global.css lib/global.css",
+    "build:lib": "vite build -c vite.lib.config.ts && cp src/assets/global.css lib/global.css",
     "build:app": "vite build",
     "build": "run-s build:lib build:types build:app",
     "coverage": "vitest run --coverage --coverage.include=src --coverage.include=bin",

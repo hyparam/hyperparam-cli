@@ -1,7 +1,7 @@
 import { fireEvent, render } from '@testing-library/react'
 import React from 'react'
 import { describe, expect, it } from 'vitest'
-import Json from '../../src/components/Json'
+import Json from '../../src/components/Json/Json.js'
 
 describe('Json Component', () => {
   it('renders primitive types correctly', () => {
