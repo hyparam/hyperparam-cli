@@ -43,6 +43,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "url": "run-p -l watch:ts watch:vite watch:url",
+    "preurl": "npm run build",
     "watch:ts": "tsc --watch",
     "watch:vite": "vite build --watch",
     "watch:serve": "NODE_ENV=development nodemon bin/cli.js",
