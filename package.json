@@ -51,7 +51,7 @@
   },
   "dependencies": {
     "hightable": "0.13.4",
-    "hyparquet": "1.10.2",
+    "hyparquet": "1.10.3",
     "hyparquet-compressors": "1.1.1",
     "icebird": "0.1.13",
     "react": "18.3.1",
