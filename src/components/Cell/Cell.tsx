@@ -7,9 +7,9 @@ import Breadcrumb from '../Breadcrumb/Breadcrumb.js'
 import Layout from '../Layout/Layout.js'
 
 interface CellProps {
-  source: FileSource;
-  row: number;
-  col: number;
+  source: FileSource
+  row: number
+  col: number
 }
 
 /**

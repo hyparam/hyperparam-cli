@@ -6,7 +6,9 @@
   overflow: hidden;
   transition: max-height 0.3s;
   white-space: pre-wrap;
-  font-family: monospace;
+  * {
+    font-family: monospace;
+  }
 
   &[data-visible="true"] {
     display: block;

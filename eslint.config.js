@@ -59,6 +59,7 @@ export default typescript.config(
       'no-useless-return': 'error',
       'no-var': 'error',
       'object-curly-spacing': ['error', 'always'],
+      'object-shorthand': 'error',
       'prefer-const': 'warn',
       'prefer-destructuring': ['warn', {
         object: true,

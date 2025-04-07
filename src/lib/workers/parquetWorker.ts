@@ -47,7 +47,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
         lastValue: undefined as unknown,
         lastRank: 0,
       }).ranks
-      postColumnRanksMessage({ columnRanks: columnRanks, queryId })
+      postColumnRanksMessage({ columnRanks, queryId })
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
     }
