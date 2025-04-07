@@ -34,7 +34,8 @@
     "build:app": "vite build",
     "build": "run-s build:lib build:types build:app",
     "coverage": "vitest run --coverage --coverage.include=src --coverage.include=bin",
-    "dev": "run-p -l watch:ts watch:vite watch:serve",
+    "dev:cli": "run-p -l watch:ts watch:cli watch:serve",
+    "dev": "run-p -l watch:ts watch:static",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prepublishOnly": "npm run build",
@@ -44,9 +45,10 @@
     "typecheck": "tsc --noEmit",
     "url": "run-p -l watch:ts watch:vite watch:url",
     "preurl": "npm run build",
-    "watch:ts": "tsc --watch",
-    "watch:vite": "vite build --watch",
+    "watch:cli": "vite build --watch",
     "watch:serve": "NODE_ENV=development nodemon bin/cli.js",
+    "watch:static": "vite",
+    "watch:ts": "tsc --watch",
     "watch:url": "NODE_ENV=development nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
   },
   "dependencies": {
