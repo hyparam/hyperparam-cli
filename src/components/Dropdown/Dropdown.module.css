@@ -35,7 +35,7 @@
   transform: rotate(-90deg);
   transition: transform 0.1s;
 }
-.open .dropdownButton::before {
+.dropdown:has([aria-expanded="true"]) .dropdownButton::before {
   transform: rotate(0deg);
 }
 
@@ -60,7 +60,7 @@
   z-index: 20;
 }
 
-.open .dropdownContent {
+.dropdown:has([aria-expanded="true"]) .dropdownContent {
   max-height: 170px;
   overflow-y: auto;
 }

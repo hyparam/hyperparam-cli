@@ -18,7 +18,7 @@ interface DropdownProps {
  *   <button>Item 2</button>
  * </Dropdown>
  */
-export default function Dropdown({ label, align, className, children }: DropdownProps) {
+export default function Dropdown({ label, align = 'left', className, children }: DropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -56,7 +56,7 @@ export default function Dropdown({ label, align, className, children }: Dropdown
 
   return (
     <div
-      className={cn(styles.dropdown, align === 'left' && styles.dropdownLeft, className, isOpen && styles.open)}
+      className={cn(styles.dropdown, align === 'left' && styles.dropdownLeft, className)}
       ref={dropdownRef}>
       <button
         className={styles.dropdownButton}

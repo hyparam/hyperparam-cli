@@ -8,10 +8,10 @@ describe('Dropdown Component', () => {
     const { container: { children: [ div ] }, queryByText } = render(
       <Dropdown><div>Child 1</div><div>Child 2</div></Dropdown>
     )
-    expect(div?.classList).not.toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
     expect(queryByText('Child 1')).toBeDefined()
     expect(queryByText('Child 2')).toBeDefined()
-    expect(div?.classList).not.toContain(styles.dropdownLeft)
+    expect(div?.classList).toContain(styles.dropdownLeft)
   })
 
   it('toggles dropdown content on button click', () => {
@@ -23,11 +23,11 @@ describe('Dropdown Component', () => {
     fireEvent.click(dropdownButton)
 
     // Check if dropdown content appears
-    expect(div?.classList).toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     // Click again to close
     fireEvent.click(dropdownButton)
-    expect(div?.classList).not.toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('closes dropdown when clicking outside', () => {
@@ -37,11 +37,11 @@ describe('Dropdown Component', () => {
 
     const dropdownButton = getByRole('button')
     fireEvent.click(dropdownButton) // open dropdown
-    expect(div?.classList).toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     // Simulate a click outside
     fireEvent.mouseDown(document)
-    expect(div?.classList).not.toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('does not close dropdown when clicking inside', () => {
@@ -51,12 +51,12 @@ describe('Dropdown Component', () => {
 
     const dropdownButton = getByRole('button')
     fireEvent.click(dropdownButton) // open dropdown
-    expect(div?.classList).toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     const dropdownContent = getByText('Child 1').parentElement
     if (!dropdownContent) throw new Error('Dropdown content not found')
     fireEvent.mouseDown(dropdownContent)
-    expect(div?.classList).toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
   })
 
   it('closes dropdown on escape key press', () => {
@@ -66,11 +66,11 @@ describe('Dropdown Component', () => {
 
     const dropdownButton = getByRole('button')
     fireEvent.click(dropdownButton) // open dropdown
-    expect(div?.classList).toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     // Press escape key
     fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' })
-    expect(div?.classList).not.toContain(styles.open)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
   it('adds dropdownLeft class when align is left', () => {

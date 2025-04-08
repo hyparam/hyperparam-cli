@@ -8,6 +8,7 @@ export default meta
 type Story = StoryObj<typeof Dropdown>;
 export const Default: Story = {
   args: {
+    label: 'Menu',
     children: <>
       <button>Item 1</button>
       <button>Item 2</button>
