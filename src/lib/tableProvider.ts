@@ -75,7 +75,11 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           }
         })
         .catch((error: unknown) => {
-          console.error('Error fetching row group', error)
+          const prefix = `Error fetching row group ${groupIndex} (${rowStart}-${rowEnd}).`
+          console.error(prefix, error)
+          const reason = `${prefix} ${error}`
+          // reject the index of the first row (it's enough to trigger the error bar)
+          data[rowStart]?.index.reject(reason)
         })
       groups[groupIndex] = true
     }
