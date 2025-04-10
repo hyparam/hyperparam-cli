@@ -12,6 +12,7 @@ export const Default: Story = {
     children: <>
       <button>Item 1</button>
       <button>Item 2</button>
+      <button>Item 3</button>
     </>,
   },
 }
@@ -23,6 +24,7 @@ export const LeftAlign: Story = {
     children: <>
       <button>Item 1</button>
       <button>Item 2</button>
+      <button>Item 3</button>
     </>,
   },
 }
@@ -34,6 +36,7 @@ export const RightAlign: Story = {
     children: <>
       <button>Item 1</button>
       <button>Item 2</button>
+      <button>Item 3</button>
     </>,
   },
 }
