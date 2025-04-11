@@ -32,3 +32,4 @@ package-lock.json
 
 /lib/
 tsconfig.tsbuildinfo
+*storybook.log

@@ -2,6 +2,7 @@ import javascript from '@eslint/js'
 import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import storybook from 'eslint-plugin-storybook'
 import globals from 'globals'
 import typescript from 'typescript-eslint'
 
@@ -59,6 +60,7 @@ export default typescript.config(
       'no-useless-return': 'error',
       'no-var': 'error',
       'object-curly-spacing': ['error', 'always'],
+      'object-shorthand': 'error',
       'prefer-const': 'warn',
       'prefer-destructuring': ['warn', {
         object: true,
@@ -104,5 +106,11 @@ export default typescript.config(
         ...globals.node,
       },
     },
+  },
+  {
+    extends: [
+      ...storybook.configs['flat/recommended'],
+    ],
+    files: ['**/*.stories.tsx'],
   }
 )

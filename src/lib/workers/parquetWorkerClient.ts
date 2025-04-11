@@ -7,15 +7,15 @@ import type { Cells, ColumnRanksClientMessage, ColumnRanksWorkerMessage, ColumnR
 let worker: Worker | undefined
 let nextQueryId = 0
 interface RowsQueryAgent {
-  kind: 'query';
-  resolve: (value: Cells[]) => void;
-  reject: (error: Error) => void;
-  onChunk?: (chunk: ColumnData) => void;
+  kind: 'query'
+  resolve: (value: Cells[]) => void
+  reject: (error: Error) => void
+  onChunk?: (chunk: ColumnData) => void
 }
 interface ColumnRanksQueryAgent {
-  kind: 'columnRanks';
-  resolve: (value: number[]) => void;
-  reject: (error: Error) => void;
+  kind: 'columnRanks'
+  resolve: (value: number[]) => void
+  reject: (error: Error) => void
 }
 type QueryAgent = RowsQueryAgent | ColumnRanksQueryAgent
 

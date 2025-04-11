@@ -1,6 +1,7 @@
 import Breadcrumb from './Breadcrumb/Breadcrumb.js'
 import Cell from './Cell/Cell.js'
 import ContentWrapper from './ContentWrapper/ContentWrapper.js'
+import Dropdown from './Dropdown/Dropdown.js'
 import ErrorBar from './ErrorBar/ErrorBar.js'
 import File from './File/File.js'
 import Folder from './Folder/Folder.js'
@@ -14,4 +15,4 @@ import SlidePanel from './SlidePanel/SlidePanel.js'
 import Spinner from './Spinner/Spinner.js'
 import TextView from './TextView/TextView.js'
 import Viewer from './Viewer/Viewer.js'
-export { Breadcrumb, Cell, ContentWrapper, ErrorBar, File, Folder, ImageView, Layout, Markdown, MarkdownView, Page, ParquetView, SlidePanel, Spinner, TextView, Viewer }
+export { Breadcrumb, Cell, ContentWrapper, Dropdown, ErrorBar, File, Folder, ImageView, Layout, Markdown, MarkdownView, Page, ParquetView, SlidePanel, Spinner, TextView, Viewer }

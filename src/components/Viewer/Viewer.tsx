@@ -8,9 +8,9 @@ import TableView from '../ParquetView/ParquetView.js'
 import TextView from '../TextView/TextView.js'
 
 interface ViewerProps {
-  source: FileSource;
-  setError: (error: Error | undefined) => void;
-  setProgress: (progress: number | undefined) => void;
+  source: FileSource
+  setError: (error: Error | undefined) => void
+  setProgress: (progress: number | undefined) => void
 }
 
 /**
