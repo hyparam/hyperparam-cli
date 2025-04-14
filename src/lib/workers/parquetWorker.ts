@@ -1,4 +1,4 @@
-import { ColumnData, parquetQuery } from 'hyparquet'
+import { ColumnData, parquetRead, parquetReadObjects } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
 import { getParquetColumn } from '../getParquetColumn.js'
 import { asyncBufferFrom } from '../utils.js'
@@ -51,11 +51,18 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
     }
-  } else {
-    const { rowStart, rowEnd, chunks } = data
-    const onChunk = chunks ? (chunk: ColumnData) => { postChunkMessage({ chunk, queryId }) } : undefined
+  } else if (data.chunks) {
+    function onChunk(chunk: ColumnData) { postChunkMessage({ chunk, queryId }) }
+    const { rowStart, rowEnd } = data
     try {
-      const result = await parquetQuery({ metadata, file, rowStart, rowEnd, compressors, onChunk })
+      await parquetRead({ metadata, file, rowStart, rowEnd, compressors, onChunk })
+    } catch (error) {
+      postErrorMessage({ error: error as Error, queryId })
+    }
+  } else {
+    const { rowStart, rowEnd } = data
+    try {
+      const result = await parquetReadObjects({ metadata, file, rowStart, rowEnd, compressors })
       postResultMessage({ result, queryId })
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
