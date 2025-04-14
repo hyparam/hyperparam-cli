@@ -1,10 +1,13 @@
 import { stringify } from 'hightable'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
 import type { FileSource } from '../../lib/sources/types.js'
 import { parquetDataFrame } from '../../lib/tableProvider.js'
+import { cn } from '../../lib/utils.js'
 import Breadcrumb from '../Breadcrumb/Breadcrumb.js'
 import Layout from '../Layout/Layout.js'
+import styles from '../TextView/TextView.module.css'
 
 interface CellProps {
   source: FileSource
@@ -19,6 +22,7 @@ export default function CellView({ source, row, col }: CellProps) {
   const [text, setText] = useState<string | undefined>()
   const [progress, setProgress] = useState<number>()
   const [error, setError] = useState<Error>()
+  const { customClass } = useConfig()
 
   // File path from url
   const { resolveUrl, requestInit, fileName } = source
@@ -69,7 +73,7 @@ export default function CellView({ source, row, col }: CellProps) {
       <Breadcrumb source={source} />
 
       {/* <Highlight text={text || ''} /> */}
-      <pre className="viewer text">{text}</pre>
+      <pre className={cn(styles.textView, customClass?.textView)}>{text}</pre>
     </Layout>
   )
 }
