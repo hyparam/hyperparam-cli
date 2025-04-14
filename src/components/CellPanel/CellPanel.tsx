@@ -1,5 +1,7 @@
 import { DataFrame, stringify } from 'hightable'
 import { useEffect, useState } from 'react'
+import { useConfig } from '../../hooks/useConfig.js'
+import { cn } from '../../lib/utils.js'
 import ContentWrapper from '../ContentWrapper/ContentWrapper.js'
 import SlideCloseButton from '../SlideCloseButton/SlideCloseButton.js'
 import styles from '../TextView/TextView.module.css'
@@ -18,6 +20,7 @@ interface ViewerProps {
  */
 export default function CellPanel({ df, row, col, setProgress, setError, onClose }: ViewerProps) {
   const [text, setText] = useState<string | undefined>()
+  const { customClass } = useConfig()
 
   // Load cell data
   useEffect(() => {
@@ -57,6 +60,6 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
   </>
 
   return <ContentWrapper headers={headers}>
-    <code className={styles.textView}>{text}</code>
+    <code className={cn(styles.textView, customClass?.textView)}>{text}</code>
   </ContentWrapper>
 }
