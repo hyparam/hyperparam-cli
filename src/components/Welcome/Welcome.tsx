@@ -12,7 +12,7 @@ interface WelcomePopupProps {
  * Clicking outside the popup or pressing Escape will dismiss it.
  */
 export default function Welcome({ onClose }: WelcomePopupProps) {
-  const { customClass } = useConfig()
+  const { customClass, welcome } = useConfig()
   // Close popup when clicking outside
   function handleBackdropClick(e: MouseEvent) {
     if (e.target === e.currentTarget) {
@@ -35,18 +35,20 @@ export default function Welcome({ onClose }: WelcomePopupProps) {
   return (
     <div className={cn(styles.welcome, customClass?.welcome)} onClick={handleBackdropClick}>
       <div>
-        <h2>npx hyperparam</h2>
-        <p>
+        {welcome?.content ?? <>
+          <h2>npx hyperparam</h2>
+          <p>
           This is the <a href="https://hyperparam.app">Hyperparam</a> cli for local data viewing.
-        </p>
-        <p>
+          </p>
+          <p>
           This tool lets you browse and explore large datasets particularly in parquet format.
-        </p>
-        <p>
+          </p>
+          <p>
           Supported file types include Parquet, CSV, JSON, Markdown, and Text.
-        </p>
+          </p>
+        </>}
         <button onClick={onClose}>
-          Got it
+          {welcome?.buttonText ?? 'Got it'}
         </button>
       </div>
     </div>
