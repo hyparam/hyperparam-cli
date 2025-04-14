@@ -1,5 +1,6 @@
 import { fireEvent, render } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
+import { ConfigProvider } from '../../hooks/useConfig.js'
 import Welcome from './Welcome.js'
 
 describe('Welcome Component', () => {
@@ -63,5 +64,19 @@ describe('Welcome Component', () => {
     // Simulate pressing a different key
     fireEvent.keyDown(window, { key: 'Enter' })
     expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('renders custom content and button text', () => {
+    const onClose = vi.fn()
+    const customContent = <p>Custom welcome message</p>
+    const customButtonText = 'Custom Got it'
+    const { getByText } = render(
+      <ConfigProvider value={{ welcome: { content: customContent, buttonText: customButtonText } }}>
+        <Welcome onClose={onClose} />
+      </ConfigProvider>
+    )
+
+    expect(getByText('Custom welcome message')).toBeDefined()
+    expect(getByText('Custom Got it')).toBeDefined()
   })
 })

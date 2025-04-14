@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react'
+import { ReactNode, createContext, useContext } from 'react'
 
 /**
  * Config is a flat object of key-value pairs.
@@ -36,6 +36,10 @@ export interface Config {
   slidePanel?: {
     minWidth?: number
     defaultWidth?: number
+  }
+  welcome?: {
+    content?: ReactNode
+    buttonText?: string
   }
 }
 
