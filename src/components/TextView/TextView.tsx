@@ -51,7 +51,7 @@ export default function TextView({ source, setError }: ViewerProps) {
 
   // Simple text viewer
   return <ContentWrapper content={content} headers={headers} isLoading={isLoading}>
-    {content && <code className={cn(styles.text, customClass?.textView)}>
+    {content && <code className={cn(styles.textView, customClass?.textView)}>
       {content.text}
     </code>}
   </ContentWrapper>

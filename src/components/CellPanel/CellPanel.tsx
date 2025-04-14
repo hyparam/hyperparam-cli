@@ -2,6 +2,7 @@ import { DataFrame, stringify } from 'hightable'
 import { useEffect, useState } from 'react'
 import ContentWrapper from '../ContentWrapper/ContentWrapper.js'
 import SlideCloseButton from '../SlideCloseButton/SlideCloseButton.js'
+import styles from '../TextView/TextView.module.css'
 
 interface ViewerProps {
   df: DataFrame
@@ -56,6 +57,6 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
   </>
 
   return <ContentWrapper headers={headers}>
-    <code className="text">{text}</code>
+    <code className={styles.textView}>{text}</code>
   </ContentWrapper>
 }
