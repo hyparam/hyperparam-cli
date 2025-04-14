@@ -11,20 +11,22 @@ export function cn(...names: (string | undefined | false)[]): string {
 /**
  * Convert AsyncBufferFromUrl to AsyncBuffer.
  */
-export function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
+export async function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
   if ('url' in from) {
     // Cached asyncBuffer for urls only
     const key = JSON.stringify(from)
     const cached = cache.get(key)
     if (cached) return cached
-    const asyncBuffer = asyncBufferFromUrl(from).then(cachedAsyncBuffer)
-    cache.set(key, asyncBuffer)
-    return asyncBuffer
+    const buffer = await asyncBufferFromUrl(from)
+    const newCached = cachedAsyncBuffer(buffer)
+    // only cache if no error, otherwise let the error bubble up
+    cache.set(key, newCached)
+    return newCached
   } else {
     return from.file.arrayBuffer()
   }
 }
-const cache = new Map<string, Promise<AsyncBuffer>>()
+const cache = new Map<string, AsyncBuffer>()
 // TODO(SL): do we really want a singleton?
 
 export function getFileDateShort(file?: { lastModified?: string }): string {

@@ -107,80 +107,88 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     return sortIndex
   }
 
+  function sortedRows({ start, end, orderBy }: { start: number, end: number, orderBy: OrderBy}) {
+    const numRows = end - start
+    const wrapped = new Array(numRows).fill(null).map(() => resolvableRow(header))
+
+    getSortIndex(orderBy).then(indices => {
+      // Compute row groups to fetch
+      for (const index of indices.slice(start, end)) {
+        const groupIndex = groupEnds.findIndex(end => index < end)
+        fetchRowGroup(groupIndex)
+      }
+
+      // Re-assemble data in sorted order into wrapped
+      for (let i = start; i < end; i++) {
+        const index = indices[i]
+        if (index === undefined) {
+          throw new Error(`index ${i} not found in indices`)
+        }
+        const row = data[index]
+        if (row === undefined) {
+          throw new Error('Row not fetched')
+        }
+        const { cells } = row
+        const wrappedRow = wrapped[i - start]
+        if (wrappedRow === undefined) {
+          throw new Error(`Wrapped row missing at index ${i - start}`)
+        }
+        wrappedRow.index.resolve(index)
+        for (const key of header) {
+          const cell = cells[key]
+          if (cell) {
+            // TODO(SL): should we remove this check? It makes sense only if header change
+            // but if so, I guess we will have more issues
+            cell
+              .then((value: unknown) => {
+                const wrappedCell = wrappedRow.cells[key]
+                if (wrappedCell === undefined) {
+                  throw new Error(`Wrapped cell not found for column ${key}`)
+                }
+                wrappedCell.resolve(value)
+              })
+              .catch((error: unknown) => {
+                console.error('Error resolving sorted row', error)
+              })
+          }
+        }
+      }
+    }).catch((error: unknown) => {
+      console.error(
+        'Error fetching sort index or resolving sorted rows',
+        error
+      )
+    })
+
+    return wrapped
+  }
+
+  function unsortedRows({ start, end }: { start: number, end: number }) {
+    for (let i = 0; i < groups.length; i++) {
+      const groupStart = groupEnds[i - 1] ?? 0
+      const groupEnd = groupEnds[i]
+      if (groupEnd === undefined) {
+        throw new Error(`Missing group end at index ${i}`)
+      }
+      if (start < groupEnd && end > groupStart) {
+        fetchRowGroup(i)
+      }
+    }
+    const wrapped = data.slice(start, end)
+    if (wrapped.some(row => row === undefined)) {
+      throw new Error('Row not fetched')
+    }
+    return wrapped as ResolvableRow[]
+  }
+
   return {
     header,
     numRows: Number(metadata.num_rows),
     rows({ start, end, orderBy }: { start: number, end: number, orderBy?: OrderBy}) {
       if (orderBy?.length) {
-        const numRows = end - start
-        const wrapped = new Array(numRows).fill(null).map(() => resolvableRow(header))
-
-        getSortIndex(orderBy).then(indices => {
-          // Compute row groups to fetch
-          for (const index of indices.slice(start, end)) {
-            const groupIndex = groupEnds.findIndex(end => index < end)
-            fetchRowGroup(groupIndex)
-          }
-
-          // Re-assemble data in sorted order into wrapped
-          for (let i = start; i < end; i++) {
-            const index = indices[i]
-            if (index === undefined) {
-              throw new Error(`index ${i} not found in indices`)
-            }
-            const row = data[index]
-            if (row === undefined) {
-              throw new Error('Row not fetched')
-            }
-            const { cells } = row
-            const wrappedRow = wrapped[i - start]
-            if (wrappedRow === undefined) {
-              throw new Error(`Wrapped row missing at index ${i - start}`)
-            }
-            wrappedRow.index.resolve(index)
-            for (const key of header) {
-              const cell = cells[key]
-              if (cell) {
-                // TODO(SL): should we remove this check? It makes sense only if header change
-                // but if so, I guess we will have more issues
-                cell
-                  .then((value: unknown) => {
-                    const wrappedCell = wrappedRow.cells[key]
-                    if (wrappedCell === undefined) {
-                      throw new Error(`Wrapped cell not found for column ${key}`)
-                    }
-                    wrappedCell.resolve(value)
-                  })
-                  .catch((error: unknown) => {
-                    console.error('Error resolving sorted row', error)
-                  })
-              }
-            }
-          }
-        }).catch((error: unknown) => {
-          console.error(
-            'Error fetching sort index or resolving sorted rows',
-            error
-          )
-        })
-
-        return wrapped
+        return sortedRows({ start, end, orderBy })
       } else {
-        for (let i = 0; i < groups.length; i++) {
-          const groupStart = groupEnds[i - 1] ?? 0
-          const groupEnd = groupEnds[i]
-          if (groupEnd === undefined) {
-            throw new Error(`Missing group end at index ${i}`)
-          }
-          if (start < groupEnd && end > groupStart) {
-            fetchRowGroup(i)
-          }
-        }
-        const wrapped = data.slice(start, end)
-        if (wrapped.some(row => row === undefined)) {
-          throw new Error('Row not fetched')
-        }
-        return wrapped as ResolvableRow[]
+        return unsortedRows({ start, end })
       }
     },
     sortable: true,
