@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import type { Source } from '../../lib/sources/types.js'
-import { Version } from '../../lib/sources/types.js'
 import { cn } from '../../lib/utils.js'
 import Dropdown from '../Dropdown/Dropdown.js'
 import styles from './Breadcrumb.module.css'
@@ -11,12 +10,20 @@ interface BreadcrumbProps {
   children?: ReactNode
 }
 
-function Versions({ versions, label }: { versions: Version[], label: string }) {
+function Versions({ source }: { source: Source }) {
   const { routes, customClass } = useConfig()
 
-  return <Dropdown label={label} className={customClass?.versions}>
+  if (!source.versions) return null
+  const { label, versions } = source.versions
+
+  return <Dropdown label={label} className={cn(styles.versions, customClass?.versions)} align="right">
     {versions.map(({ label, sourceId }) => {
-      return <a key={sourceId} role="menuitem" href={routes?.getSourceRouteUrl?.({ sourceId })}>{label}</a>
+      return <a
+        key={sourceId}
+        role="menuitem"
+        href={routes?.getSourceRouteUrl?.({ sourceId })}
+        aria-current={sourceId === source.sourceId ? 'true' : undefined}
+      >{label}</a>
     })}
   </Dropdown>
 }
@@ -33,7 +40,7 @@ export default function Breadcrumb({ source, children }: BreadcrumbProps) {
         <a href={routes?.getSourceRouteUrl?.({ sourceId: part.sourceId }) ?? ''} key={depth}>{part.text}</a>
       )}
     </div>
-    {source.versions && <Versions label={source.versions.label} versions={source.versions.versions} />}
+    {source.versions && <Versions source={source} />}
     {children}
   </nav>
 }

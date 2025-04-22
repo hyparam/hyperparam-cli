@@ -20,10 +20,11 @@ export const Default: Story = {
         { text: 'part2/', sourceId: '/part1/part2/' },
       ],
       versions: {
-        label: 'Versions',
+        label: 'Branches',
         versions: [
-          { label: 'v1.0', sourceId: 'part1/part2/file.txt?version=v1.0' },
-          { label: 'v2.0', sourceId: 'part1/part2/file.txt?version=v2.0' },
+          { label: 'master', sourceId: '/part1/part2/file.txt' },
+          { label: 'dev', sourceId: '/part1/part2/file.txt?branch=dev' },
+          { label: 'refs/convert/parquet', sourceId: '/part1/part2/file.txt?branch=refs/convert/parquet' },
         ],
       },
     },
@@ -40,7 +41,7 @@ export const Default: Story = {
     return (
       <ConfigProvider value={config}>
         <Breadcrumb {...args}>
-          <div className="custom-search">SEARCH</div>
+          <input type='text' placeholder="Search..." />
         </Breadcrumb>
       </ConfigProvider>
     )
