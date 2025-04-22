@@ -51,6 +51,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       // Initialize with resolvable promises
       for (let i = rowStart; i < rowEnd; i++) {
         data[i] = resolvableRow(header)
+        data[i]?.index.resolve(i)
       }
       parquetQueryWorker({ from, metadata, rowStart, rowEnd })
         .then((groupData) => {
@@ -59,7 +60,6 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
             if (dataRow === undefined) {
               throw new Error(`Missing data row for index ${i}`)
             }
-            dataRow.index.resolve(i)
             const j = i - rowStart
             const row = groupData[j]
             if (row === undefined) {
