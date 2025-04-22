@@ -81,3 +81,12 @@ h6 {
 * {
   font-family: "Mulish", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
+.custom-versions div a {
+  text-decoration: underline;
+}
+
+.custom-search {
+  margin-left: auto;
+  margin-right: 20px;
+}

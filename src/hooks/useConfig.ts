@@ -27,6 +27,7 @@ export interface Config {
     slidePanel?: string
     spinner?: string
     textView?: string
+    versions?: string
     welcome?: string
   }
   routes?: {

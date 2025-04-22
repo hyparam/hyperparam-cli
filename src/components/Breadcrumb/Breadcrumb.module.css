@@ -4,7 +4,8 @@
   display: flex;
   font-size: 18px;
   height: 32px;
-  justify-content: space-between;
+  justify-content: start;
+  gap: 10px;
   min-height: 32px;
   padding-left: 20px;
   padding-right: 10px;

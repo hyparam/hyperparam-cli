@@ -14,9 +14,20 @@ export interface SourcePart {
   sourceId: string
 }
 
+export interface Version {
+  label: string
+  sourceId: string
+}
+
+export interface VersionsData {
+  label: string // "version" or "branch"
+  versions: Version[]
+}
+
 interface BaseSource {
   sourceId: string
   sourceParts: SourcePart[]
+  versions?: VersionsData
 }
 
 export interface FileSource extends BaseSource {
