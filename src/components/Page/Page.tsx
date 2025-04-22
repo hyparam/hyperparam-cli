@@ -8,7 +8,7 @@ export interface Navigation {
   row?: number
 }
 
-interface PageProps {
+export interface PageProps {
   source: Source,
   navigation?: Navigation,
 }
