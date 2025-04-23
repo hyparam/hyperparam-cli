@@ -10,6 +10,10 @@ interface JsonProps {
  * JSON viewer component with collapsible objects and arrays.
  */
 export default function Json({ json, label }: JsonProps): ReactNode {
+  return <div className={styles.json}><JsonContent json={json} label={label} /></div>
+}
+
+function JsonContent({ json, label }: JsonProps): ReactNode {
   let div
   if (Array.isArray(json)) {
     div = <JsonArray array={json} label={label} />
@@ -29,17 +33,67 @@ export default function Json({ json, label }: JsonProps): ReactNode {
       div = <>{key}<span>{JSON.stringify(json)}</span></>
     }
   }
-  return <div className={styles.json}>{div}</div>
+  return div
+}
+
+function isPrimitive(value: unknown): boolean {
+  return (
+    value !== undefined &&
+    !Array.isArray(value) &&
+    typeof value !== 'object' &&
+    typeof value !== 'function'
+  )
+}
+
+function InlineArray({ suffix, children }: {suffix?: string, children?: ReactNode}): ReactNode {
+  return (
+    <>
+      <span className={styles.array}>{'['}</span>
+      <span className={styles.array}>{children}</span>
+      <span className={styles.array}>{']'}</span>
+      {suffix && <span className={styles.comment}>{suffix}</span>}
+    </>
+  )
+}
+
+function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
+  const maxCharacterCount = 40
+  const separator = ', '
+
+  const children: ReactNode[] = []
+  let suffix: string | undefined = undefined
+
+  let characterCount = 0
+  for (const [index, item] of array.entries()) {
+    if (index > 0) {
+      characterCount += separator.length
+      children.push(<span key={`separator-${index - 1}`}>, </span>)
+    }
+    // should we continue?
+    if (isPrimitive(item)) {
+      const asString = typeof item === 'bigint' ? item.toString() : JSON.stringify(item)
+      characterCount += asString.length
+      if (characterCount < maxCharacterCount) {
+        children.push(<JsonContent json={item} key={`item-${index}`} />)
+        continue
+      }
+    }
+    // no: it was the last entry
+    children.push(<span key="rest">...</span>)
+    suffix = ` length: ${array.length}`
+    break
+  }
+  return <InlineArray suffix={suffix}>{children}</InlineArray>
 }
 
 function JsonArray({ array, label }: { array: unknown[], label?: string }): ReactNode {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(true)
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
     return <div className={styles.clickable} onClick={() => { setCollapsed(false) }}>
       <span className={styles.drill}>{'\u25B6'}</span>
       {key}
-      <span className={styles.array}>{'[...]'}</span>
+      <CollapsedArray array={array}></CollapsedArray>
     </div>
   }
   return <>

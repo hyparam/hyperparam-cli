@@ -32,9 +32,15 @@ export const Default: Story = {
 export const Arrays: Story = {
   args: {
     json: {
-      a: Array.from({ length: 100 }, (_, i) => i),
-      b: Array.from({ length: 100 }, (_, i) => `hello ${i}`),
-      c: Array.from({ length: 100 }, (_, i) => [i, i + 1, i + 2]),
+      empty: [],
+      numbers1: Array.from({ length: 1 }, (_, i) => i),
+      numbers8: Array.from({ length: 8 }, (_, i) => i),
+      numbers100: Array.from({ length: 100 }, (_, i) => i),
+      strings8: Array.from({ length: 8 }, (_, i) => `hello ${i}`),
+      strings100: Array.from({ length: 100 }, (_, i) => `hello ${i}`),
+      misc: Array.from({ length: 8 }, (_, i) => i % 2 ? `hello ${i}` : i),
+      misc2: Array.from({ length: 8 }, (_, i) => i % 3 === 0 ? i : i % 3 === 1 ? `hello ${i}` : [i, i + 1, i + 2]),
+      arrays100: Array.from({ length: 100 }, (_, i) => [i, i + 1, i + 2]),
     },
     label: 'json',
   },
