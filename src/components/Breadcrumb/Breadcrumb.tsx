@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
-import type { Source } from '../../lib/sources/types.js'
+import type { Source, VersionsData } from '../../lib/sources/types.js'
 import { cn } from '../../lib/utils.js'
 import Dropdown from '../Dropdown/Dropdown.js'
 import styles from './Breadcrumb.module.css'
@@ -12,9 +13,21 @@ interface BreadcrumbProps {
 
 function Versions({ source }: { source: Source }) {
   const { routes, customClass } = useConfig()
+  const [versionsData, setVersionsData] = useState<VersionsData | undefined>(undefined)
 
-  if (!source.versions) return null
-  const { label, versions } = source.versions
+  useEffect(() => {
+    source.fetchVersions?.().then(
+      (nextVersionData) => {
+        setVersionsData(nextVersionData)
+      }
+    ).catch((error: unknown) => {
+      console.error('Error fetching versions:', error)
+      setVersionsData(undefined)
+    })
+  }, [source])
+
+  if (!versionsData) return null
+  const { label, versions } = versionsData
 
   return <Dropdown label={label} className={cn(styles.versions, customClass?.versions)} align="right">
     {versions.map(({ label, sourceId }) => {
@@ -40,7 +53,7 @@ export default function Breadcrumb({ source, children }: BreadcrumbProps) {
         <a href={routes?.getSourceRouteUrl?.({ sourceId: part.sourceId }) ?? ''} key={depth}>{part.text}</a>
       )}
     </div>
-    {source.versions && <Versions source={source} />}
+    {source.fetchVersions && <Versions source={source} />}
     {children}
   </nav>
 }
