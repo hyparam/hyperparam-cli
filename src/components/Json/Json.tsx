@@ -46,6 +46,8 @@ function isPrimitive(value: unknown): boolean {
 }
 
 function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
+  // the character count is approximate, but it should be enough
+  // to avoid showing too many entries
   const maxCharacterCount = 40
   const separator = ', '
 
@@ -106,6 +108,8 @@ function JsonArray({ array, label }: { array: unknown[], label?: string }): Reac
 }
 
 function CollapsedObject({ obj }: {obj: object}): ReactNode {
+  // the character count is approximate, but it should be enough
+  // to avoid showing too many entries
   const maxCharacterCount = 40
   const separator = ', '
   const kvSeparator = ': '
