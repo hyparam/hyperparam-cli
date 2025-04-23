@@ -5,6 +5,7 @@
   font-size: 18px;
   height: 32px;
   justify-content: space-between;
+  gap: 10px;
   min-height: 32px;
   padding-left: 20px;
   padding-right: 10px;
@@ -44,5 +45,13 @@
     & a:not(:last-child) {
       display: none;
     }
+  }
+}
+
+.versions {
+  margin-left: auto;
+
+  [aria-current] {
+    font-weight: bold;
   }
 }
