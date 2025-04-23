@@ -19,13 +19,15 @@ export const Default: Story = {
         { text: 'part1/', sourceId: '/part1/' },
         { text: 'part2/', sourceId: '/part1/part2/' },
       ],
-      versions: {
-        label: 'Branches',
-        versions: [
-          { label: 'master', sourceId: '/part1/part2/file.txt' },
-          { label: 'dev', sourceId: '/part1/part2/file.txt?branch=dev' },
-          { label: 'refs/convert/parquet', sourceId: '/part1/part2/file.txt?branch=refs/convert/parquet' },
-        ],
+      fetchVersions: () => {
+        return Promise.resolve({
+          label: 'Branches',
+          versions: [
+            { label: 'master', sourceId: '/part1/part2/file.txt' },
+            { label: 'dev', sourceId: '/part1/part2/file.txt?branch=dev' },
+            { label: 'refs/convert/parquet', sourceId: '/part1/part2/file.txt?branch=refs/convert/parquet' },
+          ],
+        })
       },
     },
   },

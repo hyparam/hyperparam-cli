@@ -27,7 +27,7 @@ export interface VersionsData {
 interface BaseSource {
   sourceId: string
   sourceParts: SourcePart[]
-  versions?: VersionsData
+  fetchVersions?: () => Promise<VersionsData>
 }
 
 export interface FileSource extends BaseSource {

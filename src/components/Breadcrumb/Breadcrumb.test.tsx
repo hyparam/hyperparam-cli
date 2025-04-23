@@ -28,15 +28,17 @@ describe('Breadcrumb Component', () => {
     expect(subdir2Link.closest('a')?.getAttribute('href')).toBe('/files?key=subdir1/subdir2/')
   })
 
-  it('handles versions correctly', () => {
+  it('handles versions correctly', async () => {
     const source = getHyperparamSource('subdir1/subdir2/', { endpoint })
     assert(source !== undefined)
-    source.versions = {
-      label: 'Versions',
-      versions: [
-        { label: 'v1.0', sourceId: 'v1.0' },
-        { label: 'v2.0', sourceId: 'v2.0' },
-      ],
+    source.fetchVersions = () => {
+      return Promise.resolve({
+        label: 'Versions',
+        versions: [
+          { label: 'v1.0', sourceId: 'v1.0' },
+          { label: 'v2.0', sourceId: 'v2.0' },
+        ],
+      })
     }
 
     const config: Config = {
@@ -44,11 +46,11 @@ describe('Breadcrumb Component', () => {
         getSourceRouteUrl: ({ sourceId }) => `/files?key=${sourceId}`,
       },
     }
-    const { getByText, getAllByRole } = render(<ConfigProvider value={config}>
+    const { findByText, getAllByRole } = render(<ConfigProvider value={config}>
       <Breadcrumb source={source} />
     </ConfigProvider>)
 
-    const versionsLabel = getByText('Versions')
+    const versionsLabel = await findByText('Versions')
     expect(versionsLabel).toBeDefined()
     const versionLinks = getAllByRole('menuitem')
     expect(versionLinks.length).toBe(2)
