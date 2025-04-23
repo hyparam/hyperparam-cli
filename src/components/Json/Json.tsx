@@ -45,17 +45,6 @@ function isPrimitive(value: unknown): boolean {
   )
 }
 
-function InlineArray({ suffix, children }: {suffix?: string, children?: ReactNode}): ReactNode {
-  return (
-    <>
-      <span className={styles.array}>{'['}</span>
-      <span className={styles.array}>{children}</span>
-      <span className={styles.array}>{']'}</span>
-      {suffix && <span className={styles.comment}>{suffix}</span>}
-    </>
-  )
-}
-
 function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
   const maxCharacterCount = 40
   const separator = ', '
@@ -64,17 +53,17 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
   let suffix: string | undefined = undefined
 
   let characterCount = 0
-  for (const [index, item] of array.entries()) {
+  for (const [index, value] of array.entries()) {
     if (index > 0) {
       characterCount += separator.length
-      children.push(<span key={`separator-${index - 1}`}>, </span>)
+      children.push(<span key={`separator-${index - 1}`}>{separator}</span>)
     }
     // should we continue?
-    if (isPrimitive(item)) {
-      const asString = typeof item === 'bigint' ? item.toString() : JSON.stringify(item)
+    if (isPrimitive(value)) {
+      const asString = typeof value === 'bigint' ? value.toString() : JSON.stringify(value)
       characterCount += asString.length
       if (characterCount < maxCharacterCount) {
-        children.push(<JsonContent json={item} key={`item-${index}`} />)
+        children.push(<JsonContent json={value} key={`value-${index}`} />)
         continue
       }
     }
@@ -83,7 +72,14 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
     suffix = ` length: ${array.length}`
     break
   }
-  return <InlineArray suffix={suffix}>{children}</InlineArray>
+  return (
+    <>
+      <span className={styles.array}>{'['}</span>
+      <span className={styles.array}>{children}</span>
+      <span className={styles.array}>{']'}</span>
+      {suffix && <span className={styles.comment}>{suffix}</span>}
+    </>
+  )
 }
 
 function JsonArray({ array, label }: { array: unknown[], label?: string }): ReactNode {
@@ -109,14 +105,66 @@ function JsonArray({ array, label }: { array: unknown[], label?: string }): Reac
   </>
 }
 
+function CollapsedObject({ obj }: {obj: object}): ReactNode {
+  const maxCharacterCount = 40
+  const separator = ', '
+  const kvSeparator = ': '
+
+  const children: ReactNode[] = []
+  let suffix: string | undefined = undefined
+
+  const entries = Object.entries(obj)
+  let characterCount = 0
+  for (const [index, [key, value]] of entries.entries()) {
+    if (index > 0) {
+      characterCount += separator.length
+      children.push(<span key={`separator-${index - 1}`}>{separator}</span>)
+    }
+    // should we continue?
+    if (isPrimitive(value)) {
+      const asString = typeof value === 'bigint' ? value.toString() : JSON.stringify(value)
+      characterCount += key.length + kvSeparator.length + asString.length
+      if (characterCount < maxCharacterCount) {
+        children.push(<JsonContent json={value as unknown} label={key} key={`value-${index}`} />)
+        continue
+      }
+    }
+    // no: it was the last entry
+    children.push(<span key="rest">...</span>)
+    suffix = ` entries: ${entries.length}`
+    break
+  }
+  return (
+    <>
+      <span className={styles.object}>{'{'}</span>
+      <span className={styles.object}>{children}</span>
+      <span className={styles.object}>{'}'}</span>
+      {suffix && <span className={styles.comment}>{suffix}</span>}
+    </>
+  )
+}
+
+function shouldCollapse(obj: object): boolean {
+  const values = Object.values(obj)
+  if (
+    // if all the values are primitive
+    values.every(value => isPrimitive(value))
+    // if the object has too many entries
+    || values.length >= 100
+  ) {
+    return true
+  }
+  return false
+}
+
 function JsonObject({ obj, label }: { obj: object, label?: string }): ReactNode {
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed, setCollapsed] = useState(shouldCollapse(obj))
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
     return <div className={styles.clickable} onClick={() => { setCollapsed(false) }}>
       <span className={styles.drill}>{'\u25B6'}</span>
       {key}
-      <span className={styles.object}>{'{...}'}</span>
+      <CollapsedObject obj={obj}></CollapsedObject>
     </div>
   }
   return <>

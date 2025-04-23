@@ -36,11 +36,30 @@ export const Arrays: Story = {
       numbers1: Array.from({ length: 1 }, (_, i) => i),
       numbers8: Array.from({ length: 8 }, (_, i) => i),
       numbers100: Array.from({ length: 100 }, (_, i) => i),
+      strings2: Array.from({ length: 2 }, (_, i) => `hello ${i}`),
       strings8: Array.from({ length: 8 }, (_, i) => `hello ${i}`),
       strings100: Array.from({ length: 100 }, (_, i) => `hello ${i}`),
       misc: Array.from({ length: 8 }, (_, i) => i % 2 ? `hello ${i}` : i),
       misc2: Array.from({ length: 8 }, (_, i) => i % 3 === 0 ? i : i % 3 === 1 ? `hello ${i}` : [i, i + 1, i + 2]),
       arrays100: Array.from({ length: 100 }, (_, i) => [i, i + 1, i + 2]),
+    },
+    label: 'json',
+  },
+  render,
+}
+
+export const Objects: Story = {
+  args: {
+    json: {
+      empty: {},
+      numbers1: { k0: 1 },
+      numbers8: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, i])),
+      numbers100: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${i}`, i])),
+      strings8: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, `hello ${i}`])),
+      strings100: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${i}`, `hello ${i}`])),
+      misc: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, i % 2 ? `hello ${i}` : i])),
+      misc2: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, i % 3 === 0 ? i : i % 3 === 1 ? `hello ${i}` : [i, i + 1, i + 2]])),
+      arrays100: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${i}`, [i, i + 1, i + 2]])),
     },
     label: 'json',
   },
