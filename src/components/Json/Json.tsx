@@ -1,5 +1,6 @@
 import { ReactNode, useState } from 'react'
 import styles from './Json.module.css'
+import { isPrimitive, shouldObjectCollapse } from './helpers.js'
 
 interface JsonProps {
   json: unknown
@@ -34,15 +35,6 @@ function JsonContent({ json, label }: JsonProps): ReactNode {
     }
   }
   return div
-}
-
-function isPrimitive(value: unknown): boolean {
-  return (
-    value !== undefined &&
-    !Array.isArray(value) &&
-    typeof value !== 'object' &&
-    typeof value !== 'function'
-  )
 }
 
 function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
@@ -148,21 +140,8 @@ function CollapsedObject({ obj }: {obj: object}): ReactNode {
   )
 }
 
-function shouldCollapse(obj: object): boolean {
-  const values = Object.values(obj)
-  if (
-    // if all the values are primitive
-    values.every(value => isPrimitive(value))
-    // if the object has too many entries
-    || values.length >= 100
-  ) {
-    return true
-  }
-  return false
-}
-
 function JsonObject({ obj, label }: { obj: object, label?: string }): ReactNode {
-  const [collapsed, setCollapsed] = useState(shouldCollapse(obj))
+  const [collapsed, setCollapsed] = useState(shouldObjectCollapse(obj))
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
     return <div className={styles.clickable} onClick={() => { setCollapsed(false) }}>

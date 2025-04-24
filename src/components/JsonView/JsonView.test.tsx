@@ -13,8 +13,9 @@ globalThis.fetch = vi.fn()
 describe('JsonView Component', () => {
   const encoder = new TextEncoder()
 
-  it('renders json content as nested lists', async () => {
-    const body = encoder.encode('{"key":"value"}').buffer as ArrayBuffer
+  it('renders json content as nested lists (if not collapsed)', async () => {
+    const text = '{"key":["value"]}'
+    const body = encoder.encode(text).buffer as ArrayBuffer
     const source: FileSource = {
       resolveUrl: 'testKey0',
       kind: 'file',
@@ -25,7 +26,7 @@ describe('JsonView Component', () => {
     vi.mocked(fetch).mockResolvedValueOnce({
       status: 200,
       headers: new Headers({ 'Content-Length': body.byteLength.toString() }),
-      text: () => Promise.resolve('{"key":"value"}'),
+      text: () => Promise.resolve(text),
     } as Response)
 
     const { findByRole, findByText } = render(
