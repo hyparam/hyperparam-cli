@@ -52,3 +52,9 @@
 .string {
   color: #eaa;
 }
+.other {
+  color: #d6d6d6;
+}
+.comment {
+  color: #ccd8;
+}
