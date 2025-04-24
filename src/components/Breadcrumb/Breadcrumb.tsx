@@ -53,7 +53,7 @@ export default function Breadcrumb({ source, children }: BreadcrumbProps) {
         <a href={routes?.getSourceRouteUrl?.({ sourceId: part.sourceId }) ?? ''} key={depth}>{part.text}</a>
       )}
     </div>
-    {source.fetchVersions && <Versions source={source} />}
     {children}
+    {source.fetchVersions && <Versions source={source} />}
   </nav>
 }

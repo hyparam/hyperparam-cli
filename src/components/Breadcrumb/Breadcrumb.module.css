@@ -23,7 +23,7 @@
 /* file path */
 .path {
   margin: 0 2px;
-  margin-right: 4px;
+  margin-right: auto;
   min-width: 0;
   overflow: auto;
   /* TODO(SL): forbid wrap + use an ellipsis instead? */
@@ -49,7 +49,7 @@
 }
 
 .versions {
-  margin-left: auto;
+  padding-left: 4px;
 
   [aria-current] {
     font-weight: bold;
