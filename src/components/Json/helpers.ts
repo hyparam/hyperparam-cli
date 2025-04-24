@@ -1,6 +1,7 @@
 export function isPrimitive(value: unknown): boolean {
   return (
-    value !== undefined &&
+    value === undefined ||
+    value === null ||
     !Array.isArray(value) &&
     typeof value !== 'object' &&
     typeof value !== 'function'

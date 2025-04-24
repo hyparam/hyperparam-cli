@@ -29,9 +29,12 @@ function JsonContent({ json, label }: JsonProps): ReactNode {
       div = <>{key}<span className={styles.number}>{JSON.stringify(json)}</span></>
     } else if (typeof json === 'bigint') {
       // it's not really json, but show it anyway
-      div = <>{key}<span>{json.toString()}</span></>
+      div = <>{key}<span className={styles.number}>{json.toString()}</span></>
+    } else if (json === undefined) {
+      // it's not json
+      div = <>{key}<span className={styles.other}>undefined</span></>
     } else {
-      div = <>{key}<span>{JSON.stringify(json)}</span></>
+      div = <>{key}<span className={styles.other}>{JSON.stringify(json)}</span></>
     }
   }
   return div
@@ -54,7 +57,9 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
     }
     // should we continue?
     if (isPrimitive(value)) {
-      const asString = typeof value === 'bigint' ? value.toString() : JSON.stringify(value)
+      const asString = typeof value === 'bigint' ? value.toString() :
+        value === undefined ? 'undefined' /* see JsonContent - even if JSON.stringify([undefined]) === '[null]' */:
+          JSON.stringify(value)
       characterCount += asString.length
       if (characterCount < maxCharacterCount) {
         children.push(<JsonContent json={value} key={`value-${index}`} />)
@@ -118,7 +123,9 @@ function CollapsedObject({ obj }: {obj: object}): ReactNode {
     }
     // should we continue?
     if (isPrimitive(value)) {
-      const asString = typeof value === 'bigint' ? value.toString() : JSON.stringify(value)
+      const asString = typeof value === 'bigint' ? value.toString() :
+        value === undefined ? 'undefined' /* see JsonContent - even if JSON.stringify([undefined]) === '[null]' */:
+          JSON.stringify(value)
       characterCount += key.length + kvSeparator.length + asString.length
       if (characterCount < maxCharacterCount) {
         children.push(<JsonContent json={value as unknown} label={key} key={`value-${index}`} />)

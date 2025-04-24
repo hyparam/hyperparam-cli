@@ -36,6 +36,7 @@ describe('Json Component', () => {
     ['foo', 'bar'],
     [],
     [1, 2, 3],
+    [1, 'foo', null, undefined],
   ])('shows short arrays of primitive items, without trailing comment about length', (array) => {
     const { queryByText } = render(<Json json={array} />)
     expect(queryByText('...')).toBeNull()
@@ -43,7 +44,7 @@ describe('Json Component', () => {
   })
 
   it.for([
-    [1, 'foo', null],
+    [1, 'foo', [1, 2, 3]],
     Array.from({ length: 101 }, (_, i) => i),
   ])('hides long arrays, and non-primitive items, with trailing comment about length', (array) => {
     const { queryByText } = render(<Json json={array} />)
@@ -66,8 +67,6 @@ describe('Json Component', () => {
   })
 
   it.for([
-    { obj: undefined },
-    { obj: null },
     { obj: [314, null] },
     { obj: { nested: true } },
   ])('expands short objects with non-primitive values', (obj) => {
@@ -76,8 +75,6 @@ describe('Json Component', () => {
   })
 
   it.for([
-    { obj: undefined },
-    { obj: null },
     { obj: [314, null] },
     { obj: { nested: true } },
   ])('hides the content and append number of entries when objects with non-primitive values are collapsed', (obj) => {
@@ -90,7 +87,7 @@ describe('Json Component', () => {
   it.for([
     {},
     { a: 1, b: 2 },
-    { a: 1, b: true },
+    { a: 1, b: true, c: null, d: undefined },
     Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }])),
   ])('collapses long objects, or objects with only primitive values (included empty object)', (obj) => {
     const { queryByText } = render(<Json json={obj} />)
@@ -107,25 +104,23 @@ describe('Json Component', () => {
   })
 
   it('toggles array collapse state', () => {
-    const { getByText, queryByText } = render(<Json json={['foo', null]} />)
-    expect(getByText('"foo"')).toBeDefined()
-    expect(queryByText('null')).toBeNull()
+    const longArray = Array.from({ length: 101 }, (_, i) => i)
+    const { getByText, queryByText } = render(<Json json={longArray} />)
+    expect(getByText('...')).toBeDefined()
     fireEvent.click(getByText('▶'))
-    expect(getByText('null')).toBeDefined()
+    expect(queryByText('...')).toBeNull()
     fireEvent.click(getByText('▼'))
-    expect(getByText('"foo"')).toBeDefined()
-    expect(queryByText('null')).toBeNull()
+    expect(getByText('...')).toBeDefined()
   })
 
   it('toggles object collapse state', () => {
-    const { getByText, queryByText } = render(<Json json={{ key: 'value' }} />)
-    expect(getByText('key:')).toBeDefined()
-    expect(getByText('"value"')).toBeDefined()
+    const longObject = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }]))
+    const { getByText, queryByText } = render(<Json json={longObject} />)
+    expect(getByText('...')).toBeDefined()
     fireEvent.click(getByText('▶'))
-    expect(queryByText('key: "value"')).toBeNull()
+    expect(queryByText('...')).toBeNull()
     fireEvent.click(getByText('▼'))
-    expect(getByText('key:')).toBeDefined()
-    expect(getByText('"value"')).toBeDefined()
+    expect(getByText('...')).toBeDefined()
   })
 })
 
@@ -135,8 +130,8 @@ describe('isPrimitive', () => {
     expect(isPrimitive(42)).toBe(true)
     expect(isPrimitive(true)).toBe(true)
     expect(isPrimitive(1n)).toBe(true)
-    expect(isPrimitive(null)).toBe(false)
-    expect(isPrimitive(undefined)).toBe(false)
+    expect(isPrimitive(null)).toBe(true)
+    expect(isPrimitive(undefined)).toBe(true)
     expect(isPrimitive({})).toBe(false)
     expect(isPrimitive([])).toBe(false)
   })
