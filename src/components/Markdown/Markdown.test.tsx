@@ -29,6 +29,21 @@ describe('Markdown', () => {
     expect(container.querySelector('em')).toBeNull()
   })
 
+  it('does not italicize snake case', () => {
+    const text = 'Variables snake_post_ and mid_snake_case and _init_snake should not be italicized.'
+    const { container, getByText } = render(<Markdown text={text} />)
+    expect(container.innerHTML).not.toContain('<em>')
+    expect(container.innerHTML).toContain('mid_snake_case')
+    expect(getByText(text)).toBeDefined()
+  })
+
+  it('does italicize surrounding underscores', () => {
+    const text = '_this_one_tho_'
+    const { container, getByText } = render(<Markdown text={text} />)
+    expect(getByText('this_one_tho')).toBeDefined()
+    expect(container.querySelector('em')).toBeDefined()
+  })
+
   it('renders headers', () => {
     const text = '# Heading 1\n## Heading 2\n### Heading 3'
     const { getByText } = render(<Markdown text={text} />)
