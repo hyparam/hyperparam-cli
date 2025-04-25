@@ -235,7 +235,10 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
 
   while (i < text.length) {
     if (stop && text.startsWith(stop, i)) {
-      return [tokens, i]
+      // if we're closing "_", only do so when it's a real closing‐underscore
+      if (stop !== '_' || isClosingUnderscore(text, i)) {
+        return [tokens, i]
+      }
     }
 
     // Image: ![alt](src)
@@ -336,8 +339,8 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       continue
     }
 
-    // Italic (* or _)
-    if (text[i] === '*' || text[i] === '_') {
+    // Italic opener: "*" always, "_" only when isOpeningUnderscore
+    if (text[i] === '*' || text[i] === '_' && isOpeningUnderscore(text, i)) {
       const delimiter = text[i]
       // For '*' only: if surrounding non-space chars are digits, treat as literal
       if (delimiter === '*') {
@@ -361,11 +364,21 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
           continue
         }
       }
-      i++
-      const [innerTokens, consumed] = parseInlineRecursive(text.slice(i), delimiter)
-      i += consumed
-      i++ // skip closing delimiter
-      tokens.push({ type: 'italic', children: innerTokens })
+
+      // look ahead for the rest of the text
+      const rest = text.slice(i + 1)
+      const [innerTokens, consumed] = parseInlineRecursive(rest, delimiter)
+
+      if (consumed < rest.length) {
+        // we found a real closing delimiter
+        tokens.push({ type: 'italic', children: innerTokens })
+        // skip open, inner content, and closing
+        i += 1 + consumed + 1
+      } else if (delimiter) {
+        // no closing delimiter — just emit a literal underscore/star
+        tokens.push({ type: 'text', content: delimiter })
+        i += 1
+      }
       continue
     }
 
@@ -376,10 +389,12 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       && text[j] !== '`'
       && !(text.startsWith('**', j) || text.startsWith('__', j))
       && text[j] !== '*'
-      && text[j] !== '_'
+      && !(text[j] === '_' && isOpeningUnderscore(text, j))
       && text[j] !== '['
-      // && text[j] !== '!'
-      && !(stop && text.startsWith(stop, j))
+     // only break on stop when it's a real delimiter
+     && !(stop
+          && text.startsWith(stop, j)
+          && (stop !== '_' || isClosingUnderscore(text, j)))
       // handle ![alt](src) for images but not for `text!`
       && !(text[j] === '!' && j + 1 < text.length && text[j + 1] === '[')
     ) {
@@ -390,6 +405,19 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
   }
 
   return [tokens, i]
+}
+
+function isOpeningUnderscore(text: string, pos: number): boolean {
+  const prev = text[pos - 1] ?? '\n'
+  const next = text[pos + 1] ?? '\n'
+  // can open only if next isn't whitespace, and prev isn't alnum
+  return !/\s/.test(next) && !/\w/.test(prev)
+}
+function isClosingUnderscore(text: string, pos: number): boolean {
+  const prev = text[pos - 1] ?? '\n'
+  const next = text[pos + 1] ?? '\n'
+  // can close only if prev isn't whitespace, and next isn't alnum
+  return !/\s/.test(prev) && !/\w/.test(next)
 }
 
 function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
