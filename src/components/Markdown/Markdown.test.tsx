@@ -29,6 +29,13 @@ describe('Markdown', () => {
     expect(container.querySelector('em')).toBeNull()
   })
 
+  it('does italicize numbers without spaces', () => {
+    const text = 'Four should be italic: 3*4*5.'
+    const { container, getByText } = render(<Markdown text={text} />)
+    expect(getByText('4')).toBeDefined()
+    expect(container.querySelector('em')).toBeDefined()
+  })
+
   it('does not italicize snake case', () => {
     const text = 'Variables snake_post_ and mid_snake_case and _init_snake should not be italicized.'
     const { container, getByText } = render(<Markdown text={text} />)
@@ -42,6 +49,14 @@ describe('Markdown', () => {
     const { container, getByText } = render(<Markdown text={text} />)
     expect(getByText('this_one_tho')).toBeDefined()
     expect(container.querySelector('em')).toBeDefined()
+  })
+
+  it('renders single asterisks for italic', () => {
+    const text = '*single asterisks*'
+    const { getByText } = render(<Markdown text={text} />)
+    const italicText = getByText('single asterisks')
+    expect(italicText).toBeDefined()
+    expect(italicText.tagName).toBe('EM')
   })
 
   it('renders headers', () => {

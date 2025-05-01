@@ -235,8 +235,12 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
 
   while (i < text.length) {
     if (stop && text.startsWith(stop, i)) {
-      // if we're closing "_", only do so when it's a real closing‐underscore
-      if (stop !== '_' || isClosingUnderscore(text, i)) {
+      // validate closing delimiter
+      const validClosing =
+        (stop !== '_' || isClosingUnderscore(text, i)) &&
+        (stop !== '*' || isClosingAsterisk(text, i))
+
+      if (validClosing) {
         return [tokens, i]
       }
     }
@@ -339,31 +343,12 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       continue
     }
 
-    // Italic opener: "*" always, "_" only when isOpeningUnderscore
-    if (text[i] === '*' || text[i] === '_' && isOpeningUnderscore(text, i)) {
+    // Italic opener: "*" when left-flanking, "_" only when isOpeningUnderscore
+    if (
+      text[i] === '*' && isOpeningAsterisk(text, i) ||
+      text[i] === '_' && isOpeningUnderscore(text, i)
+    ) {
       const delimiter = text[i]
-      // For '*' only: if surrounding non-space chars are digits, treat as literal
-      if (delimiter === '*') {
-        let j = i - 1
-        while (j >= 0 && text[j] === ' ') j--
-        const characterAtJ = text[j]
-        if (characterAtJ === undefined) {
-          throw new Error(`Character at index ${j} is undefined`)
-        }
-        const prevIsDigit = j >= 0 && /\d/.test(characterAtJ)
-        let k = i + 1
-        while (k < text.length && text[k] === ' ') k++
-        const characterAtK = text[k]
-        if (characterAtK === undefined) {
-          throw new Error(`Character at index ${j} is undefined`)
-        }
-        const nextIsDigit = k < text.length && /\d/.test(characterAtK)
-        if (prevIsDigit && nextIsDigit) {
-          tokens.push({ type: 'text', content: delimiter })
-          i++
-          continue
-        }
-      }
 
       // look ahead for the rest of the text
       const rest = text.slice(i + 1)
@@ -385,23 +370,29 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
     // Otherwise, consume plain text until next special character or end
     let j = i
     while (
-      j < text.length
-      && text[j] !== '`'
-      && !(text.startsWith('**', j) || text.startsWith('__', j))
-      && text[j] !== '*'
-      && !(text[j] === '_' && isOpeningUnderscore(text, j))
-      && text[j] !== '['
-     // only break on stop when it's a real delimiter
-     && !(stop
-          && text.startsWith(stop, j)
-          && (stop !== '_' || isClosingUnderscore(text, j)))
-      // handle ![alt](src) for images but not for `text!`
-      && !(text[j] === '!' && j + 1 < text.length && text[j + 1] === '[')
+      j < text.length &&
+      text[j] !== '`' &&
+      !(text.startsWith('**', j) || text.startsWith('__', j)) &&
+      text[j] !== '*' &&
+      !(text[j] === '_' && isOpeningUnderscore(text, j)) &&
+      text[j] !== '[' &&
+      !(stop &&
+        text.startsWith(stop, j) &&
+        (stop !== '_' || isClosingUnderscore(text, j)) &&
+        (stop !== '*' || isClosingAsterisk(text, j))) &&
+      !(text[j] === '!' && j + 1 < text.length && text[j + 1] === '[')
     ) {
       j++
     }
-    tokens.push({ type: 'text', content: text.slice(i, j) })
-    i = j
+
+    if (j === i) {
+      // didn't consume anything – treat the single char literally
+      tokens.push({ type: 'text', content: text[i] ?? '' })
+      i++
+    } else {
+      tokens.push({ type: 'text', content: text.slice(i, j) })
+      i = j
+    }
   }
 
   return [tokens, i]
@@ -418,6 +409,15 @@ function isClosingUnderscore(text: string, pos: number): boolean {
   const next = text[pos + 1] ?? '\n'
   // can close only if prev isn't whitespace, and next isn't alnum
   return !/\s/.test(prev) && !/\w/.test(next)
+}
+
+function isOpeningAsterisk(text: string, pos: number): boolean {
+  const next = text[pos + 1] ?? '\n'
+  return !/\s/.test(next) // next char is not whitespace
+}
+function isClosingAsterisk(text: string, pos: number): boolean {
+  const prev = text[pos - 1] ?? '\n'
+  return !/\s/.test(prev) // prev char is not whitespace
 }
 
 function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
