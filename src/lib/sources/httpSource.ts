@@ -52,13 +52,12 @@ function s3listv2(bucket: string, prefix: string) {
     })
 }
 
-function getSourceParts(sourceId: string): SourcePart[] {
+function getS3SourceParts(sourceId: string): SourcePart[] {
   const [protocol, rest] = sourceId.split('://', 2)
   const parts = rest
     ? [`${protocol}://${rest.split('/', 1)[0]}`, ...rest.split('/').slice(1)]
     : sourceId.split('/')
   const sourceParts = [
-    //{ 'text': '/', 'sourceId': '' },
     ...parts.map((part, depth) => {
       const slashSuffix = depth === parts.length - 1 ? '' : '/'
       return {
@@ -78,7 +77,7 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
     return undefined
   }
 
-  const sourceParts = getSourceParts(sourceId)
+  const sourceParts = getS3SourceParts(sourceId)
 
   if (sourceId.endsWith('/')) {
     const url = new URL(sourceId)
@@ -96,11 +95,12 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
       prefix,
       listFiles: () => s3listv2(bucket, prefix).then(items =>
         items
-          .filter(item => item.key !== undefined)
+          .filter(item => Boolean(item.key))
           .map(item => {
-            const isDirectory = item.key!.endsWith('/')
+            if (!item.key) return undefined
+            const isDirectory = item.key.endsWith('/')
             const itemSourceId = `https://${bucket}.s3.amazonaws.com/${item.key}`
-            let name = item.key!.split('/').pop() || item.key
+            let name = item.key.split('/').pop() ?? item.key
             if (name && isDirectory) {
               name = name.replace(prefix, '')
             }
