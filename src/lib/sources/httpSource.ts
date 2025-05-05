@@ -50,9 +50,6 @@ function s3listv2(bucket: string, prefix: string) {
 
       return results
     })
-    .catch(err => {
-      throw new Error(`failed to list S3 objects: ${err.message}`)
-    })
 }
 
 function getSourceParts(sourceId: string): SourcePart[] {
@@ -121,7 +118,7 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
   return {
     kind: 'file',
     sourceId,
-    sourceParts: sourceParts,
+    sourceParts,
     fileName: getFileName(sourceId),
     resolveUrl: sourceId,
     requestInit: options?.requestInit,
