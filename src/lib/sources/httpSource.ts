@@ -25,7 +25,7 @@ function s3listv2(bucket: string, prefix: string) {
 
         const key = keyMatch[1]
         const lastModified = lastModifiedMatch[1]
-        const size = sizeMatch ? parseInt(sizeMatch[1], 10) : undefined
+        const size = sizeMatch ? parseInt(sizeMatch[1] ?? '', 10) : undefined
         const eTag = eTagMatch ? eTagMatch[1] : undefined
 
         results.push({ key, lastModified, size, eTag })
