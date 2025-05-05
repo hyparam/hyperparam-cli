@@ -81,6 +81,8 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
     return undefined
   }
 
+  const sourceParts = getSourceParts(sourceId)
+
   if (sourceId.endsWith('/')) {
     const url = new URL(sourceId)
     const bucket = url.hostname.split('.')[0]
@@ -89,8 +91,6 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
     if (!bucket) {
       return undefined
     }
-
-    const sourceParts = getSourceParts(sourceId)
 
     return {
       kind: 'directory',
@@ -121,7 +121,7 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
   return {
     kind: 'file',
     sourceId,
-    sourceParts: [{ text: sourceId, sourceId }],
+    sourceParts: sourceParts,
     fileName: getFileName(sourceId),
     resolveUrl: sourceId,
     requestInit: options?.requestInit,
