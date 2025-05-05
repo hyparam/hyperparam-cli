@@ -1,7 +1,7 @@
 import { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
-function s3listv2(bucket: string, prefix: string) {
+function s3list(bucket: string, prefix: string) {
   const url = `https://${bucket}.s3.amazonaws.com/?list-type=2&prefix=${prefix}&delimiter=/`
   return fetch(url)
     .then(res => {
@@ -58,7 +58,6 @@ function getSourceParts(sourceId: string): SourcePart[] {
     ? [`${protocol}://${rest.split('/', 1)[0]}`, ...rest.split('/').slice(1)]
     : sourceId.split('/')
   const sourceParts = [
-    //{ 'text': '/', 'sourceId': '' },
     ...parts.map((part, depth) => {
       const slashSuffix = depth === parts.length - 1 ? '' : '/'
       return {
@@ -94,13 +93,17 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
       sourceId,
       sourceParts,
       prefix,
-      listFiles: () => s3listv2(bucket, prefix).then(items =>
+      listFiles: () => s3list(bucket, prefix).then(items =>
         items
           .filter(item => item.key !== undefined)
           .map(item => {
-            const isDirectory = item.key!.endsWith('/')
+            if (!item.key) {
+              throw new Error('Key is undefined')
+            }
+            const isDirectory = item.key.endsWith('/')
             const itemSourceId = `https://${bucket}.s3.amazonaws.com/${item.key}`
-            let name = item.key!.split('/').pop() || item.key
+            // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+            let name = item.key.split('/').pop() || item.key
             if (name && isDirectory) {
               name = name.replace(prefix, '')
             }

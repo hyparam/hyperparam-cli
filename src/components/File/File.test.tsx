@@ -44,9 +44,16 @@ describe('File Component', () => {
     const source = getHttpSource(url)
     assert(source?.kind === 'file')
 
-    const { getByText } = await act(() => render(<File source={source} />))
+    const { getAllByRole } = await act(() => render(
+      <ConfigProvider value={config}>
+        <File source={source} />
+      </ConfigProvider>
+    ))
 
-    expect(getByText(url)).toBeDefined()
+    const links = getAllByRole('link')
+    expect(links[0]?.getAttribute('href')).toBe('/')
+    expect(links[1]?.getAttribute('href')).toBe('/files?key=https://example.com/')
+    expect(links[2]?.getAttribute('href')).toBe('/files?key=https://example.com/test.txt')
   })
 
   it('renders correct breadcrumbs for nested folders', async () => {
