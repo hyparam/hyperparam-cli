@@ -1,4 +1,4 @@
-import { avroData, avroMetadata } from 'icebird'
+import { avroMetadata, avroRead } from 'icebird'
 import { useEffect, useState } from 'react'
 import type { FileSource } from '../../lib/sources/types.js'
 import { parseFileSize } from '../../lib/utils.js'
@@ -38,7 +38,7 @@ export default function AvroView({ source, setError }: ViewerProps) {
         const fileSize = parseFileSize(res.headers) ?? buffer.byteLength
         const reader = { view: new DataView(buffer), offset: 0 }
         const { metadata, syncMarker } = avroMetadata(reader)
-        const json = avroData({ reader, metadata, syncMarker })
+        const json = avroRead({ reader, metadata, syncMarker })
         setError(undefined)
         setContent({ fileSize })
         setJson(json)
