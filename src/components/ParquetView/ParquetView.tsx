@@ -78,13 +78,23 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
     return appendSearchParams({ col: col.toString(), row: row.toString() })
   }, [routes, sourceId])
 
+  const toggleCell = useCallback((col: number, row: number) => {
+    setCell(cell => {
+      if (cell?.col === col && cell.row === row) {
+        return undefined
+      }
+      return { row, col }
+    })
+  }, [])
   const onDoubleClickCell = useCallback((_event: React.MouseEvent, col: number, row: number) => {
-    if (cell?.col === col && cell.row === row) {
-      setCell(undefined)
-    } else {
-      setCell({ row, col })
+    toggleCell(col, row)
+  }, [toggleCell])
+  const onKeyDownCell = useCallback((event: React.KeyboardEvent, col: number, row: number) => {
+    if (event.key === 'Enter') {
+      event.preventDefault()
+      toggleCell(col, row)
     }
-  }, [cell])
+  }, [toggleCell])
   const onMouseDownCell = useCallback((event: React.MouseEvent, col: number, row: number) => {
     if (event.button === 1) {
       // Middle click open in new tab
@@ -101,6 +111,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
       data={content.dataframe}
       onDoubleClickCell={onDoubleClickCell}
       onMouseDownCell={onMouseDownCell}
+      onKeyDownCell={onKeyDownCell}
       onError={setError}
       className={cn(styles.hightable, customClass?.highTable)}
     />}
