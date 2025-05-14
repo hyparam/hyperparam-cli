@@ -57,8 +57,8 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     }
   }
 
-  function fetchRowGroup(groupIndex: number) {
-    const group = groups[groupIndex]
+  function fetchVirtualRowGroup(virtualGroupIndex: number) {
+    const group = groups[virtualGroupIndex]
     if (group && !group.fetching) {
       group.fetching = true
       const { groupStart, groupEnd } = group
@@ -69,15 +69,14 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       }
       parquetQueryWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd })
         .then(groupData => {
-          for (let i = groupStart; i < groupEnd; i++) {
-            const dataRow = data[i]
+          for (let rowIndex = groupStart; rowIndex < groupEnd; rowIndex++) {
+            const dataRow = data[rowIndex]
             if (dataRow === undefined) {
-              throw new Error(`Missing data row for index ${i}`)
+              throw new Error(`Missing data row for index ${rowIndex}`)
             }
-            const j = i - groupStart
-            const row = groupData[j]
+            const row = groupData[rowIndex - groupStart]
             if (row === undefined) {
-              throw new Error(`Missing row in groupData for index: ${i - groupStart}`)
+              throw new Error(`Missing row in groupData for index ${rowIndex}`)
             }
             for (const [key, value] of Object.entries(row)) {
               const cell = dataRow.cells[key]
@@ -89,9 +88,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           }
         })
         .catch((error: unknown) => {
-          const prefix = `Error fetching row group ${groupIndex} (${groupStart}-${groupEnd}).`
-          console.error(prefix, error)
-          const reason = `${prefix} ${error}`
+          const reason = `Error fetching rows ${groupStart}-${groupEnd}: ${error}`
           // reject the index of the first row (it's enough to trigger the error bar)
           data[groupStart]?.index.reject(reason)
         })
@@ -132,7 +129,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           // Compute row groups to fetch
           for (const index of indices.slice(start, end)) {
             const groupIndex = groups.findIndex(({ groupEnd }) => index < groupEnd)
-            fetchRowGroup(groupIndex)
+            fetchVirtualRowGroup(groupIndex)
           }
 
           // Re-assemble data in sorted order into wrapped
@@ -178,7 +175,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       } else {
         groups.forEach(({ groupStart, groupEnd }, i) => {
           if (groupStart < end && groupEnd > start) {
-            fetchRowGroup(i)
+            fetchVirtualRowGroup(i)
           }
         })
         const wrapped = data.slice(start, end)
