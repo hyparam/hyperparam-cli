@@ -48,6 +48,7 @@ export default typescript.config(
       eqeqeq: 'error',
       'func-style': ['error', 'declaration'],
       indent: ['error', 2, { SwitchCase: 1 }],
+      'key-spacing': 'error',
       'no-constant-condition': 'off',
       'no-extra-parens': 'error',
       'no-multi-spaces': 'error',
