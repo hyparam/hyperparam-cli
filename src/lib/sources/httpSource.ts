@@ -1,55 +1,53 @@
 import { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
-function s3list(bucket: string, prefix: string) {
+async function s3list(bucket: string, prefix: string) {
   const url = `https://${bucket}.s3.amazonaws.com/?list-type=2&prefix=${prefix}&delimiter=/`
-  return fetch(url)
-    .then(res => {
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`)
-      return res.text()
+  const result = await fetch(url)
+  if (!result.ok) {
+    throw new Error(`${result.status} ${result.statusText}`)
+  }
+  const text = await result.text()
+  const results = []
+
+  // Parse regular objects (files and explicit directories)
+  const contentsRegex = /<Contents>(.*?)<\/Contents>/gs
+  const contentsMatches = text.match(contentsRegex) ?? []
+
+  for (const match of contentsMatches) {
+    const keyMatch = /<Key>(.*?)<\/Key>/.exec(match)
+    const lastModifiedMatch = /<LastModified>(.*?)<\/LastModified>/.exec(match)
+    const sizeMatch = /<Size>(.*?)<\/Size>/.exec(match)
+    const eTagMatch = /<ETag>&quot;(.*?)&quot;<\/ETag>/.exec(match) ?? /<ETag>"(.*?)"<\/ETag>/.exec(match)
+
+    if (!keyMatch || !lastModifiedMatch) continue
+
+    const key = keyMatch[1]
+    const lastModified = lastModifiedMatch[1]
+    const size = sizeMatch ? parseInt(sizeMatch[1] ?? '', 10) : undefined
+    const eTag = eTagMatch ? eTagMatch[1] : undefined
+
+    results.push({ key, lastModified, size, eTag })
+  }
+
+  // Parse CommonPrefixes (virtual directories)
+  const prefixRegex = /<CommonPrefixes>(.*?)<\/CommonPrefixes>/gs
+  const prefixMatches = text.match(prefixRegex) ?? []
+
+  for (const match of prefixMatches) {
+    const prefixMatch = /<Prefix>(.*?)<\/Prefix>/.exec(match)
+    if (!prefixMatch) continue
+
+    const key = prefixMatch[1]
+    results.push({
+      key,
+      lastModified: new Date().toISOString(), // No lastModified for CommonPrefixes
+      size: 0,
+      isCommonPrefix: true,
     })
-    .then(text => {
-      const results = []
+  }
 
-      // Parse regular objects (files and explicit directories)
-      const contentsRegex = /<Contents>(.*?)<\/Contents>/gs
-      const contentsMatches = text.match(contentsRegex) ?? []
-
-      for (const match of contentsMatches) {
-        const keyMatch = /<Key>(.*?)<\/Key>/.exec(match)
-        const lastModifiedMatch = /<LastModified>(.*?)<\/LastModified>/.exec(match)
-        const sizeMatch = /<Size>(.*?)<\/Size>/.exec(match)
-        const eTagMatch = /<ETag>&quot;(.*?)&quot;<\/ETag>/.exec(match) ?? /<ETag>"(.*?)"<\/ETag>/.exec(match)
-
-        if (!keyMatch || !lastModifiedMatch) continue
-
-        const key = keyMatch[1]
-        const lastModified = lastModifiedMatch[1]
-        const size = sizeMatch ? parseInt(sizeMatch[1] ?? '', 10) : undefined
-        const eTag = eTagMatch ? eTagMatch[1] : undefined
-
-        results.push({ key, lastModified, size, eTag })
-      }
-
-      // Parse CommonPrefixes (virtual directories)
-      const prefixRegex = /<CommonPrefixes>(.*?)<\/CommonPrefixes>/gs
-      const prefixMatches = text.match(prefixRegex) ?? []
-
-      for (const match of prefixMatches) {
-        const prefixMatch = /<Prefix>(.*?)<\/Prefix>/.exec(match)
-        if (!prefixMatch) continue
-
-        const key = prefixMatch[1]
-        results.push({
-          key,
-          lastModified: new Date().toISOString(), // No lastModified for CommonPrefixes
-          size: 0,
-          isCommonPrefix: true,
-        })
-      }
-
-      return results
-    })
+  return results
 }
 
 function getSourceParts(sourceId: string): SourcePart[] {
