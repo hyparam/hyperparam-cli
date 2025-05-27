@@ -1,6 +1,6 @@
 import { ColumnData, parquetQuery } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-import { getParquetColumn } from '../getParquetColumn.js'
+import { parquetReadColumn } from 'hyparquet/src/read.js'
 import { asyncBufferFrom } from '../utils.js'
 import type { ChunkMessage, ClientMessage, ColumnRanksMessage, ErrorMessage, ResultMessage } from './types.js'
 
@@ -28,10 +28,9 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
     // purpose of sorting.
 
     try {
-      const sortColumn = await getParquetColumn({ metadata, file, column, compressors })
+      const sortColumn: unknown[] = Array.from(await parquetReadColumn({ file, metadata, columns: [column], compressors }))
       const valuesWithIndex = sortColumn.map((value, index) => ({ value, index }))
-      const sortedValuesWithIndex = Array.from(valuesWithIndex).sort(({ value: a }, { value: b }) => compare<unknown>(a, b))
-      const numRows = sortedValuesWithIndex.length
+      const sortedValuesWithIndex = valuesWithIndex.sort(({ value: a }, { value: b }) => compare<unknown>(a, b))
       const columnRanks = sortedValuesWithIndex.reduce((accumulator, currentValue, rank) => {
         const { lastValue, lastRank, ranks } = accumulator
         const { value, index } = currentValue
@@ -43,7 +42,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
           return { ranks, lastValue: value, lastRank: rank }
         }
       }, {
-        ranks: Array(numRows).fill(-1) as number[],
+        ranks: Array(sortColumn.length).fill(-1) as number[],
         lastValue: undefined as unknown,
         lastRank: 0,
       }).ranks
