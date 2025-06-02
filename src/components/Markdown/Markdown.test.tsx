@@ -351,4 +351,15 @@ describe('Markdown with nested elements', () => {
     expect(container.textContent).toBe('[link]')
     expect(container.querySelector('a')).toBeNull()
   })
+
+  it('renders a list immediately after a paragraph', () => {
+    const text = 'List:\n   - First\n   - Second'
+    const { getByText } = render(<Markdown text={text} />)
+    expect(getByText('First')).toBeDefined()
+    expect(getByText('Second')).toBeDefined()
+    expect(getByText('List:')).toBeDefined()
+    expect(getByText('List:').tagName).toBe('P')
+    expect(getByText('First').tagName).toBe('LI')
+    expect(getByText('Second').tagName).toBe('LI')
+  })
 })

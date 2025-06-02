@@ -100,12 +100,18 @@ function parseMarkdown(text: string): Token[] {
 
     // Paragraph
     const paraLines: string[] = []
-    while (i < lines.length && lines[i]?.trim() !== '') {
-      const line = lines[i]
-      if (line === undefined) {
-        throw new Error(`Index ${i} not found in lines`)
-      }
-      paraLines.push(line)
+    while (i < lines.length) {
+      const ln = lines[i]
+      if (ln === undefined) throw new Error(`Index ${i} not found in lines`)
+
+      // stop if we hit a blank line or something that starts its own block
+      if (!ln.trim()) break
+      if (ln.startsWith('```')) break // code block
+      if (ln.startsWith('>')) break // blockquote
+      if (/^(#{1,6})\s+/.test(ln)) break // heading
+      if (/^(\s*)([-*+]|\d+\.)\s+/.test(ln)) break // list item
+
+      paraLines.push(ln)
       i++
     }
     tokens.push({
