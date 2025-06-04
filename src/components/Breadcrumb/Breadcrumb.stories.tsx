@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
 import { ConfigProvider } from '../../hooks/useConfig.js'
 import Breadcrumb from './Breadcrumb.js'
 
