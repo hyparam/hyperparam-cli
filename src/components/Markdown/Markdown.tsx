@@ -67,7 +67,7 @@ function parseMarkdown(text: string): Token[] {
     }
 
     // List (ordered or unordered)
-    const listMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(line)
+    const listMatch = /^(\s*)([-*+–•‣◦○⚬]|\d+\.)\s+(.*)/.exec(line)
     if (listMatch !== null) {
       if (!(1 in listMatch) || !(2 in listMatch)) {
         throw new Error('Missing entries in regex matches')
@@ -109,7 +109,7 @@ function parseMarkdown(text: string): Token[] {
       if (ln.startsWith('```')) break // code block
       if (ln.startsWith('>')) break // blockquote
       if (/^(#{1,6})\s+/.test(ln)) break // heading
-      if (/^(\s*)([-*+]|\d+\.)\s+/.test(ln)) break // list item
+      if (/^(\s*)([-*+–•‣◦○⚬]|\d+\.)\s+/.test(ln)) break // list item
 
       paraLines.push(ln)
       i++
@@ -137,7 +137,7 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
     }
 
     // This matches a new top-level bullet/number for the list
-    const match = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(line)
+    const match = /^(\s*)([-*+–•‣◦○⚬]|\d+\.)\s+(.*)/.exec(line)
     // If we don't find a bullet/number at the same indent, break out
     if (match === null || !(1 in match) || match[1].length !== baseIndent || !(3 in match)) {
       break
@@ -186,7 +186,7 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
         }
 
         // Check for nested list
-        const sublistMatch = /^(\s*)([-*+]|\d+\.)\s+(.*)/.exec(subline)
+        const sublistMatch = /^(\s*)([-*+–•‣◦○⚬]|\d+\.)\s+(.*)/.exec(subline)
         if (sublistMatch && 1 in sublistMatch && sublistMatch[1].length > baseIndent && 2 in sublistMatch) {
           const newBaseIndent = sublistMatch[1].length
           const ordered = /^\d+\./.test(sublistMatch[2])
