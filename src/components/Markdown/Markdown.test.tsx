@@ -239,6 +239,22 @@ describe('Markdown lists', () => {
     expect(codeBlock).toBeDefined()
     expect(codeBlock?.textContent).toContain('console.log("Nested code")')
   })
+
+  it('renders a list with unicode dash –', () => {
+    const text = '– Item 1\n– Item 2\n– Item 3\n\n'
+    const { getByText } = render(<Markdown text={text} />)
+    expect(getByText('Item 1')).toBeDefined()
+    expect(getByText('Item 2')).toBeDefined()
+    expect(getByText('Item 3')).toBeDefined()
+  })
+
+  it('renders a list with unicode dot •', () => {
+    const text = '• Item 1\n• Item 2\n• Item 3\n\n'
+    const { getByText } = render(<Markdown text={text} />)
+    expect(getByText('Item 1')).toBeDefined()
+    expect(getByText('Item 2')).toBeDefined()
+    expect(getByText('Item 3')).toBeDefined()
+  })
 })
 
 describe('Markdown with nested elements', () => {
