@@ -302,7 +302,10 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
         i++ // skip '('
         const endParen = text.indexOf(')', i)
         if (endParen === -1) {
-          tokens.push({ type: 'text', content: text.slice(start, i) })
+          // No closing ")": assume in-flight href
+          const href = text.slice(i).trim()
+          i = text.length // consume to EOI so loop terminates
+          tokens.push({ type: 'link', href, children: linkTextTokens })
           continue
         }
         const href = text.slice(i, endParen).trim()
