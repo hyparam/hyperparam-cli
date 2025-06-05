@@ -80,6 +80,14 @@ describe('Markdown', () => {
     expect(getByRole('link').getAttribute('href')).toBe('https://hyperparam.app')
   })
 
+  it('renders a partial link', () => {
+    const text = 'Check out [Hyp](https://hyper'
+    const { getByText, queryByText } = render(<Markdown text={text} />)
+    expect(getByText('Hyp')).toBeDefined()
+    expect(queryByText('hyper')).toBeNull()
+    expect(getByText('Hyp').tagName).toBe('A')
+  })
+
   it('renders multiple links in one line', () => {
     const text = 'Check out [Hyp](https://hyperparam.app) on [GitHub](https://github.com/hyparam).'
     const { getAllByRole, getByText } = render(<Markdown text={text} />)
