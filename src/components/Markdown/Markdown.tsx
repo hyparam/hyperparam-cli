@@ -17,6 +17,7 @@ type Token =
   | { type: 'list', ordered: boolean, items: Token[][] }
   | { type: 'blockquote', children: Token[] }
   | { type: 'codeblock', language?: string, content: string }
+  | { type: 'hr' }
 
 function parseMarkdown(text: string): Token[] {
   const tokens: Token[] = []
@@ -47,6 +48,13 @@ function parseMarkdown(text: string): Token[] {
       }
       i++ // skip the closing ```
       tokens.push({ type: 'codeblock', language, content: codeLines.join('\n') })
+      continue
+    }
+
+    // Horizontal rule
+    if (/^---+$/.test(line.trim())) {
+      tokens.push({ type: 'hr' })
+      i++
       continue
     }
 
@@ -110,6 +118,7 @@ function parseMarkdown(text: string): Token[] {
       if (ln.startsWith('>')) break // blockquote
       if (/^(#{1,6})\s+/.test(ln)) break // heading
       if (/^(\s*)([-*+–•‣◦○⚬]|\d+\.)\s+/.test(ln)) break // list item
+      if (/^---+$/.test(ln.trim())) break // horizontal rule
 
       paraLines.push(ln)
       i++
@@ -499,6 +508,8 @@ function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
           { key },
           createElement('code', null, token.content)
         )
+      case 'hr':
+        return createElement('hr', { key })
       default:
         return null
     }
