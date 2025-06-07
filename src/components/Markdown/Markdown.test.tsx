@@ -103,6 +103,19 @@ describe('Markdown', () => {
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('This is a blockquote.')).toBeDefined()
   })
+
+  it('renders a horizontal rule', () => {
+    const text = 'First paragraph\n---\nSecond paragraph'
+    const { container } = render(<Markdown text={text} />)
+
+    const paragraphs = container.querySelectorAll('p')
+    expect(paragraphs.length).toBe(2)
+    expect(paragraphs[0]?.textContent).toBe('First paragraph')
+    expect(paragraphs[1]?.textContent).toBe('Second paragraph')
+
+    const hr = container.querySelector('hr')
+    expect(hr).toBeDefined()
+  })
 })
 
 describe('Markdown code blocks', () => {
