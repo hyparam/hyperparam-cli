@@ -253,6 +253,7 @@ function tokensToString(tokens: Token[]): string {
     .map(token => {
       switch (token.type) {
         case 'text':
+        case 'code':
           return token.content
         case 'bold':
         case 'italic':
