@@ -112,7 +112,8 @@ function parseMarkdown(text: string): Token[] {
       const sepLine = lines[i + 1] ?? ''
       // Check if the next line is a valid table separator
       // Extended markdown alignment syntax: |:--|, |:--:|, |--:|
-      if (/^\s*\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?\s*$/.test(sepLine)) {
+      const tableSepRegex = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/
+      if (tableSepRegex.test(sepLine)) {
         // collect header cells
         const headerCells = splitTableRow(line)
         i += 2

@@ -88,7 +88,7 @@ describe('Markdown', () => {
     expect(getByText('Hyp').tagName).toBe('A')
   })
 
-  it('renders multiple links in one line', () => {
+  it('multiple links in one line', () => {
     const text = 'Check out [Hyp](https://hyperparam.app) on [GitHub](https://github.com/hyparam).'
     const { getAllByRole, getByText } = render(<Markdown text={text} />)
     expect(getByText('Hyp')).toBeDefined()
@@ -103,18 +103,27 @@ describe('Markdown', () => {
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('This is a blockquote.')).toBeDefined()
   })
+})
 
+describe('Markdown horizontal rules', () => {
   it('renders a horizontal rule', () => {
     const text = 'First paragraph\n---\nSecond paragraph'
-    const { container } = render(<Markdown text={text} />)
+    const { container, getByText, queryByRole } = render(<Markdown text={text} />)
 
-    const paragraphs = container.querySelectorAll('p')
-    expect(paragraphs.length).toBe(2)
-    expect(paragraphs[0]?.textContent).toBe('First paragraph')
-    expect(paragraphs[1]?.textContent).toBe('Second paragraph')
+    expect(container.querySelector('hr')).toBeDefined()
+    expect(queryByRole('separator')).toBeDefined()
+    expect(getByText('First paragraph')).toBeDefined()
+    expect(getByText('Second paragraph')).toBeDefined()
+  })
 
-    const hr = container.querySelector('hr')
-    expect(hr).toBeDefined()
+  it('horizontal rule must be entire line', () => {
+    const text = 'First paragraph\n\n--- dashes\n\nSecond paragraph'
+    const { container, getByText, queryByRole } = render(<Markdown text={text} />)
+    expect(container.querySelector('hr')).toBeNull()
+    expect(queryByRole('separator')).toBeNull()
+    expect(getByText('First paragraph')).toBeDefined()
+    expect(getByText('--- dashes')).toBeDefined()
+    expect(getByText('Second paragraph')).toBeDefined()
   })
 })
 
@@ -452,5 +461,21 @@ describe('Markdown with tables', () => {
     const { queryByRole, getByText } = render(<Markdown text={bogus} />)
     expect(queryByRole('table')).toBeNull() // no table
     expect(getByText('not | a | table')).toBeDefined()
+  })
+
+  it('single column table', () => {
+    const text = '| Only Header |\n|-------------|\n| Single cell |'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Only Header')).toBeDefined()
+    expect(getByText('Single cell')).toBeDefined()
+  })
+
+  it('table with no leading or trailing pipes', () => {
+    const text = 'Header1 | Header2\n------- | -------\nData1   | Data2'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Header1')).toBeDefined()
+    expect(getByText('Data2')).toBeDefined()
   })
 })
