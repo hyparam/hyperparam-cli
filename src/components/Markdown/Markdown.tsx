@@ -113,7 +113,7 @@ function parseMarkdown(text: string): Token[] {
       // Check if the next line is a valid table separator
       // Extended markdown alignment syntax: |:--|, |:--:|, |--:|
       const tableSepRegex = /^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/
-      if (tableSepRegex.test(sepLine)) {
+      if (sepLine.includes('|') && tableSepRegex.test(sepLine)) {
         // collect header cells
         const headerCells = splitTableRow(line)
         i += 2
@@ -446,12 +446,40 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
 
 /** Split a table row, trimming outer pipes and whitespace */
 function splitTableRow(row: string): string[] {
-  return row
-    .trim()
-    .replace(/^\|/, '')
-    .replace(/\|$/, '')
-    .split('|')
-    .map(cell => cell.trim())
+  const cells: string[] = []
+  let current = ''
+  let inCode = false
+
+  // strip a single leading / trailing pipe so we don't create empty edge‑cells
+  const trimmed = row.trim()
+  const start = trimmed.startsWith('|') ? 1 : 0
+  const end = trimmed.endsWith('|') ? trimmed.length - 1 : trimmed.length
+
+  for (let i = start; i < end; i++) {
+    const ch = trimmed[i] ?? ''
+
+    if (ch === '`') {
+      inCode = !inCode
+      current += ch
+      continue
+    }
+
+    if (ch === '|' && !inCode) {
+      // escaped pipe \| becomes |
+      if (i > start && trimmed[i - 1] === '\\') {
+        current = current.slice(0, -1) + '|'
+        continue
+      }
+      cells.push(current.trim())
+      current = ''
+      continue
+    }
+
+    current += ch
+  }
+
+  cells.push(current.trim())
+  return cells
 }
 
 function isOpeningUnderscore(text: string, pos: number): boolean {
@@ -591,6 +619,10 @@ function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
   })
 }
 
+/**
+ * Markdown component. Converts markdown text to React elements.
+ * Designed to handle streaming markdown input gracefully.
+ */
 export default function Markdown({ text, className }: MarkdownProps) {
   const tokens = parseMarkdown(text)
   return createElement('div', { className }, renderTokens(tokens))
