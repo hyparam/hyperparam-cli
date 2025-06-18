@@ -1,6 +1,7 @@
 * {
   box-sizing: border-box;
-  font-family: 'Mulish', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Public Sans', 'Inter', 'Mulish', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: 300;
   margin: 0;
   padding: 0;
 }

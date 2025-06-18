@@ -14,4 +14,8 @@
     background-color: #ccd;
     border-right: 1px solid #ccc;
   }
+
+  > [role="menu"] > [role="menuitem"] {
+    color: #333;
+  }
 }

@@ -169,6 +169,8 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
           }
         }).catch((error: unknown) => {
           console.error('Error fetching sort index or resolving sorted rows', error)
+          // Reject at least one promise to trigger the error bar
+          wrapped[0]?.index.reject(`Error fetching sort index or resolving sorted rows: ${error}`)
         })
 
         return wrapped
