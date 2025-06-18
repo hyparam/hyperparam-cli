@@ -55,8 +55,8 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
 
   const headers = <>
     <SlideCloseButton onClick={onClose} />
-    <span>column `{df.header[col]}`</span>
-    <span>row {row + 1}</span>
+    <span>column: {df.header[col]}</span>
+    <span>row: {row + 1}</span>
   </>
 
   return <ContentWrapper headers={headers}>

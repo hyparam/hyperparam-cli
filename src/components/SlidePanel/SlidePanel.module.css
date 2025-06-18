@@ -14,9 +14,11 @@
 
   /* resizer separator */
   & > [role="separator"] {
-    width: 5px;
+    border-right: 1px solid #ddd;
+    border-left: 1px solid #ddd;
+    width: 6px;
     cursor: col-resize;
-    background-color: #bfbbbb;
+    background-color: #eee;
     transition: background-color 0.2s;
     user-select: none;
 
