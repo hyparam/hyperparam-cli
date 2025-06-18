@@ -400,3 +400,47 @@ describe('Markdown with nested elements', () => {
     expect(getByText('Second').tagName).toBe('LI')
   })
 })
+
+describe('Markdown with tables', () => {
+  it('renders a simple table', () => {
+    const text = '| Header 1 | Header 2 |\n|----------|----------|\n| Row 1   | Data 1  |\n| Row 2   | Data 2  |'
+    const { getByText } = render(<Markdown text={text} />)
+    expect(getByText('Header 1')).toBeDefined()
+    expect(getByText('Header 2')).toBeDefined()
+    expect(getByText('Row 1')).toBeDefined()
+    expect(getByText('Data 1')).toBeDefined()
+    expect(getByText('Row 2')).toBeDefined()
+    expect(getByText('Data 2')).toBeDefined()
+  })
+
+  it('renders a table that omits the outer pipes', () => {
+    const text = 'Header A | Header B\n---|---\nCell 1 | Cell 2'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Header A')).toBeDefined()
+    expect(getByText('Cell 2')).toBeDefined()
+  })
+
+  it('renders inline formatting inside cells', () => {
+    const text = '| **Bold** | Link |\n|-----------|------|\n| `code`    | [x](#) |'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Bold').tagName).toBe('STRONG')
+    expect(getByRole('link', { name: 'x' })).toBeDefined()
+  })
+
+  it('keeps surrounding paragraphs intact', () => {
+    const text = 'Above\n\n| H1 | H2 |\n|----|----|\n| a  | b  |\n\nBelow'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByText('Above').tagName).toBe('P')
+    expect(getByText('Below').tagName).toBe('P')
+    expect(getByRole('table')).toBeDefined()
+  })
+
+  it('ignores pipe‑separated text that lacks a separator line', () => {
+    const bogus = 'not | a | table'
+    const { queryByRole, getByText } = render(<Markdown text={bogus} />)
+    expect(queryByRole('table')).toBeNull() // no table
+    expect(getByText('not | a | table')).toBeDefined()
+  })
+})

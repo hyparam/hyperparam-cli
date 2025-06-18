@@ -18,6 +18,7 @@ type Token =
   | { type: 'blockquote', children: Token[] }
   | { type: 'codeblock', language?: string, content: string }
   | { type: 'hr' }
+  | { type: 'table', header: Token[][], rows: Token[][][] }
 
 function parseMarkdown(text: string): Token[] {
   const tokens: Token[] = []
@@ -104,6 +105,31 @@ function parseMarkdown(text: string): Token[] {
         children: parseMarkdown(quoteLines.join('\n')),
       })
       continue
+    }
+
+    // Table (requires header line | separator line)
+    if (line.includes('|') && i + 1 < lines.length) {
+      const sepLine = lines[i + 1] ?? ''
+      // Check if the next line is a valid table separator
+      // Extended markdown alignment syntax: |:--|, |:--:|, |--:|
+      if (/^\s*\|?(\s*:?-+:?\s*\|)+\s*:?-+:?\s*\|?\s*$/.test(sepLine)) {
+        // collect header cells
+        const headerCells = splitTableRow(line)
+        i += 2
+
+        const rows: Token[][][] = []
+        while (i < lines.length && lines[i]?.includes('|')) {
+          rows.push(splitTableRow(lines[i] ?? '').map(c => parseInline(c)))
+          i++
+        }
+
+        tokens.push({
+          type: 'table',
+          header: headerCells.map(c => parseInline(c)),
+          rows,
+        })
+        continue
+      }
     }
 
     // Paragraph
@@ -416,6 +442,16 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
   return [tokens, i]
 }
 
+/** Split a table row, trimming outer pipes and whitespace */
+function splitTableRow(row: string): string[] {
+  return row
+    .trim()
+    .replace(/^\|/, '')
+    .replace(/\|$/, '')
+    .split('|')
+    .map(cell => cell.trim())
+}
+
 function isOpeningUnderscore(text: string, pos: number): boolean {
   const prev = text[pos - 1] ?? '\n'
   const next = text[pos + 1] ?? '\n'
@@ -510,6 +546,43 @@ function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
         )
       case 'hr':
         return createElement('hr', { key })
+      case 'table': {
+        const thead = createElement(
+          'thead',
+          null,
+          createElement(
+            'tr',
+            null,
+            token.header.map((cell, c) =>
+              createElement(
+                'th',
+                { key: `${key}-h${c}` },
+                renderTokens(cell, `${key}-h${c}-`)
+              )
+            )
+          )
+        )
+
+        const tbody = createElement(
+          'tbody',
+          null,
+          token.rows.map((row, r) =>
+            createElement(
+              'tr',
+              { key: `${key}-r${r}` },
+              row.map((cell, c) =>
+                createElement(
+                  'td',
+                  { key: `${key}-r${r}c${c}` },
+                  renderTokens(cell, `${key}-r${r}c${c}-`)
+                )
+              )
+            )
+          )
+        )
+
+        return createElement('table', { key }, [thead, tbody])
+      }
       default:
         return null
     }
