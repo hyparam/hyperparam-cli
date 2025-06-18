@@ -37,13 +37,15 @@
 }
 .markdownView th,
 .markdownView td {
-  border-bottom: 1px solid #333;
   padding: 8px;
   text-align: left;
 }
 .markdownView th {
-  border-bottom: 2px solid #333;
+  border-bottom: 2px solid #888;
   font-weight: 500;
+}
+.markdownView td {
+  border-bottom: 1px solid #666;
 }
 .markdownView tr:last-child td {
   border-bottom: none;

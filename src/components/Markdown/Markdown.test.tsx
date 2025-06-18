@@ -449,14 +449,14 @@ describe('Markdown with tables', () => {
   })
 
   it('keeps surrounding paragraphs intact', () => {
-    const text = 'Above\n\n| H1 | H2 |\n|----|----|\n| a  | b  |\n\nBelow'
-    const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByText('Above').tagName).toBe('P')
-    expect(getByText('Below').tagName).toBe('P')
-    expect(getByRole('table')).toBeDefined()
+    const text = 'alpha | beta\n---\ngamma'
+    const { getByText, queryByRole } = render(<Markdown text={text} />)
+    expect(getByText('alpha | beta').tagName).toBe('P')
+    expect(getByText('gamma').tagName).toBe('P')
+    expect(queryByRole('table')).toBeNull()
   })
 
-  it('ignores pipe‑separated text that lacks a separator line', () => {
+  it('ignores pipe-separated text that lacks a separator line', () => {
     const bogus = 'not | a | table'
     const { queryByRole, getByText } = render(<Markdown text={bogus} />)
     expect(queryByRole('table')).toBeNull() // no table
@@ -477,5 +477,31 @@ describe('Markdown with tables', () => {
     expect(getByRole('table')).toBeDefined()
     expect(getByText('Header1')).toBeDefined()
     expect(getByText('Data2')).toBeDefined()
+  })
+
+  it('keeps a pipe that is inside inline code in a table', () => {
+    const text = 'Header1 | Header2\n------- | -------\n| Here is some `inline | code` with a pipe. |'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('inline | code')).toBeDefined()
+  })
+
+  it('does not treat --- as a table separator', () => {
+    const text = 'Column 1 | Column 2\n---\nData 1 | Data 2'
+    const { queryByRole, getByRole, getByText } = render(<Markdown text={text} />)
+    expect(queryByRole('table')).toBeNull() // no table
+    expect(getByText('Column 1 | Column 2')).toBeDefined()
+    expect(getByRole('separator')).toBeDefined() // horizontal rule
+    expect(getByText('Data 1 | Data 2')).toBeDefined()
+  })
+
+  it('handles escaped pipes in table cells', () => {
+    const text = '| Header \\| 1 | Header 2 |\n|----------|----------|\n| Cell with \\| escaped pipe | Normal cell |'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Header | 1')).toBeDefined()
+    expect(getByText('Header 2')).toBeDefined()
+    expect(getByText('Cell with | escaped pipe')).toBeDefined()
+    expect(getByText('Normal cell')).toBeDefined()
   })
 })
