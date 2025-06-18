@@ -103,6 +103,14 @@ describe('Markdown', () => {
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('This is a blockquote.')).toBeDefined()
   })
+
+  it('soft line break creates a break tag', () => {
+    // Models often expect newlines to be presented as line breaks
+    const text = 'Line one\nLine two'
+    const { container } = render(<Markdown text={text} />)
+    expect(container.innerHTML).toContain('Line one<br>Line two')
+    expect(container.querySelector('br')).toBeDefined()
+  })
 })
 
 describe('Markdown horizontal rules', () => {
