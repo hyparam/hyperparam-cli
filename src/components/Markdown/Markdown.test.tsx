@@ -127,7 +127,7 @@ describe('Markdown code blocks', () => {
     expect(code?.textContent).toBe('console.log(\'Hello, world!\')')
   })
 
-  it('renders an unterminated code block', () => {
+  it('unterminated code block', () => {
     const text = '```js\nconsole.log(\'Hello, world!\')'
     const { container } = render(<Markdown text={text} />)
     const code = container.querySelector('pre')
@@ -135,14 +135,14 @@ describe('Markdown code blocks', () => {
     expect(code?.textContent).toBe('console.log(\'Hello, world!\')')
   })
 
-  it('renders a bold code block', () => {
+  it('bold code block', () => {
     const text = '**`Math.pow(base, exponent)`**'
     const { container, getByText } = render(<Markdown text={text} />)
     expect(getByText('Math.pow(base, exponent)')).toBeDefined()
     expect(container.innerHTML).not.toContain('**')
   })
 
-  it('renders markdown inside a code block as literal text', () => {
+  it('markdown inside a code block as literal text', () => {
     const text = `\`\`\`
 **This should not be bold**
 *nor italic*
@@ -169,7 +169,7 @@ describe('Markdown lists', () => {
     expect(container.querySelectorAll('p').length).toBe(0)
   })
 
-  it('renders a list with bold', () => {
+  it('list with bold', () => {
     const text = '- **Item 1**\n- Item 2\n- Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
@@ -177,7 +177,7 @@ describe('Markdown lists', () => {
     expect(getByText('Item 3')).toBeDefined()
   })
 
-  it('renders a list with indented sub-paragraphs', () => {
+  it('list with indented sub-paragraphs', () => {
     const text = '- Item 1\n  Paragraph 1\n  Paragraph 2\n- Item 2\n\n'
     const { container, getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
@@ -188,13 +188,13 @@ describe('Markdown lists', () => {
     expect(container.querySelectorAll('p').length).toBe(2)
   })
 
-  it('renders an unterminated list', () => {
+  it('unterminated list', () => {
     const text = '- Item 1'
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
   })
 
-  it('renders nested unordered list with sub-items', () => {
+  it('nested unordered list with sub-items', () => {
     const text = `- Parent item
   - Child item
     - Grandchild item`
@@ -204,7 +204,7 @@ describe('Markdown lists', () => {
     expect(getByText('Grandchild item')).toBeDefined()
   })
 
-  it('renders nested ordered list', () => {
+  it('nested ordered list', () => {
     const text = `1. First item
    1. Nested item
    2. Another nested item
@@ -216,7 +216,7 @@ describe('Markdown lists', () => {
     expect(getByText('Second item')).toBeDefined()
   })
 
-  it('handles blank lines in lists', () => {
+  it('blank lines in lists', () => {
     const text = '- Item 1\n\n- Item 2\n\n- Item 3'
     const { container, getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
@@ -226,7 +226,7 @@ describe('Markdown lists', () => {
     expect(container.querySelectorAll('li').length).toBe(3)
   })
 
-  it('renders inline code inside a nested list with mixed formatting', () => {
+  it('inline code inside a nested list with mixed formatting', () => {
     const text = `- Item with inline code: \`const x = 10;\`
   - Child item with **bold** text and \`inline code\``
     const { getByText, container } = render(<Markdown text={text} />)
@@ -240,7 +240,7 @@ describe('Markdown lists', () => {
     expect(inlineCodes.length).toBe(2)
   })
 
-  it('renders a nested code block within a list item', () => {
+  it('nested code block within a list item', () => {
     const text = `- List item with code:
   \`\`\`js
   console.log("Nested code")
@@ -253,7 +253,7 @@ describe('Markdown lists', () => {
     expect(codeBlock?.textContent).toContain('console.log("Nested code")')
   })
 
-  it('renders a list with unicode dash –', () => {
+  it('list with unicode dash –', () => {
     const text = '– Item 1\n– Item 2\n– Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
@@ -261,7 +261,7 @@ describe('Markdown lists', () => {
     expect(getByText('Item 3')).toBeDefined()
   })
 
-  it('renders a list with unicode dot •', () => {
+  it('list with unicode dot •', () => {
     const text = '• Item 1\n• Item 2\n• Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
     expect(getByText('Item 1')).toBeDefined()
@@ -270,24 +270,8 @@ describe('Markdown lists', () => {
   })
 })
 
-describe('Markdown with nested elements', () => {
-  it('renders nested formatting with bold, italic, and inline code', () => {
-    const text = 'This is **bold text with *italic and `code` inside* text**.'
-    const { container } = render(<Markdown text={text} />)
-    // Check for inline code element
-    const codeElem = container.querySelector('code')
-    expect(codeElem).toBeDefined()
-    // Check for italic element that should contain the inline code
-    const italicElem = container.querySelector('em')
-    expect(italicElem).toBeDefined()
-    expect(italicElem?.textContent).toContain('code')
-    // The bold text should wrap the entire content
-    const boldElem = container.querySelector('strong')
-    expect(boldElem).toBeDefined()
-    expect(boldElem?.textContent).toContain('bold text with')
-  })
-
-  it('renders an image inside a link', () => {
+describe('Markdown images', () => {
+  it('image inside a link', () => {
     const text = '[![mit license](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT)'
     const { container } = render(<Markdown text={text} />)
 
@@ -304,7 +288,7 @@ describe('Markdown with nested elements', () => {
     expect(link?.contains(img)).toBe(true)
   })
 
-  it('handles multiple images inside links in one paragraph', () => {
+  it('multiple images inside links in one paragraph', () => {
     const text = 'Check [![license](https://img.shields.io/badge/License-MIT-orange.svg)](https://opensource.org/licenses/MIT) and [![npm](https://img.shields.io/npm/v/package.svg)](https://www.npmjs.com/package)'
     const { container } = render(<Markdown text={text} />)
 
@@ -328,7 +312,7 @@ describe('Markdown with nested elements', () => {
     expect(images[1].getAttribute('alt')).toBe('npm')
   })
 
-  it('handles images and text inside links', () => {
+  it('images and text inside links', () => {
     const text = '[Click here ![icon](https://example.com/icon.png) for more info](https://example.com)'
     const { container } = render(<Markdown text={text} />)
 
@@ -348,7 +332,7 @@ describe('Markdown with nested elements', () => {
     expect(link?.contains(img)).toBe(true)
   })
 
-  it('handles incomplete image syntax without closing bracket', () => {
+  it('incomplete image syntax without closing bracket', () => {
     const text = '![alt'
     const { container } = render(<Markdown text={text} />)
 
@@ -356,12 +340,38 @@ describe('Markdown with nested elements', () => {
     expect(container.querySelector('img')).toBeNull()
   })
 
-  it('handles incomplete image syntax without closing parenthesis', () => {
+  it('incomplete image syntax without closing parenthesis', () => {
     const text = '![alt](https://example.com/image.png'
     const { container } = render(<Markdown text={text} />)
 
     expect(container.textContent).toBe('![alt](https://example.com/image.png')
     expect(container.querySelector('img')).toBeNull()
+  })
+
+  describe('image alt text', () => {
+    it('keeps inline code', () => {
+      const md = '![Press `Ctrl+C`](keys.png)'
+      const { container } = render(<Markdown text={md} />)
+      expect(container.querySelector('img')?.alt).toBe('Press Ctrl+C')
+    })
+  })
+})
+
+describe('Markdown with nested elements', () => {
+  it('renders nested formatting with bold, italic, and inline code', () => {
+    const text = 'This is **bold text with *italic and `code` inside* text**.'
+    const { container } = render(<Markdown text={text} />)
+    // Check for inline code element
+    const codeElem = container.querySelector('code')
+    expect(codeElem).toBeDefined()
+    // Check for italic element that should contain the inline code
+    const italicElem = container.querySelector('em')
+    expect(italicElem).toBeDefined()
+    expect(italicElem?.textContent).toContain('code')
+    // The bold text should wrap the entire content
+    const boldElem = container.querySelector('strong')
+    expect(boldElem).toBeDefined()
+    expect(boldElem?.textContent).toContain('bold text with')
   })
 
   it('handles incomplete link syntax without closing bracket', () => {
@@ -413,7 +423,7 @@ describe('Markdown with tables', () => {
     expect(getByText('Data 2')).toBeDefined()
   })
 
-  it('renders a table that omits the outer pipes', () => {
+  it('table that omits the outer pipes', () => {
     const text = 'Header A | Header B\n---|---\nCell 1 | Cell 2'
     const { getByText, getByRole } = render(<Markdown text={text} />)
     expect(getByRole('table')).toBeDefined()
@@ -421,7 +431,7 @@ describe('Markdown with tables', () => {
     expect(getByText('Cell 2')).toBeDefined()
   })
 
-  it('renders inline formatting inside cells', () => {
+  it('inline formatting inside cells', () => {
     const text = '| **Bold** | Link |\n|-----------|------|\n| `code`    | [x](#) |'
     const { getByText, getByRole } = render(<Markdown text={text} />)
     expect(getByRole('table')).toBeDefined()
