@@ -5,8 +5,14 @@ interface MarkdownProps {
   className?: string
 }
 
+// Enable soft line breaks (single newline becomes <br>)
+// Models often expect newlines to be presented as line breaks.
+/* eslint-disable @typescript-eslint/no-unnecessary-condition */
+const softLineBreaks = true
+
 type Token =
   | { type: 'text', content: string }
+  | { type: 'break' }
   | { type: 'bold', children: Token[] }
   | { type: 'italic', children: Token[] }
   | { type: 'code', content: string }
@@ -152,7 +158,7 @@ function parseMarkdown(text: string): Token[] {
     }
     tokens.push({
       type: 'paragraph',
-      children: parseInline(paraLines.join(' ')),
+      children: parseInline(paraLines.join('\n')),
     })
   }
 
@@ -249,6 +255,9 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
   return [items, i]
 }
 
+/**
+ * Convert inline tokens back to plain text (for alt text, link text, etc.)
+ */
 function tokensToString(tokens: Token[]): string {
   return tokens
     .map(token => {
@@ -256,6 +265,8 @@ function tokensToString(tokens: Token[]): string {
         case 'text':
         case 'code':
           return token.content
+        case 'break':
+          return ' '
         case 'bold':
         case 'italic':
         case 'link':
@@ -272,6 +283,10 @@ function parseInline(text: string): Token[] {
   return tokens
 }
 
+/**
+ * Recursively parse inline markdown elements.
+ * Returns a tuple of [tokens, charsConsumed].
+ */
 function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
   const tokens: Token[] = []
   let i = 0
@@ -417,6 +432,7 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
     let j = i
     while (
       j < text.length &&
+      (text[j] !== '\n' || !softLineBreaks) &&
       text[j] !== '`' &&
       !(text.startsWith('**', j) || text.startsWith('__', j)) &&
       text[j] !== '*' &&
@@ -429,6 +445,13 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
       !(text[j] === '!' && j + 1 < text.length && text[j + 1] === '[')
     ) {
       j++
+    }
+
+    // soft line break
+    if (softLineBreaks && text[i] === '\n') {
+      tokens.push({ type: 'break' })
+      i++
+      continue
     }
 
     if (j === i) {
@@ -444,7 +467,9 @@ function parseInlineRecursive(text: string, stop?: string): [Token[], number] {
   return [tokens, i]
 }
 
-/** Split a table row, trimming outer pipes and whitespace */
+/**
+ * Split a table row, trimming outer pipes and whitespace
+ */
 function splitTableRow(row: string): string[] {
   const cells: string[] = []
   let current = ''
@@ -504,12 +529,17 @@ function isClosingAsterisk(text: string, pos: number): boolean {
   return !/\s/.test(prev) // prev char is not whitespace
 }
 
+/**
+ * Render tokens to React elements.
+ */
 function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
   return tokens.map((token, index) => {
     const key = `${keyPrefix}${index}`
     switch (token.type) {
       case 'text':
         return token.content
+      case 'break':
+        return createElement('br', { key })
       case 'code':
         return createElement('code', { key }, token.content)
       case 'bold':
