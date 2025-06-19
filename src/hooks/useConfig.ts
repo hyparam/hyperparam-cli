@@ -17,6 +17,7 @@ export interface Config {
     fileList?: string
     highTable?: string
     imageView?: string
+    jsonView?: string
     layout?: string
     markdownView?: string
     path?: string

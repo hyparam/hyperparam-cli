@@ -1,10 +1,12 @@
 import { DataFrame, stringify } from 'hightable'
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import { cn } from '../../lib/utils.js'
 import ContentWrapper from '../ContentWrapper/ContentWrapper.js'
+import Json from '../Json/Json.js'
 import SlideCloseButton from '../SlideCloseButton/SlideCloseButton.js'
 import styles from '../TextView/TextView.module.css'
+import jsonStyles from '../Json/Json.module.css'
 
 interface ViewerProps {
   df: DataFrame
@@ -19,7 +21,7 @@ interface ViewerProps {
  * Cell viewer displays a single cell from a table.
  */
 export default function CellPanel({ df, row, col, setProgress, setError, onClose }: ViewerProps) {
-  const [text, setText] = useState<string | undefined>()
+  const [content, setContent] = useState<ReactNode>()
   const { customClass } = useConfig()
 
   // Load cell data
@@ -41,8 +43,20 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
         if (asyncCell === undefined) {
           throw new Error(`Cell missing at column ${columnName}`)
         }
-        const text = await asyncCell.then(stringify)
-        setText(text)
+        const value: unknown = await asyncCell
+        if (value instanceof Object && !(value instanceof Date)) {
+          setContent(
+            <code className={cn(jsonStyles.jsonView, customClass?.jsonView)}>
+              <Json json={value} />
+            </code>
+          )
+        } else {
+          setContent(
+            <code className={cn(styles.textView, customClass?.textView)}>
+              {stringify(value)}
+            </code>
+          )
+        }
       } catch (error) {
         setError(error as Error)
       } finally {
@@ -51,7 +65,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
     }
 
     void loadCellData()
-  }, [df, col, row, setProgress, setError])
+  }, [df, col, row, setProgress, setError, customClass])
 
   const headers = <>
     <SlideCloseButton onClick={onClose} />
@@ -60,6 +74,6 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
   </>
 
   return <ContentWrapper headers={headers}>
-    <code className={cn(styles.textView, customClass?.textView)}>{text}</code>
+    {content}
   </ContentWrapper>
 }
