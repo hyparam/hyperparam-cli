@@ -1,6 +1,6 @@
 {
   "name": "hyperparam",
-  "version": "0.2.50",
+  "version": "0.2.51",
   "description": "Hyperparam CLI",
   "author": "Hyperparam",
   "homepage": "https://hyperparam.app",
@@ -26,7 +26,9 @@
   "files": [
     "bin",
     "dist",
-    "lib"
+    "lib",
+    "!**/*.stories.d.ts",
+    "!**/*.test.d.ts"
   ],
   "scripts": {
     "build:types": "tsc -b",
