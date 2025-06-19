@@ -1,17 +1,21 @@
 import { ReactNode, useState } from 'react'
 import styles from './Json.module.css'
 import { isPrimitive, shouldObjectCollapse } from './helpers.js'
+import { cn } from '../../lib'
 
 interface JsonProps {
   json: unknown
   label?: string
+  className?: string
 }
 
 /**
  * JSON viewer component with collapsible objects and arrays.
  */
-export default function Json({ json, label }: JsonProps): ReactNode {
-  return <div className={styles.json}><JsonContent json={json} label={label} /></div>
+export default function Json({ json, label, className }: JsonProps): ReactNode {
+  return <div className={cn(styles.json, className)}>
+    <JsonContent json={json} label={label} />
+  </div>
 }
 
 function JsonContent({ json, label }: JsonProps): ReactNode {
@@ -82,7 +86,7 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
 }
 
 function JsonArray({ array, label }: { array: unknown[], label?: string }): ReactNode {
-  const [collapsed, setCollapsed] = useState(true)
+  const [collapsed, setCollapsed] = useState(shouldObjectCollapse(array))
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
     return <div className={styles.clickable} onClick={() => { setCollapsed(false) }}>

@@ -1,6 +1,8 @@
 .jsonView {
   background-color: #22222b;
   color: #d6d6d6;
+  flex: 1;
+  overflow: auto;
   padding: 8px 8px 8px 20px;
 }
 
