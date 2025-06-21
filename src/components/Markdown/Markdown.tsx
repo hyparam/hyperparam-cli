@@ -641,7 +641,7 @@ function renderTokens(tokens: Token[], keyPrefix = ''): ReactNode[] {
           )
         )
 
-        return createElement('table', { key }, [thead, tbody])
+        return createElement('table', { key }, thead, tbody)
       }
       default:
         return null
