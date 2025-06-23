@@ -188,6 +188,19 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       }
     },
     sortable: true,
-    // TODO(SL): implement getColumn({column, start, end}): any[]
+    getColumn({ column, start, end }) {
+      if (!header.includes(column)) {
+        return Promise.reject(new Error(`Column "${column}" not found in header`))
+      }
+
+      return parquetQueryWorker({
+        from,
+        metadata,
+        rowStart: start,
+        rowEnd: end,
+      }).then(rows => {
+        return rows.map(row => row[column])
+      })
+    },
   }
 }
