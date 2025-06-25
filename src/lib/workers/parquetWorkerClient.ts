@@ -66,7 +66,7 @@ function getWorker() {
  * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker.
  */
-export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, orderBy, filter, onChunk }: QueryWorkerOptions): Promise<Cells[]> {
+export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, columns, orderBy, filter, onChunk }: QueryWorkerOptions): Promise<Cells[]> {
   // TODO(SL) Support passing columns?
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
@@ -75,7 +75,7 @@ export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, orderBy, 
 
     // If caller provided an onChunk callback, worker will send chunks as they are parsed
     const chunks = onChunk !== undefined
-    const message: QueryClientMessage = { queryId, metadata, from, rowStart, rowEnd, orderBy, filter, chunks, kind: 'query' }
+    const message: QueryClientMessage = { queryId, metadata, from, rowStart, rowEnd, columns, orderBy, filter, chunks, kind: 'query' }
     worker.postMessage(message)
   })
 }
