@@ -1,4 +1,5 @@
-import { ColumnData, FileMetaData } from 'hyparquet'
+import type { ColumnData, FileMetaData } from 'hyparquet'
+import type { ParquetQueryFilter } from 'hyparquet/src/types.js'
 
 // Serializable constructors for AsyncBuffers
 interface AsyncBufferFromFile {
@@ -29,6 +30,8 @@ export interface ErrorMessage extends Message {
 export interface QueryWorkerOptions extends CommonWorkerOptions {
   rowStart?: number,
   rowEnd?: number,
+  orderBy?: string,
+  filter?: ParquetQueryFilter,
   onChunk?: (chunk: ColumnData) => void
 }
 export interface QueryClientMessage extends QueryWorkerOptions, Message {

@@ -1,7 +1,7 @@
 import ParquetWorker from './parquetWorker?worker&inline'
 /// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
 /// (no need to copy the worker file to the right place)
-import { ColumnData } from 'hyparquet'
+import type { ColumnData } from 'hyparquet'
 import type { Cells, ColumnRanksClientMessage, ColumnRanksWorkerMessage, ColumnRanksWorkerOptions, QueryClientMessage, QueryWorkerMessage, QueryWorkerOptions } from './types.js'
 
 let worker: Worker | undefined
@@ -66,7 +66,7 @@ function getWorker() {
  * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker.
  */
-export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, onChunk }: QueryWorkerOptions): Promise<Cells[]> {
+export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, orderBy, filter, onChunk }: QueryWorkerOptions): Promise<Cells[]> {
   // TODO(SL) Support passing columns?
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
@@ -75,7 +75,7 @@ export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, onChunk }
 
     // If caller provided an onChunk callback, worker will send chunks as they are parsed
     const chunks = onChunk !== undefined
-    const message: QueryClientMessage = { queryId, metadata, from, rowStart, rowEnd, chunks, kind: 'query' }
+    const message: QueryClientMessage = { queryId, metadata, from, rowStart, rowEnd, orderBy, filter, chunks, kind: 'query' }
     worker.postMessage(message)
   })
 }
