@@ -30,6 +30,7 @@ export interface ErrorMessage extends Message {
 export interface QueryWorkerOptions extends CommonWorkerOptions {
   rowStart?: number,
   rowEnd?: number,
+  columns?: string[],
   orderBy?: string,
   filter?: ParquetQueryFilter,
   onChunk?: (chunk: ColumnData) => void
