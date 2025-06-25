@@ -9,7 +9,11 @@ import typescript from 'typescript-eslint'
 export default typescript.config(
   { ignores: ['coverage/', 'dist/', 'lib/'] },
   {
-    extends: [javascript.configs.recommended, ...typescript.configs.strictTypeChecked, ...typescript.configs.stylisticTypeChecked],
+    extends: [
+      javascript.configs.recommended,
+      ...typescript.configs.strictTypeChecked,
+      ...typescript.configs.stylisticTypeChecked,
+    ],
     files: ['**/*.{ts,tsx,js}'],
     languageOptions: {
       globals: globals.browser,
@@ -49,6 +53,7 @@ export default typescript.config(
       'func-style': ['error', 'declaration'],
       indent: ['error', 2, { SwitchCase: 1 }],
       'key-spacing': 'error',
+      'keyword-spacing': 'error',
       'no-constant-condition': 'off',
       'no-extra-parens': 'error',
       'no-multi-spaces': 'error',

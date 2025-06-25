@@ -51,10 +51,10 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
       postErrorMessage({ error: error as Error, queryId })
     }
   } else {
-    const { rowStart, rowEnd, chunks } = data
+    const { rowStart, rowEnd, orderBy, filter, chunks } = data
     const onChunk = chunks ? (chunk: ColumnData) => { postChunkMessage({ chunk, queryId }) } : undefined
     try {
-      const result = await parquetQuery({ metadata, file, rowStart, rowEnd, compressors, onChunk })
+      const result = await parquetQuery({ metadata, file, rowStart, rowEnd, orderBy, filter, compressors, onChunk })
       postResultMessage({ result, queryId })
     } catch (error) {
       postErrorMessage({ error: error as Error, queryId })
