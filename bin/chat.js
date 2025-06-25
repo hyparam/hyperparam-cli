@@ -1,15 +1,14 @@
 import { tools } from './tools.js'
 
-const systemPrompt =
-  'You are a machine learning web application named "hyperparam". ' +
-  'You assist users with building high quality ML models by introspecting on their training set data. ' +
-  'The website and api are available at hyperparam.app. ' +
-  'Hyperparam uses LLMs to analyze their own training set. ' +
-  'It can generate the perplexity, entropy, and other metrics of the training set. ' +
-  'This allows users to find segments of their data set which are difficult to model. ' +
-  'This could be because the data is junk, or because the data requires deeper understanding. ' +
-  'This is essential for closing the loop on the ML lifecycle. ' +
-  'The quickest way to get started is to upload a dataset and start exploring.'
+const systemPrompt = 'You are a machine learning web application named "Hyperparam".'
+  + ' You assist users with building high quality ML models by introspecting on their training set data.'
+  + ' The website and api are available at hyperparam.app.'
+  + ' Hyperparam uses LLMs to analyze their own training set.'
+  + ' It can generate the perplexity, entropy, and other metrics of the training set.'
+  + ' This allows users to find segments of their data set which are difficult to model.'
+  + ' This could be because the data is junk, or because the data requires deeper understanding.'
+  + ' This is essential for closing the loop on the ML lifecycle.'
+  + ' The quickest way to get started is to upload a dataset and start exploring.'
 /** @type {Message} */
 const systemMessage = { role: 'system', content: systemPrompt }
 
@@ -27,7 +26,7 @@ const colors = {
  * @returns {Promise<Message>}
  */
 async function sendToServer(chatInput) {
-  const response = await fetch('http://localhost:3000/api/functions/openai/chat', {
+  const response = await fetch('https://hyperparam.app/api/functions/openai/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(chatInput),
@@ -38,8 +37,10 @@ async function sendToServer(chatInput) {
   }
 
   // Process the streaming response
+  /** @type {Message} */
   const streamResponse = { role: 'assistant', content: '' }
-  const reader = response.body.getReader()
+  const reader = response.body?.getReader()
+  if (!reader) throw new Error('No response body')
   const decoder = new TextDecoder()
   let buffer = ''
 
@@ -53,19 +54,19 @@ async function sendToServer(chatInput) {
     for (const line of lines) {
       if (!line.trim()) continue
       try {
-        const jsonChunk = JSON.parse(line)
-        const { content, error } = jsonChunk
-        if (content) {
-          streamResponse.content += content
-          write(content)
+        const chunk = JSON.parse(line)
+        const { type, error } = chunk
+        if (type === 'response.output_text.delta') {
+          streamResponse.content += chunk.delta
+          write(chunk.delta)
         } else if (error) {
           console.error(error)
           throw new Error(error)
-        } else if (jsonChunk.function) {
+        } else if (chunk.function) {
           streamResponse.tool_calls ??= []
-          streamResponse.tool_calls.push(jsonChunk)
-        } else if (!jsonChunk.key && jsonChunk.content !== '') {
-          console.log('Unknown chunk', jsonChunk)
+          streamResponse.tool_calls.push(chunk)
+        } else if (!chunk.key) {
+          console.log('Unknown chunk', chunk)
         }
       } catch (err) {
         console.error('Error parsing chunk', err)
@@ -85,6 +86,7 @@ async function sendToServer(chatInput) {
  */
 async function sendMessages(messages) {
   const chatInput = {
+    model: 'gpt-4o',
     messages,
     tools: tools.map(tool => tool.tool),
   }
@@ -92,12 +94,13 @@ async function sendMessages(messages) {
   messages.push(response)
   // handle tool results
   if (response.tool_calls) {
-    /** @type {{ toolCall: ToolCall, tool: ToolHandler, result: Promise<Message> }[]} */
+    /** @type {{ toolCall: ToolCall, tool: ToolHandler, result: Promise<string> }[]} */
     const toolResults = []
     for (const toolCall of response.tool_calls) {
       const tool = tools.find(tool => tool.tool.function.name === toolCall.function.name)
       if (tool) {
-        const result = tool.handleToolCall(toolCall)
+        const args = JSON.parse(toolCall.function?.arguments ?? '{}')
+        const result = tool.handleToolCall(args)
         toolResults.push({ toolCall, tool, result })
       } else {
         throw new Error(`Unknown tool: ${toolCall.function.name}`)
@@ -106,24 +109,27 @@ async function sendMessages(messages) {
     write('\n')
     for (const toolResult of toolResults) {
       const { toolCall, tool } = toolResult
-      const result = await toolResult.result
+      try {
+        const content = await toolResult.result
 
-      // Construct function call message
-      const args = JSON.parse(toolCall.function?.arguments ?? '{}')
-      const keys = Object.keys(args)
-      let func = toolCall.function.name
-      if (keys.length === 0) {
-        func += '()'
-      } else if (keys.length === 1) {
-        func += `(${args[keys[0]]})`
-      } else {
-        // transform to (arg1 = 111, arg2 = 222)
-        const pairs = keys.map(key => `${key} = ${args[key]}`)
-        func += `(${pairs.join(', ')})`
+        // Construct function call message
+        const args = JSON.parse(toolCall.function?.arguments ?? '{}')
+        const entries = Object.entries(args)
+        let func = toolCall.function.name
+        if (entries.length === 0) {
+          func += '()'
+        } else {
+          // transform to (arg1 = 111, arg2 = 222)
+          const pairs = entries.map(([key, value]) => `${key} = ${value}`)
+          func += `(${pairs.join(', ')})`
+        }
+
+        write(colors.tool, `${tool.emoji} ${func}`, colors.normal, '\n\n')
+        messages.push({ role: 'tool', content, tool_call_id: toolCall.id })
+      } catch (error) {
+        write(colors.error, `\nError calling tool ${toolCall.function.name}: ${error.message}\n\n`, colors.normal)
+        messages.push({ role: 'tool', content: `Error calling tool ${toolCall.function.name}: ${error.message}`, tool_call_id: toolCall.id })
       }
-
-      write(colors.tool, `${tool.emoji} ${func}`, colors.normal, '\n\n')
-      messages.push(result)
     }
     // send messages with tool results
     await sendMessages(messages)

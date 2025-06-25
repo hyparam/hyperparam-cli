@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
     "target": "es2022",
     "useDefineForClassFields": true,
     "lib": ["es2022", "DOM", "DOM.Iterable"],

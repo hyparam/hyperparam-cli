@@ -20,7 +20,7 @@ export interface Message {
 export interface ToolHandler {
   emoji: string
   tool: Tool
-  handleToolCall(toolCall: ToolCall): Promise<Message>
+  handleToolCall(args: Record<string, unknown>): Promise<string>
 }
 interface ToolProperty {
   type: string
