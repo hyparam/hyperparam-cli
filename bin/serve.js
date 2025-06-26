@@ -123,7 +123,7 @@ async function handleStatic(filePath, range) {
   if (!stats?.isFile()) {
     return { status: 404, content: 'not found' }
   }
-  const contentLength = stats.size
+  const fileSize = stats.size
 
   // detect content type
   const extname = path.extname(filePath)
@@ -133,8 +133,8 @@ async function handleStatic(filePath, range) {
   // ranged requests
   if (range) {
     const [unit, ranges] = range.split('=')
-    if (unit === 'bytes') {
-      const [start, end] = ranges.split('-').map(Number)
+    if (unit === 'bytes' && ranges) {
+      const [start = 0, end = fileSize] = ranges.split('-').map(Number)
 
       // convert fs.ReadStream to web stream
       const fsStream = createReadStream(filePath, { start, end })
@@ -151,7 +151,7 @@ async function handleStatic(filePath, range) {
   }
 
   const content = await fs.readFile(filePath)
-  return { status: 200, content, contentLength, contentType }
+  return { status: 200, content, contentLength: fileSize, contentType }
 }
 
 /**
