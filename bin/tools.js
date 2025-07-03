@@ -42,7 +42,7 @@ export const tools = [
       if (typeof path !== 'string') {
         throw new Error('Expected path to be a string')
       }
-      if (path.includes('..') || path.includes('~')) {
+      if (path.includes('..') || path.includes('~') || path.startsWith('/')) {
         throw new Error('Invalid path: ' + path)
       }
       if (typeof filetype !== 'undefined' && typeof filetype !== 'string') {
