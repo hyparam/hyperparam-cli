@@ -512,4 +512,28 @@ describe('Markdown with tables', () => {
     expect(getByText('Cell with | escaped pipe')).toBeDefined()
     expect(getByText('Normal cell')).toBeDefined()
   })
+
+  it('renders a table even with unicode en dash', () => {
+    const text = 'Header 1 | Header 2\n–|–\nRow 1 | Data 1\nRow 2 | Data 2'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Header 1')).toBeDefined()
+    expect(getByText('Header 2')).toBeDefined()
+    expect(getByText('Row 1')).toBeDefined()
+    expect(getByText('Data 1')).toBeDefined()
+    expect(getByText('Row 2')).toBeDefined()
+    expect(getByText('Data 2')).toBeDefined()
+  })
+
+  it('renders a table even with unicode em dash', () => {
+    const text = 'Header 1 | Header 2\n—|—\nRow 1 | Data 1\nRow 2 | Data 2'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('Header 1')).toBeDefined()
+    expect(getByText('Header 2')).toBeDefined()
+    expect(getByText('Row 1')).toBeDefined()
+    expect(getByText('Data 1')).toBeDefined()
+    expect(getByText('Row 2')).toBeDefined()
+    expect(getByText('Data 2')).toBeDefined()
+  })
 })
