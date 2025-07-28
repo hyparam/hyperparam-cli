@@ -3,7 +3,7 @@ import { cn } from '../../lib/utils'
 import styles from './Dropdown.module.css'
 
 interface DropdownProps {
-  label?: string
+  label?: ReactNode
   align?: 'left' | 'right'
   className?: string
   children: ReactNode

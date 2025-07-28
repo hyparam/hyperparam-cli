@@ -7,6 +7,7 @@ interface SlidePanelProps {
   mainContent: ReactNode
   panelContent: ReactNode
   isPanelOpen: boolean
+  className?: string
 }
 
 const WIDTH = {
@@ -17,7 +18,7 @@ const WIDTH = {
 /**
  * Slide out panel component with resizing.
  */
-export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: SlidePanelProps) {
+export default function SlidePanel({ mainContent, panelContent, isPanelOpen, className }: SlidePanelProps) {
   const { slidePanel, customClass } = useConfig()
   const minWidth = slidePanel?.minWidth && slidePanel.minWidth > 0 ? slidePanel.minWidth : WIDTH.MIN
   function validWidth(width?: number): number | undefined {
@@ -81,7 +82,7 @@ export default function SlidePanel({ mainContent, panelContent, isPanelOpen }: S
   }, [panelWidth, isPanelOpen])
 
   return (
-    <div className={cn(styles.slidePanel, customClass?.slidePanel)}>
+    <div className={cn(styles.slidePanel, customClass?.slidePanel, className)}>
       <article>
         {mainContent}
       </article>
