@@ -39,8 +39,8 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     }
   }
 
-  async function fetchVirtualRowGroup({ virtualGroupIndex, columns, onCached }: {
-    virtualGroupIndex: number, columns: string[], onCached?: () => void
+  async function fetchVirtualRowGroup({ virtualGroupIndex, columns }: {
+    virtualGroupIndex: number, columns: string[]
   }): Promise<void> {
     const group = groups[virtualGroupIndex]
     if (!group) {
@@ -48,20 +48,6 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     }
     const { groupStart, groupEnd, fetching, fetched } = group
     const columnsToFetch = columns.filter(column => !fetching.get(column) && !fetched.get(column))
-
-    function onChunk(chunk: ColumnData): void {
-      const { columnName, columnData, rowStart } = chunk
-      const cachedColumn = cellCache.get(columnName)
-      if (!cachedColumn) {
-        throw new Error(`Column "${columnName}" not found in header`)
-      }
-      let row = rowStart
-      for (const value of columnData) {
-        cachedColumn[row] ??= { value }
-        onCached?.()
-        row++
-      }
-    }
 
     if (columnsToFetch.length === 0) {
       // nothing to fetch
@@ -80,6 +66,20 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       fetched.set(column, true)
     })
 
+  }
+
+  function onChunk(chunk: ColumnData): void {
+    const { columnName, columnData, rowStart } = chunk
+    const cachedColumn = cellCache.get(columnName)
+    if (!cachedColumn) {
+      throw new Error(`Column "${columnName}" not found in header`)
+    }
+    let row = rowStart
+    for (const value of columnData) {
+      cachedColumn[row] ??= { value }
+      row++
+    }
+    eventTarget.dispatchEvent(new CustomEvent('resolve'))
   }
 
   const numRows = Number(metadata.num_rows)
@@ -107,17 +107,12 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
       const promises: Promise<void>[] = []
 
-      function onCached() {
-        eventTarget.dispatchEvent(new CustomEvent('resolve'))
-      }
-
       groups.forEach(({ groupStart, groupEnd }, i) => {
         if (groupStart < rowEnd && groupEnd > rowStart) {
           promises.push(
             fetchVirtualRowGroup({
               virtualGroupIndex: i,
               columns,
-              onCached,
             }).then(() => {
               checkSignal(signal)
             })
