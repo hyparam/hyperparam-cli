@@ -18,7 +18,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
   const { rowStart, rowEnd, columns, metadata, from, queryId } = data
   const file = await asyncBufferFrom(from)
   try {
-    await parquetRead({ metadata, file, rowStart, rowEnd, columns, compressors, onPage: onChunk })
+    await parquetRead({ metadata, file, rowStart, rowEnd, columns, compressors, onChunk })
     postResultMessage({ queryId })
   } catch (error) {
     postErrorMessage({ error: error as Error, queryId })
