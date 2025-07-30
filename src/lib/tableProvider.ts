@@ -39,13 +39,9 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     }
   }
 
-  async function fetchVirtualRowGroup({ virtualGroupIndex, columns }: {
-    virtualGroupIndex: number, columns: string[]
+  async function fetchVirtualRowGroup({ group, columns }: {
+    group: VirtualRowGroup, columns: string[]
   }): Promise<void> {
-    const group = groups[virtualGroupIndex]
-    if (!group) {
-      throw new Error(`Virtual row group ${virtualGroupIndex} not found`)
-    }
     const { groupStart, groupEnd, fetching, fetched } = group
     const columnsToFetch = columns.filter(column => !fetching.get(column) && !fetched.get(column))
 
@@ -107,11 +103,12 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
       const promises: Promise<void>[] = []
 
-      groups.forEach(({ groupStart, groupEnd }, i) => {
+      groups.forEach((group) => {
+        const { groupStart, groupEnd } = group
         if (groupStart < rowEnd && groupEnd > rowStart) {
           promises.push(
             fetchVirtualRowGroup({
-              virtualGroupIndex: i,
+              group,
               columns,
             }).then(() => {
               checkSignal(signal)
