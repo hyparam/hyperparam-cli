@@ -4,11 +4,18 @@ import { FileMetaData, parquetSchema } from 'hyparquet'
 import { parquetQueryWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
+type GroupStatus = {
+  kind: 'unfetched'
+} | {
+  kind: 'fetching'
+  promise: Promise<void>
+} | {
+  kind: 'fetched'
+}
 interface VirtualRowGroup {
   groupStart: number
   groupEnd: number
-  fetching: Map<string, boolean>
-  fetched: Map<string, boolean>
+  state: Map<string, GroupStatus>
 }
 
 /**
@@ -32,8 +39,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
       groups.push({
         groupStart,
         groupEnd,
-        fetching: new Map(header.map(name => [name, false])),
-        fetched: new Map(header.map(name => [name, false])),
+        state: new Map(header.map(name => [name, { kind: 'unfetched' }])),
       })
       groupStart = groupEnd
     }
@@ -42,24 +48,22 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
   async function fetchVirtualRowGroup({ group, columns }: {
     group: VirtualRowGroup, columns: string[]
   }): Promise<void> {
-    const { groupStart, groupEnd, fetching, fetched } = group
-    const columnsToFetch = columns.filter(column => !fetching.get(column) && !fetched.get(column))
-
-    if (columnsToFetch.length === 0) {
-      // nothing to fetch
-      return
-    }
-
-    columnsToFetch.forEach(column => {
-      fetching.set(column, true)
-    })
+    const { groupStart, groupEnd, state } = group
+    const columnsToFetch = columns.filter(column => state.get(column)?.kind === 'unfetched')
+    const promises = [...group.state.values()].filter((status): status is { kind: 'fetching', promise: Promise<void> } => status.kind === 'fetching').map(status => status.promise)
 
     // TODO(SL): pass AbortSignal to the worker?
-    await parquetQueryWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
+    if (columnsToFetch.length > 0) {
+      const commonPromise = parquetQueryWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
+      columnsToFetch.forEach(column => {
+        state.set(column, { kind: 'fetching', promise: commonPromise })
+      })
+      promises.push(commonPromise)
+    }
+    await Promise.all(promises)
 
     columnsToFetch.forEach(column => {
-      fetching.set(column, false)
-      fetched.set(column, true)
+      state.set(column, { kind: 'fetched' })
     })
 
   }
