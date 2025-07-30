@@ -1,5 +1,4 @@
 import type { ColumnData, FileMetaData } from 'hyparquet'
-import type { ParquetQueryFilter } from 'hyparquet/src/types.js'
 
 // Serializable constructors for AsyncBuffers
 interface AsyncBufferFromFile {
@@ -12,51 +11,25 @@ interface AsyncBufferFromUrl {
   requestInit?: RequestInit
 }
 export type AsyncBufferFrom = AsyncBufferFromFile | AsyncBufferFromUrl
-// Cells is defined in hightable, but uses any, not unknown
-export type Cells = Record<string, unknown> ;
 
-export interface CommonWorkerOptions {
-  metadata: FileMetaData,
-  from: AsyncBufferFrom
-}
-interface Message {
+export interface ResultMessage {
   queryId: number
 }
-export interface ErrorMessage extends Message {
+export interface ErrorMessage extends ResultMessage {
   error: Error
 }
+export interface ChunkMessage extends ResultMessage {
+  chunk: ColumnData
+}
+export type WorkerMessage = ChunkMessage | ResultMessage | ErrorMessage
 
-/* Query worker */
-export interface QueryWorkerOptions extends CommonWorkerOptions {
+export interface WorkerOptions {
+  metadata: FileMetaData,
+  from: AsyncBufferFrom
   rowStart?: number,
   rowEnd?: number,
   columns?: string[],
-  orderBy?: string,
-  filter?: ParquetQueryFilter,
-  onChunk?: (chunk: ColumnData) => void
+  onChunk: (chunk: ColumnData) => void
+  // TODO(SL): support onPage too?
 }
-export interface QueryClientMessage extends QueryWorkerOptions, Message {
-  kind: 'query',
-  chunks?: boolean
-}
-export interface ChunkMessage extends Message {
-  chunk: ColumnData
-}
-export interface ResultMessage extends Message {
-  result: Cells[]
-}
-export type QueryWorkerMessage = ChunkMessage | ResultMessage | ErrorMessage
-
-/* ColumnRanks worker */
-export interface ColumnRanksWorkerOptions extends CommonWorkerOptions {
-  column: string
-}
-export interface ColumnRanksClientMessage extends ColumnRanksWorkerOptions, Message {
-  kind: 'columnRanks'
-}
-export interface ColumnRanksMessage extends Message {
-  columnRanks: number[]
-}
-export type ColumnRanksWorkerMessage = ColumnRanksMessage | ErrorMessage
-
-export type ClientMessage = QueryClientMessage | ColumnRanksClientMessage
+export type ClientMessage = Omit<WorkerOptions, 'onChunk'> & ResultMessage

@@ -9,7 +9,7 @@ import TextView from '../TextView/TextView.js'
 
 interface ViewerProps {
   source: FileSource
-  setError: (error: Error | undefined) => void
+  setError: (error: unknown) => void
   setProgress: (progress: number | undefined) => void
 }
 

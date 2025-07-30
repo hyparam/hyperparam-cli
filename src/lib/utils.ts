@@ -1,3 +1,4 @@
+import { stringify } from 'hightable'
 import { AsyncBuffer, asyncBufferFromUrl, cachedAsyncBuffer } from 'hyparquet'
 import { AsyncBufferFrom } from './workers/types.js'
 
@@ -97,3 +98,11 @@ export const contentTypes: Record<string, string> = {
 }
 
 export const imageTypes = ['.png', '.jpg', '.jpeg', '.gif', '.svg', '.tiff', '.webp']
+
+export function toError(error: unknown): Error | undefined{
+  if (error === undefined || error instanceof Error) {
+    return error
+  } else {
+    return new Error(stringify(error))
+  }
+}

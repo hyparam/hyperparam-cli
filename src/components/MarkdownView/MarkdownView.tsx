@@ -8,7 +8,7 @@ import styles from './MarkdownView.module.css'
 
 interface ViewerProps {
   source: FileSource
-  setError: (error: Error | undefined) => void
+  setError: (error: unknown) => void
 }
 
 /**
@@ -37,7 +37,7 @@ export default function MarkdownView({ source, setError }: ViewerProps) {
         setError(undefined)
         setContent({ text, fileSize })
       } catch (error) {
-        setError(error as Error)
+        setError(error)
         setContent(undefined)
       } finally {
         setIsLoading(false)

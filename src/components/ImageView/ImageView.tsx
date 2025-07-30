@@ -7,7 +7,7 @@ import styles from './ImageView.module.css'
 
 interface ViewerProps {
   source: FileSource
-  setError: (error: Error | undefined) => void
+  setError: (error: unknown) => void
 }
 
 interface Content {
@@ -45,7 +45,7 @@ export default function ImageView({ source, setError }: ViewerProps) {
         setError(undefined)
       } catch (error) {
         setContent(undefined)
-        setError(error as Error)
+        setError(error)
       } finally {
         setIsLoading(false)
       }
