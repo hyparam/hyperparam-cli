@@ -73,3 +73,15 @@ The `hyperparam` package also includes a library that can be used in other appli
 ```js
 import { asyncBufferFrom, AsyncBufferFrom, parquetDataFrame } from "hyperparam";
 ```
+
+If you encounter any issues with the web worker, you might have to configure your bundler. For example, in Vite, you can use the following configuration:
+
+```js
+import { defineConfig } from "vite";
+export default defineConfig({
+  ...
+  optimizeDeps: {
+    exclude: ["hyperparam"],
+  },
+});
+```
