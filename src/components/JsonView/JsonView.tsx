@@ -8,7 +8,7 @@ import styles from '../Json/Json.module.css'
 
 interface ViewerProps {
   source: FileSource
-  setError: (error: Error | undefined) => void
+  setError: (error: unknown) => void
 }
 
 const largeFileSize = 8_000_000 // 8 mb
@@ -48,7 +48,7 @@ export default function JsonView({ source, setError }: ViewerProps) {
         setJson(JSON.parse(text))
       } catch (error) {
         // TODO: show plain text in error case
-        setError(error as Error)
+        setError(error)
       } finally {
         setIsLoading(false)
       }

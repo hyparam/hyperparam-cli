@@ -1,4 +1,4 @@
-import HighTable, { DataFrame, rowCache } from 'hightable'
+import HighTable, { DataFrame } from 'hightable'
 import 'hightable/src/HighTable.css'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -15,7 +15,7 @@ import styles from './ParquetView.module.css'
 interface ViewerProps {
   source: FileSource
   setProgress: (progress: number | undefined) => void
-  setError: (error: Error | undefined) => void
+  setError: (error: unknown) => void
 }
 
 interface Content extends ContentSize {
@@ -41,12 +41,11 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
         const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, requestInit }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
-        let dataframe = parquetDataFrame(from, metadata)
-        dataframe = rowCache(dataframe)
+        const dataframe = parquetDataFrame(from, metadata)
         const fileSize = asyncBuffer.byteLength
         setContent({ dataframe, fileSize })
       } catch (error) {
-        setError(error as Error)
+        setError(error)
       } finally {
         setIsLoading(false)
         setProgress(1)
@@ -83,9 +82,14 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
       if (cell?.col === col && cell.row === row) {
         return undefined
       }
+      const columnName = content?.dataframe.header[col]
+      if (columnName === undefined || !content?.dataframe.getCell({ row, column: columnName })) {
+        // don't open the cell panel until it has loaded
+        return undefined
+      }
       return { row, col }
     })
-  }, [])
+  }, [content])
   const onDoubleClickCell = useCallback((_event: React.MouseEvent, col: number, row: number) => {
     toggleCell(col, row)
   }, [toggleCell])

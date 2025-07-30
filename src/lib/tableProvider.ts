@@ -1,37 +1,21 @@
-import { DataFrame, OrderBy, ResolvableRow, resolvableRow } from 'hightable'
+import { DataFrame, DataFrameEvents, ResolvedValue, UnsortableDataFrame, createEventTarget, sortableDataFrame } from 'hightable'
+import type { ColumnData } from 'hyparquet'
 import { FileMetaData, parquetSchema } from 'hyparquet'
-import { parquetColumnRanksWorker, parquetQueryWorker } from './workers/parquetWorkerClient.js'
+import { parquetQueryWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
-/*
- * sortIndex[0] gives the index of the first row in the sorted table
- */
-export function computeSortIndex(orderByRanks: { direction: 'ascending' | 'descending', ranks: number[] }[]): number[] {
-  if (!(0 in orderByRanks)) {
-    throw new Error('orderByRanks should have at least one element')
-  }
-  const numRows = orderByRanks[0].ranks.length
-  return Array
-    .from({ length: numRows }, (_, i) => i)
-    .sort((a, b) => {
-      for (const { direction, ranks } of orderByRanks) {
-        const rankA = ranks[a]
-        const rankB = ranks[b]
-        if (rankA === undefined || rankB === undefined) {
-          throw new Error('Invalid ranks')
-        }
-        const value = direction === 'ascending' ? 1 : -1
-        if (rankA < rankB) return -value
-        if (rankA > rankB) return value
-      }
-      return 0
-    })
+type GroupStatus = {
+  kind: 'unfetched'
+} | {
+  kind: 'fetching'
+  promise: Promise<void>
+} | {
+  kind: 'fetched'
 }
-
 interface VirtualRowGroup {
   groupStart: number
   groupEnd: number
-  fetching: boolean
+  state: Map<string, GroupStatus>
 }
 
 /**
@@ -40,9 +24,9 @@ interface VirtualRowGroup {
 export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData): DataFrame {
   const { children } = parquetSchema(metadata)
   const header = children.map(child => child.element.name)
-  const sortCache = new Map<string, Promise<number[]>>()
-  const columnRanksCache = new Map<string, Promise<number[]>>()
-  const data = new Array<ResolvableRow | undefined>(Number(metadata.num_rows))
+  const eventTarget = createEventTarget<DataFrameEvents>()
+
+  const cellCache = new Map<string, ResolvedValue<unknown>[]>(header.map(name => [name, []]))
 
   // virtual row groups are up to 1000 rows within row group boundaries
   const groups: VirtualRowGroup[] = []
@@ -52,155 +36,118 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
     for (let j = 0; j < rg.num_rows; j += 1000) {
       const groupSize = Math.min(1000, Number(rg.num_rows) - j)
       const groupEnd = groupStart + groupSize
-      groups.push({ groupStart, groupEnd, fetching: false })
+      groups.push({
+        groupStart,
+        groupEnd,
+        state: new Map(header.map(name => [name, { kind: 'unfetched' }])),
+      })
       groupStart = groupEnd
     }
   }
 
-  function fetchVirtualRowGroup(virtualGroupIndex: number) {
-    const group = groups[virtualGroupIndex]
-    if (group && !group.fetching) {
-      group.fetching = true
-      const { groupStart, groupEnd } = group
-      // Initialize with resolvable promises
-      for (let i = groupStart; i < groupEnd; i++) {
-        data[i] = resolvableRow(header)
-        data[i]?.index.resolve(i)
-      }
-      parquetQueryWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd })
-        .then(groupData => {
-          for (let rowIndex = groupStart; rowIndex < groupEnd; rowIndex++) {
-            const dataRow = data[rowIndex]
-            if (dataRow === undefined) {
-              throw new Error(`Missing data row for index ${rowIndex}`)
-            }
-            const row = groupData[rowIndex - groupStart]
-            if (row === undefined) {
-              throw new Error(`Missing row in groupData for index ${rowIndex}`)
-            }
-            for (const [key, value] of Object.entries(row)) {
-              const cell = dataRow.cells[key]
-              if (cell === undefined) {
-                throw new Error(`Missing column in dataRow for column ${key}`)
-              }
-              cell.resolve(value)
-            }
-          }
-        })
-        .catch((error: unknown) => {
-          const reason = `Error fetching rows ${groupStart}-${groupEnd}: ${error}`
-          // reject the index of the first row (it's enough to trigger the error bar)
-          data[groupStart]?.index.reject(reason)
-        })
-    }
-  }
+  async function fetchVirtualRowGroup({ group, columns }: {
+    group: VirtualRowGroup, columns: string[]
+  }): Promise<void> {
+    const { groupStart, groupEnd, state } = group
+    const columnsToFetch = columns.filter(column => state.get(column)?.kind === 'unfetched')
+    const promises = [...group.state.values()].filter((status): status is { kind: 'fetching', promise: Promise<void> } => status.kind === 'fetching').map(status => status.promise)
 
-  function getColumnRanks(column: string): Promise<number[]> {
-    let columnRanks = columnRanksCache.get(column)
-    if (!columnRanks) {
-      columnRanks = parquetColumnRanksWorker({ from, metadata, column })
-      columnRanksCache.set(column, columnRanks)
-    }
-    return columnRanks
-  }
-
-  function getSortIndex(orderBy: OrderBy): Promise<number[]> {
-    const orderByKey = JSON.stringify(orderBy)
-    let sortIndex = sortCache.get(orderByKey)
-    if (!sortIndex) {
-      const orderByRanksPromise = Promise.all(
-        orderBy.map(({ column, direction }) => getColumnRanks(column).then(ranks => ({ direction, ranks })))
-      )
-      sortIndex = orderByRanksPromise.then(orderByRanks => computeSortIndex(orderByRanks))
-      sortCache.set(orderByKey, sortIndex)
-    }
-    return sortIndex
-  }
-
-  return {
-    header,
-    numRows: Number(metadata.num_rows),
-    rows({ start, end, orderBy }) {
-      if (orderBy?.length) {
-        const numRows = end - start
-        const wrapped = new Array(numRows).fill(null).map(() => resolvableRow(header))
-
-        getSortIndex(orderBy).then(indices => {
-          // Compute row groups to fetch
-          for (const index of indices.slice(start, end)) {
-            const groupIndex = groups.findIndex(({ groupEnd }) => index < groupEnd)
-            fetchVirtualRowGroup(groupIndex)
-          }
-
-          // Re-assemble data in sorted order into wrapped
-          for (let i = start; i < end; i++) {
-            const index = indices[i]
-            if (index === undefined) {
-              throw new Error(`index ${i} not found in indices`)
-            }
-            const row = data[index]
-            if (row === undefined) {
-              throw new Error('Row not fetched')
-            }
-            const { cells } = row
-            const wrappedRow = wrapped[i - start]
-            if (wrappedRow === undefined) {
-              throw new Error(`Wrapped row missing at index ${i - start}`)
-            }
-            wrappedRow.index.resolve(index)
-            for (const key of header) {
-              const cell = cells[key]
-              if (cell) {
-                // TODO(SL): should we remove this check? It makes sense only if header change
-                // but if so, I guess we will have more issues
-                cell
-                  .then((value: unknown) => {
-                    const wrappedCell = wrappedRow.cells[key]
-                    if (wrappedCell === undefined) {
-                      throw new Error(`Wrapped cell not found for column ${key}`)
-                    }
-                    wrappedCell.resolve(value)
-                  })
-                  .catch((error: unknown) => {
-                    console.error('Error resolving sorted row', error)
-                  })
-              }
-            }
-          }
-        }).catch((error: unknown) => {
-          console.error('Error fetching sort index or resolving sorted rows', error)
-          // Reject at least one promise to trigger the error bar
-          wrapped[0]?.index.reject(`Error fetching sort index or resolving sorted rows: ${error}`)
-        })
-
-        return wrapped
-      } else {
-        groups.forEach(({ groupStart, groupEnd }, i) => {
-          if (groupStart < end && groupEnd > start) {
-            fetchVirtualRowGroup(i)
-          }
-        })
-        const wrapped = data.slice(start, end)
-        if (wrapped.some(row => row === undefined)) {
-          throw new Error('Row not fetched')
-        }
-        return wrapped as ResolvableRow[]
-      }
-    },
-    sortable: true,
-    getColumn({ column, start, end }) {
-      if (!header.includes(column)) {
-        return Promise.reject(new Error(`Column "${column}" not found in header`))
-      }
-
-      return parquetQueryWorker({
-        from,
-        metadata,
-        rowStart: start,
-        rowEnd: end,
-      }).then(rows => {
-        return rows.map(row => row[column])
+    // TODO(SL): pass AbortSignal to the worker?
+    if (columnsToFetch.length > 0) {
+      const commonPromise = parquetQueryWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
+      columnsToFetch.forEach(column => {
+        state.set(column, { kind: 'fetching', promise: commonPromise })
       })
+      promises.push(commonPromise)
+    }
+    await Promise.all(promises)
+
+    columnsToFetch.forEach(column => {
+      state.set(column, { kind: 'fetched' })
+    })
+
+  }
+
+  function onChunk(chunk: ColumnData): void {
+    const { columnName, columnData, rowStart } = chunk
+    const cachedColumn = cellCache.get(columnName)
+    if (!cachedColumn) {
+      throw new Error(`Column "${columnName}" not found in header`)
+    }
+    let row = rowStart
+    for (const value of columnData) {
+      cachedColumn[row] ??= { value }
+      row++
+    }
+    eventTarget.dispatchEvent(new CustomEvent('resolve'))
+  }
+
+  const numRows = Number(metadata.num_rows)
+
+  const unsortableDataFrame: UnsortableDataFrame = {
+    header,
+    numRows,
+    eventTarget,
+    getRowNumber({ row }) {
+      validateRow({ row, data: { numRows } })
+      return { value: row }
     },
+    getCell({ row, column }) {
+      validateRow({ row, data: { numRows } })
+      validateColumn({ column, data: { header } })
+      return cellCache.get(column)?.[row]
+    },
+    fetch: async ({ rowStart, rowEnd, columns, signal }) => {
+      validateFetchParams({ rowStart, rowEnd, columns, data: { numRows, header } })
+      checkSignal(signal)
+
+      if (!columns || columns.length === 0) {
+        return
+      }
+
+      const promises: Promise<void>[] = []
+
+      groups.forEach((group) => {
+        const { groupStart, groupEnd } = group
+        if (groupStart < rowEnd && groupEnd > rowStart) {
+          promises.push(
+            fetchVirtualRowGroup({
+              group,
+              columns,
+            }).then(() => {
+              checkSignal(signal)
+            })
+          )
+        }
+      })
+
+      await Promise.all(promises)
+    },
+  }
+
+  return sortableDataFrame(unsortableDataFrame)
+}
+
+function validateFetchParams({ rowStart, rowEnd, columns, data: { numRows, header } }: {rowStart: number, rowEnd: number, columns?: string[], data: Pick<DataFrame, 'numRows' | 'header'>}): void {
+  if (rowStart < 0 || rowEnd > numRows || !Number.isInteger(rowStart) || !Number.isInteger(rowEnd) || rowStart > rowEnd) {
+    throw new Error(`Invalid row range: ${rowStart} - ${rowEnd}, numRows: ${numRows}`)
+  }
+  if (columns?.some(column => !header.includes(column))) {
+    throw new Error(`Invalid columns: ${columns.join(', ')}. Available columns: ${header.join(', ')}`)
+  }
+}
+function validateRow({ row, data: { numRows } }: {row: number, data: Pick<DataFrame, 'numRows'>}): void {
+  if (row < 0 || row >= numRows || !Number.isInteger(row)) {
+    throw new Error(`Invalid row index: ${row}, numRows: ${numRows}`)
+  }
+}
+function validateColumn({ column, data: { header } }: {column: string, data: Pick<DataFrame, 'header'>}): void {
+  if (!header.includes(column)) {
+    throw new Error(`Invalid column: ${column}. Available columns: ${header.join(', ')}`)
+  }
+}
+function checkSignal(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw new DOMException('The operation was aborted.', 'AbortError')
   }
 }

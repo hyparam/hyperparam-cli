@@ -8,7 +8,7 @@ import styles from '../Json/Json.module.css'
 
 interface ViewerProps {
   source: FileSource
-  setError: (error: Error | undefined) => void
+  setError: (error: unknown) => void
 }
 
 /**
@@ -43,7 +43,7 @@ export default function AvroView({ source, setError }: ViewerProps) {
         setContent({ fileSize })
         setJson(json)
       } catch (error) {
-        setError(error as Error)
+        setError(error)
       } finally {
         setIsLoading(false)
       }
