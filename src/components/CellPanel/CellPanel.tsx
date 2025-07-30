@@ -17,6 +17,8 @@ interface ViewerProps {
   onClose: () => void
 }
 
+const UNLOADED_CELL_PLACEHOLDER = '<the content has not been fetched yet>'
+
 /**
  * Cell viewer displays a single cell from a table.
  */
@@ -37,7 +39,13 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
         await df.fetch({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
         const cell = df.getCell({ row, column: columnName })
         if (cell === undefined) {
-          throw new Error(`Cell at row=${row}, col=${col} is undefined`)
+          setContent(
+            <code className={cn(jsonStyles.textView, customClass?.textView)}>
+              {/* TODO(SL) maybe change the style to highlight it's not real content */}
+              {UNLOADED_CELL_PLACEHOLDER}
+            </code>
+          )
+          return
         }
         const value: unknown = await cell.value
         if (value instanceof Object && !(value instanceof Date)) {

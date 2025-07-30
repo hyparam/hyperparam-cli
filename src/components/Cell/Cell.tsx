@@ -15,6 +15,8 @@ interface CellProps {
   col: number
 }
 
+const UNLOADED_CELL_PLACEHOLDER = '<the content has not been fetched yet>'
+
 /**
  * Cell viewer displays a single cell from a table.
  */
@@ -46,10 +48,7 @@ export default function CellView({ source, row, col }: CellProps) {
         }
         await df.fetch({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
         const cell = df.getCell({ row, column: columnName })
-        if (cell === undefined) {
-          throw new Error(`Cell at row=${row}, col=${col} is undefined`)
-        }
-        const text = stringify(cell.value)
+        const text = cell === undefined ? UNLOADED_CELL_PLACEHOLDER : stringify(cell.value)
         setText(text)
         setError(undefined)
       } catch (error) {
