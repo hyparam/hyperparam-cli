@@ -43,7 +43,6 @@ function getWorker() {
  * to be serialized to the worker.
  */
 export function parquetQueryWorker({ metadata, from, rowStart, rowEnd, columns, onChunk }: WorkerOptions): Promise<void> {
-  // TODO(SL) Support passing columns?
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
     pending.set(queryId, { resolve, reject, onChunk })

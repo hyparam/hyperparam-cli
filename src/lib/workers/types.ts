@@ -30,6 +30,5 @@ export interface WorkerOptions {
   rowEnd?: number,
   columns?: string[],
   onChunk: (chunk: ColumnData) => void
-  // TODO(SL): support onPage too?
 }
 export type ClientMessage = Omit<WorkerOptions, 'onChunk'> & ResultMessage

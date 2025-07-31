@@ -9,6 +9,7 @@ const __dirname = dirname (fileURLToPath (import.meta.url ))
 export default defineConfig({
   plugins: [react()],
   build: {
+    minify: true,
     outDir: resolve(__dirname, 'lib'),
     copyPublicDir: false,
     lib: {

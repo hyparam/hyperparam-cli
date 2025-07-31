@@ -1,8 +1,23 @@
 import type { ColumnData } from 'hyparquet'
-import { parquetRead } from 'hyparquet'
+import { AsyncBuffer, asyncBufferFromUrl, cachedAsyncBuffer, parquetRead } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-import { asyncBufferFrom } from '../utils.js'
-import type { ChunkMessage, ClientMessage, ErrorMessage, ResultMessage } from './types.js'
+import type { AsyncBufferFrom, ChunkMessage, ClientMessage, ErrorMessage, ResultMessage } from './types.js'
+
+const cache = new Map<string, Promise<AsyncBuffer>>()
+
+export function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
+  if ('url' in from) {
+    // Cached asyncBuffer for urls only
+    const key = JSON.stringify(from)
+    const cached = cache.get(key)
+    if (cached) return cached
+    const asyncBuffer = asyncBufferFromUrl(from).then(cachedAsyncBuffer)
+    cache.set(key, asyncBuffer)
+    return asyncBuffer
+  } else {
+    return from.file.arrayBuffer()
+  }
+}
 
 function postChunkMessage ({ chunk, queryId }: ChunkMessage) {
   self.postMessage({ chunk, queryId })
