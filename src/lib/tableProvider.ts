@@ -1,7 +1,7 @@
 import { DataFrame, DataFrameEvents, ResolvedValue, UnsortableDataFrame, createEventTarget, sortableDataFrame } from 'hightable'
 import type { ColumnData } from 'hyparquet'
 import { FileMetaData, parquetSchema } from 'hyparquet'
-import { parquetQueryWorker } from './workers/parquetWorkerClient.js'
+import { parquetReadWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
 type GroupStatus = {
@@ -54,7 +54,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
     // TODO(SL): pass AbortSignal to the worker?
     if (columnsToFetch.length > 0) {
-      const commonPromise = parquetQueryWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
+      const commonPromise = parquetReadWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
       columnsToFetch.forEach(column => {
         state.set(column, { kind: 'fetching', promise: commonPromise })
       })

@@ -1,6 +1,7 @@
 import { stringify } from 'hightable'
-import { AsyncBuffer, asyncBufferFromUrl, cachedAsyncBuffer } from 'hyparquet'
+import { AsyncBuffer } from 'hyparquet'
 import { AsyncBufferFrom } from './workers/types.js'
+import { fromToAsyncBuffer } from './workers/utils.js'
 
 /**
  * Helper function to join class names
@@ -13,17 +14,7 @@ export function cn(...names: (string | undefined | false)[]): string {
  * Convert AsyncBufferFromUrl to AsyncBuffer.
  */
 export function asyncBufferFrom(from: AsyncBufferFrom): Promise<AsyncBuffer> {
-  if ('url' in from) {
-    // Cached asyncBuffer for urls only
-    const key = JSON.stringify(from)
-    const cached = cache.get(key)
-    if (cached) return cached
-    const asyncBuffer = asyncBufferFromUrl(from).then(cachedAsyncBuffer)
-    cache.set(key, asyncBuffer)
-    return asyncBuffer
-  } else {
-    return from.file.arrayBuffer()
-  }
+  return fromToAsyncBuffer(from, cache)
 }
 const cache = new Map<string, Promise<AsyncBuffer>>()
 // TODO(SL): do we really want a singleton?
