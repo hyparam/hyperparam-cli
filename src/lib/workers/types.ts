@@ -1,4 +1,8 @@
 import type { ColumnData, ParquetReadOptions } from 'hyparquet'
+import { parquetQuery } from 'hyparquet'
+
+// https://github.com/hyparam/hyparquet/pull/105
+type ParquetQueryFilter = Exclude<Parameters<typeof parquetQuery>[0]['filter'], undefined>
 
 // Serializable constructors for AsyncBuffers
 interface AsyncBufferFromFile {
@@ -33,6 +37,17 @@ export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'comp
  * - 'parsers' are not configurable, the worker uses the default parsers
  */
 export type ParquetReadObjectsWorkerOptions = Omit<ParquetReadWorkerOptions, 'onComplete'>
+/**
+ * Options for the worker version of parquetQuery
+ * The same options as parquetQuery, but:
+ * - 'file' must be replaced with 'from': "AsyncBufferFrom"
+ * - 'compressors' are not configurable, the worker uses hyparquet-compressors
+ * - 'parsers' are not configurable, the worker uses the default parsers
+ */
+export interface ParquetQueryWorkerOptions extends ParquetReadWorkerOptions {
+  filter?: ParquetQueryFilter,
+  orderBy?: string
+}
 
 /**
  * Messages sent by the client function to the worker
@@ -40,31 +55,51 @@ export type ParquetReadObjectsWorkerOptions = Omit<ParquetReadWorkerOptions, 'on
 export interface QueryId {
   queryId: number
 }
-export type SerializableOptions = Omit<ParquetReadWorkerOptions, 'onComplete' | 'onChunk' | 'onPage'>
-export interface ClientMessage extends SerializableOptions, QueryId {
-  kind: 'parquetReadObjects' | 'parquetRead'
+export interface From {
+  from: AsyncBufferFrom
 }
+export interface ParquetReadClientMessage extends QueryId, From {
+  kind: 'parquetRead'
+  options: Omit<ParquetReadWorkerOptions, 'onComplete' | 'onChunk' | 'onPage' | 'from'>
+}
+export interface ParquetReadObjectsClientMessage extends QueryId, From {
+  kind: 'parquetReadObjects'
+  options: Omit<ParquetReadObjectsWorkerOptions, 'onChunk' | 'onPage'| 'from'>
+}
+export interface ParquetQueryClientMessage extends QueryId, From {
+  kind: 'parquetQuery'
+  options: Omit<ParquetQueryWorkerOptions, 'onComplete' | 'onChunk' | 'onPage'| 'from'>
+}
+export type ClientMessage = ParquetQueryClientMessage | ParquetReadObjectsClientMessage | ParquetReadClientMessage
 
 /**
  * Messages sent by the worker to the client
  */
-// export interface ResultMessage {
-//   queryId: number
-// }
 export interface CompleteMessage extends QueryId {
+  kind: 'onComplete'
   rows: Rows
 }
 export interface ChunkMessage extends QueryId {
+  kind: 'onChunk'
   chunk: ColumnData
 }
 export interface PageMessage extends QueryId {
+  kind: 'onPage'
   page: ColumnData
 }
-export interface ErrorMessage extends QueryId {
+export interface RejectMessage extends QueryId {
+  kind: 'onReject'
   error: Error
 }
-export interface RowObjectsResultMessage extends QueryId {
-  rowObjects: Rows
+export interface ParquetReadResolveMessage extends QueryId {
+  kind: 'onParquetReadResolve'
 }
-export type EmptyResultMessage = QueryId
-export type WorkerMessage = CompleteMessage | ChunkMessage | PageMessage | ErrorMessage | RowObjectsResultMessage | EmptyResultMessage
+export interface ParquetReadObjectsResolveMessage extends QueryId {
+  kind: 'onParquetReadObjectsResolve'
+  rows: Rows
+}
+export interface ParquetQueryResolveMessage extends QueryId {
+  kind: 'onParquetQueryResolve'
+  rows: Rows
+}
+export type WorkerMessage = CompleteMessage | ChunkMessage | PageMessage | RejectMessage | ParquetReadResolveMessage | ParquetReadObjectsResolveMessage | ParquetQueryResolveMessage

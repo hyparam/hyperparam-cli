@@ -1,5 +1,5 @@
 import type { ColumnData } from 'hyparquet'
-import type { ClientMessage, ParquetReadObjectsWorkerOptions, ParquetReadWorkerOptions, Rows, WorkerMessage } from './types.js'
+import type { ClientMessage, ParquetQueryWorkerOptions, ParquetReadObjectsWorkerOptions, ParquetReadWorkerOptions, Rows, WorkerMessage } from './types.js'
 
 let worker: Worker | undefined
 let nextQueryId = 0
@@ -8,8 +8,9 @@ interface Agent {
   onChunk?: (chunk: ColumnData) => void
   onPage?: (page: ColumnData) => void
   reject: (error: Error) => void
-  resolveEmpty?: () => void
-  resolveRowObjects?: (rowObjects: Rows) => void
+  parquetReadResolve?: () => void
+  parquetReadObjectsResolve?: (rows: Rows) => void
+  parquetQueryResolve?: (rows: Rows) => void
 }
 
 const pendingAgents = new Map<number, Agent>()
@@ -26,24 +27,37 @@ function getWorker() {
         return
       }
 
-      const { onComplete, onChunk, onPage, reject, resolveEmpty, resolveRowObjects } = pendingAgent
-      if ('rows' in data) {
-        onComplete?.(data.rows)
-      } else if ('chunk' in data) {
-        onChunk?.(data.chunk)
-      } else if ('page' in data) {
-        onPage?.(data.page)
-      } else {
-        if ('error' in data) {
-          reject(data.error)
-        } else if ('rowObjects' in data) {
-          resolveRowObjects?.(data.rowObjects)
-        } else {
-          resolveEmpty?.()
-        }
-        /* clean up */
-        pendingAgents.delete(data.queryId)
-        // TODO(SL): maybe terminate the worker when no pending agents left
+      const { onComplete, onChunk, onPage, reject, parquetReadResolve, parquetReadObjectsResolve, parquetQueryResolve } = pendingAgent
+      switch (data.kind) {
+        case 'onComplete':
+          onComplete?.(data.rows)
+          break
+        case 'onChunk':
+          onChunk?.(data.chunk)
+          break
+        case 'onPage':
+          onPage?.(data.page)
+          break
+        default:
+          switch (data.kind) {
+            case 'onReject':
+              if ('error' in data) { // check, just in case
+                reject(data.error)
+              }
+              break
+            case 'onParquetReadResolve':
+              parquetReadResolve?.()
+              break
+            case 'onParquetReadObjectsResolve':
+              parquetReadObjectsResolve?.(data.rows)
+              break
+            case 'onParquetQueryResolve':
+              parquetQueryResolve?.(data.rows)
+              break
+          }
+          /* clean up */
+          pendingAgents.delete(data.queryId)
+          // TODO(SL): maybe terminate the worker when no pending agents left
       }
     }
   }
@@ -58,12 +72,12 @@ function getWorker() {
  * the default parsers.
  */
 export function parquetReadWorker(options: ParquetReadWorkerOptions): Promise<void> {
-  const { onComplete, onChunk, onPage, ...serializableOptions } = options
+  const { onComplete, onChunk, onPage, from, ...serializableOptions } = options
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
-    pendingAgents.set(queryId, { resolveEmpty: resolve, reject, onComplete, onChunk, onPage })
+    pendingAgents.set(queryId, { parquetReadResolve: resolve, reject, onComplete, onChunk, onPage })
     const worker = getWorker()
-    const message: ClientMessage = { queryId, ...serializableOptions, kind: 'parquetRead' }
+    const message: ClientMessage = { queryId, from, kind: 'parquetRead', options: serializableOptions }
     worker.postMessage(message)
   })
 }
@@ -76,12 +90,30 @@ export function parquetReadWorker(options: ParquetReadWorkerOptions): Promise<vo
  * the default parsers.
  */
 export function parquetReadObjectsWorker(options: ParquetReadObjectsWorkerOptions): Promise<Rows> {
-  const { onChunk, onPage, ...serializableOptions } = options
+  const { onChunk, onPage, from, ...serializableOptions } = options
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
-    pendingAgents.set(queryId, { resolveRowObjects: resolve, reject, onChunk, onPage })
+    pendingAgents.set(queryId, { parquetReadObjectsResolve: resolve, reject, onChunk, onPage })
     const worker = getWorker()
-    const message: ClientMessage = { queryId, ...serializableOptions, kind: 'parquetReadObjects' }
+    const message: ClientMessage = { queryId, from, kind: 'parquetReadObjects', options: serializableOptions }
+    worker.postMessage(message)
+  })
+}
+
+/**
+ * Presents almost the same interface as parquetQuery, but runs in a worker.
+ * This is useful for reading large parquet files without blocking the main thread.
+ * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
+ * to be serialized to the worker. Also: the worker uses hyparquet-compressors and
+ * the default parsers.
+ */
+export function parquetQueryWorker(options: ParquetQueryWorkerOptions): Promise<Rows> {
+  const { onComplete, onChunk, onPage, from, ...serializableOptions } = options
+  return new Promise((resolve, reject) => {
+    const queryId = nextQueryId++
+    pendingAgents.set(queryId, { parquetQueryResolve: resolve, reject, onComplete, onChunk, onPage })
+    const worker = getWorker()
+    const message: ClientMessage = { queryId, from, kind: 'parquetQuery', options: serializableOptions }
     worker.postMessage(message)
   })
 }
