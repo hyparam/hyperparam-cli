@@ -1,40 +1,46 @@
 import type { ColumnData } from 'hyparquet'
-import { AsyncBuffer, parquetRead, parquetReadObjects } from 'hyparquet'
+import { AsyncBuffer, parquetQuery, parquetRead, parquetReadObjects } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-import type { ChunkMessage, ClientMessage, CompleteMessage, EmptyResultMessage, ErrorMessage, PageMessage, RowObjectsResultMessage } from './types.js'
+import type { ChunkMessage, ClientMessage, CompleteMessage, PageMessage, ParquetQueryResolveMessage, ParquetReadObjectsResolveMessage, ParquetReadResolveMessage, RejectMessage } from './types.js'
 import { fromToAsyncBuffer } from './utils.js'
 
 const cache = new Map<string, Promise<AsyncBuffer>>()
 
-function postCompleteMessage ({ queryId, rows }: CompleteMessage) {
-  self.postMessage({ queryId, rows })
+function postCompleteMessage ({ queryId, rows }: Omit<CompleteMessage, 'kind'>) {
+  self.postMessage({ kind: 'onComplete', queryId, rows })
 }
-function postChunkMessage ({ chunk, queryId }: ChunkMessage) {
-  self.postMessage({ chunk, queryId })
+function postChunkMessage ({ chunk, queryId }: Omit<ChunkMessage, 'kind'>) {
+  self.postMessage({ kind: 'onChunk', chunk, queryId })
 }
-function postPageMessage ({ page, queryId }: PageMessage) {
-  self.postMessage({ page, queryId })
+function postPageMessage ({ page, queryId }: Omit<PageMessage, 'kind'>) {
+  self.postMessage({ kind: 'onPage', page, queryId })
 }
-function postErrorMessage ({ error, queryId }: ErrorMessage) {
-  self.postMessage({ error, queryId })
+function postErrorMessage ({ error, queryId }: Omit<RejectMessage, 'kind'>) {
+  self.postMessage({ kind: 'onReject', error, queryId })
 }
-function postRowObjectsResultMessage ({ queryId, rowObjects }: RowObjectsResultMessage) {
-  self.postMessage({ queryId, rowObjects })
+function postParquetReadResultMessage ({ queryId }: Omit<ParquetReadResolveMessage, 'kind'>) {
+  self.postMessage({ kind: 'onParquetReadResolve', queryId })
 }
-function postEmptyResultMessage ({ queryId }: EmptyResultMessage) {
-  self.postMessage({ queryId })
+function postParquetReadObjectsResultMessage ({ queryId, rows }: Omit<ParquetReadObjectsResolveMessage, 'kind'>) {
+  self.postMessage({ kind: 'onParquetReadObjectsResolve', queryId, rows })
+}
+function postParquetQueryResultMessage ({ queryId, rows }: Omit<ParquetQueryResolveMessage, 'kind'>) {
+  self.postMessage({ kind: 'onParquetQueryResolve', queryId, rows })
 }
 
 self.onmessage = async ({ data }: { data: ClientMessage }) => {
-  const { kind, queryId, from, ...options } = data
+  const { queryId, from, kind, options } = data
   const file = await fromToAsyncBuffer(from, cache)
   try {
     if (kind === 'parquetReadObjects') {
-      const rowObjects = await parquetReadObjects({ ...options, file, compressors, onChunk, onPage })
-      postRowObjectsResultMessage({ queryId, rowObjects })
+      const rows = await parquetReadObjects({ ...options, file, compressors, onChunk, onPage })
+      postParquetReadObjectsResultMessage({ queryId, rows })
+    } else if (kind === 'parquetQuery') {
+      const rows = await parquetQuery({ ...options, file, compressors, onComplete, onChunk, onPage })
+      postParquetQueryResultMessage({ queryId, rows })
     } else {
       await parquetRead({ ...options, file, compressors, onComplete, onChunk, onPage })
-      postEmptyResultMessage({ queryId })
+      postParquetReadResultMessage({ queryId })
     }
   } catch (error) {
     postErrorMessage({ error: error as Error, queryId })

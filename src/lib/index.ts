@@ -2,6 +2,5 @@ export { appendSearchParams, replaceSearchParams } from './routes.js'
 export * from './sources/index.js'
 export { parquetDataFrame } from './tableProvider.js'
 export { asyncBufferFrom, cn, contentTypes, formatFileSize, getFileDate, getFileDateShort, imageTypes, parseFileSize } from './utils.js'
-// export parquetQueryWorker for backward-compatibility
-export { parquetReadWorker as parquetQueryWorker, parquetReadObjectsWorker, parquetReadWorker } from './workers/parquetWorkerClient.js'
+export { parquetQueryWorker, parquetReadObjectsWorker, parquetReadWorker } from './workers/parquetWorkerClient.js'
 export type { AsyncBufferFrom } from './workers/types.js'
