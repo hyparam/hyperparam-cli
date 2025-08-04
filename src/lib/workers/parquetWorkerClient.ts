@@ -1,5 +1,8 @@
 import type { ColumnData } from 'hyparquet'
+import ParquetWorker from './parquetWorker?worker&inline'
 import type { ClientMessage, ParquetQueryWorkerOptions, ParquetReadObjectsWorkerOptions, ParquetReadWorkerOptions, Rows, WorkerMessage } from './types.js'
+/// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
+/// (no need to copy the worker file to the right place)
 
 let worker: Worker | undefined
 let nextQueryId = 0
@@ -17,7 +20,7 @@ const pendingAgents = new Map<number, Agent>()
 
 function getWorker() {
   if (!worker) {
-    worker = new Worker(new URL('./parquetWorker.js', import.meta.url), { type: 'module' })
+    worker = new ParquetWorker()
     worker.onmessage = ({ data }: { data: WorkerMessage }) => {
       const pendingAgent = pendingAgents.get(data.queryId)
       if (!pendingAgent) {
