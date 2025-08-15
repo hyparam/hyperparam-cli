@@ -1,6 +1,6 @@
 import { DataFrame, DataFrameEvents, ResolvedValue, UnsortableDataFrame, createEventTarget, sortableDataFrame } from 'hightable'
 import type { ColumnData } from 'hyparquet'
-import { FileMetaData, parquetSchema } from 'hyparquet'
+import { FileMetaData, ParquetReadOptions, parquetSchema } from 'hyparquet'
 import { parquetReadWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
@@ -21,7 +21,7 @@ interface VirtualRowGroup {
 /**
  * Convert a parquet file into a dataframe.
  */
-export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData): DataFrame {
+export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, options?: Pick<ParquetReadOptions, 'utf8'>): DataFrame {
   const { children } = parquetSchema(metadata)
   const header = children.map(child => child.element.name)
   const eventTarget = createEventTarget<DataFrameEvents>()
@@ -54,7 +54,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData):
 
     // TODO(SL): pass AbortSignal to the worker?
     if (columnsToFetch.length > 0) {
-      const commonPromise = parquetReadWorker({ from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
+      const commonPromise = parquetReadWorker({ ...options, from, metadata, rowStart: groupStart, rowEnd: groupEnd, columns: columnsToFetch, onChunk })
       columnsToFetch.forEach(column => {
         state.set(column, { kind: 'fetching', promise: commonPromise })
       })
