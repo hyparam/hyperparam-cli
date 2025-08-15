@@ -1,6 +1,6 @@
 import { DataFrame, DataFrameEvents, ResolvedValue, UnsortableDataFrame, createEventTarget, sortableDataFrame } from 'hightable'
 import type { ColumnData } from 'hyparquet'
-import { FileMetaData, parquetSchema, ParquetReadOptions } from 'hyparquet'
+import { FileMetaData, ParquetReadOptions, parquetSchema } from 'hyparquet'
 import { parquetReadWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
