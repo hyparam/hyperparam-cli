@@ -87,6 +87,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, 
   const unsortableDataFrame: UnsortableDataFrame = {
     header,
     numRows,
+    metadata,
     eventTarget,
     getRowNumber({ row }) {
       validateRow({ row, data: { numRows } })
