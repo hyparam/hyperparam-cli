@@ -1,7 +1,7 @@
 import type { ColumnData } from 'hyparquet'
 import { AsyncBuffer, parquetQuery, parquetRead, parquetReadObjects } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-import type { ChunkMessage, ClientMessage, CompleteMessage, PageMessage, ParquetQueryResolveMessage, ParquetReadObjectsResolveMessage, ParquetReadResolveMessage, RejectMessage } from './types.js'
+import type { ChunkMessage, ClientMessage, CompleteMessage, PageMessage, ParquetQueryResolveMessage, ParquetReadObjectsResolveMessage, ParquetReadResolveMessage, RejectMessage, Rows } from './types.js'
 import { fromToAsyncBuffer } from './utils.js'
 
 const cache = new Map<string, Promise<AsyncBuffer>>()
@@ -33,20 +33,20 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
   const file = await fromToAsyncBuffer(from, cache)
   try {
     if (kind === 'parquetReadObjects') {
-      const rows = await parquetReadObjects({ ...options, file, compressors, onChunk, onPage })
+      const rows = (await parquetReadObjects({ ...options, rowFormat: 'object', file, compressors, onChunk, onPage })) as Rows
       postParquetReadObjectsResultMessage({ queryId, rows })
     } else if (kind === 'parquetQuery') {
-      const rows = await parquetQuery({ ...options, file, compressors, onComplete, onChunk, onPage })
+      const rows = (await parquetQuery({ ...options, rowFormat: 'object', file, compressors, onComplete, onChunk, onPage })) as Rows
       postParquetQueryResultMessage({ queryId, rows })
     } else {
-      await parquetRead({ ...options, file, compressors, onComplete, onChunk, onPage })
+      await parquetRead({ ...options, rowFormat: 'object', file, compressors, onComplete, onChunk, onPage })
       postParquetReadResultMessage({ queryId })
     }
   } catch (error) {
     postErrorMessage({ error: error as Error, queryId })
   }
 
-  function onComplete(rows: unknown[][]) {
+  function onComplete(rows: Rows) {
     postCompleteMessage({ queryId, rows })
   }
   function onChunk(chunk: ColumnData) {

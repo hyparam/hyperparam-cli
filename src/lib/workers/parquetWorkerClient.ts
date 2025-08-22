@@ -7,7 +7,7 @@ import type { ClientMessage, ParquetQueryWorkerOptions, ParquetReadObjectsWorker
 let worker: Worker | undefined
 let nextQueryId = 0
 interface Agent {
-  onComplete?: (rows: Rows) => void
+  onComplete?: ((rows: Rows) => void)
   onChunk?: (chunk: ColumnData) => void
   onPage?: (page: ColumnData) => void
   reject: (error: Error) => void
@@ -73,6 +73,8 @@ function getWorker() {
  * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker. Also: the worker uses hyparquet-compressors and
  * the default parsers.
+ *
+ * Note that it only supports 'rowFormat: object' (the default).
  */
 export function parquetReadWorker(options: ParquetReadWorkerOptions): Promise<void> {
   const { onComplete, onChunk, onPage, from, ...serializableOptions } = options
@@ -91,6 +93,8 @@ export function parquetReadWorker(options: ParquetReadWorkerOptions): Promise<vo
  * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker. Also: the worker uses hyparquet-compressors and
  * the default parsers.
+ *
+ * Note that it only supports 'rowFormat: object' (the default).
  */
 export function parquetReadObjectsWorker(options: ParquetReadObjectsWorkerOptions): Promise<Rows> {
   const { onChunk, onPage, from, ...serializableOptions } = options
@@ -109,6 +113,8 @@ export function parquetReadObjectsWorker(options: ParquetReadObjectsWorkerOption
  * Instead of taking an AsyncBuffer, it takes a AsyncBufferFrom, because it needs
  * to be serialized to the worker. Also: the worker uses hyparquet-compressors and
  * the default parsers.
+ *
+ * Note that it only supports 'rowFormat: object' (the default).
  */
 export function parquetQueryWorker(options: ParquetQueryWorkerOptions): Promise<Rows> {
   const { onComplete, onChunk, onPage, from, ...serializableOptions } = options
