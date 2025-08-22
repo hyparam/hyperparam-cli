@@ -1,4 +1,4 @@
-import { DataFrame, DataFrameEvents, ResolvedValue, UnsortableDataFrame, createEventTarget, sortableDataFrame } from 'hightable'
+import { DataFrame, DataFrameEvents, ResolvedValue, checkSignal, createEventTarget, validateFetchParams, validateGetCellParams, validateGetRowNumberParams } from 'hightable'
 import type { ColumnData } from 'hyparquet'
 import { FileMetaData, ParquetReadOptions, parquetSchema } from 'hyparquet'
 import { parquetReadWorker } from './workers/parquetWorkerClient.js'
@@ -20,13 +20,16 @@ interface VirtualRowGroup {
 
 /**
  * Convert a parquet file into a dataframe.
+ *
+ * It fetches data on demand in chunks of 1000 rows within each row group.
+ * It's not sortable. You can use sortableDataFrame from hightable to make it sortable.
  */
-export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, options?: Pick<ParquetReadOptions, 'utf8'>): DataFrame {
+export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, options?: Pick<ParquetReadOptions, 'utf8'>): DataFrame<{parquet: FileMetaData}> {
   const { children } = parquetSchema(metadata)
-  const header = children.map(child => child.element.name)
+  const columnDescriptors = children.map(child => ({ name: child.element.name }))
   const eventTarget = createEventTarget<DataFrameEvents>()
 
-  const cellCache = new Map<string, ResolvedValue<unknown>[]>(header.map(name => [name, []]))
+  const cellCache = new Map<string, ResolvedValue<unknown>[]>(columnDescriptors.map(({ name }) => [name, []]))
 
   // virtual row groups are up to 1000 rows within row group boundaries
   const groups: VirtualRowGroup[] = []
@@ -39,7 +42,7 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, 
       groups.push({
         groupStart,
         groupEnd,
-        state: new Map(header.map(name => [name, { kind: 'unfetched' }])),
+        state: new Map(columnDescriptors.map(({ name }) => [name, { kind: 'unfetched' }])),
       })
       groupStart = groupEnd
     }
@@ -84,22 +87,21 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, 
 
   const numRows = Number(metadata.num_rows)
 
-  const unsortableDataFrame: UnsortableDataFrame = {
-    header,
+  const unsortableDataFrame: DataFrame<{parquet: FileMetaData}> = {
+    columnDescriptors,
     numRows,
-    metadata,
+    metadata: { parquet: metadata },
     eventTarget,
-    getRowNumber({ row }) {
-      validateRow({ row, data: { numRows } })
+    getRowNumber({ row, orderBy }) {
+      validateGetRowNumberParams({ row, orderBy, data: { numRows, columnDescriptors } })
       return { value: row }
     },
-    getCell({ row, column }) {
-      validateRow({ row, data: { numRows } })
-      validateColumn({ column, data: { header } })
+    getCell({ row, column, orderBy }) {
+      validateGetCellParams({ row, column, orderBy, data: { numRows, columnDescriptors } })
       return cellCache.get(column)?.[row]
     },
     fetch: async ({ rowStart, rowEnd, columns, signal }) => {
-      validateFetchParams({ rowStart, rowEnd, columns, data: { numRows, header } })
+      validateFetchParams({ rowStart, rowEnd, columns, data: { numRows, columnDescriptors } })
       checkSignal(signal)
 
       if (!columns || columns.length === 0) {
@@ -126,29 +128,5 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, 
     },
   }
 
-  return sortableDataFrame(unsortableDataFrame)
-}
-
-function validateFetchParams({ rowStart, rowEnd, columns, data: { numRows, header } }: {rowStart: number, rowEnd: number, columns?: string[], data: Pick<DataFrame, 'numRows' | 'header'>}): void {
-  if (rowStart < 0 || rowEnd > numRows || !Number.isInteger(rowStart) || !Number.isInteger(rowEnd) || rowStart > rowEnd) {
-    throw new Error(`Invalid row range: ${rowStart} - ${rowEnd}, numRows: ${numRows}`)
-  }
-  if (columns?.some(column => !header.includes(column))) {
-    throw new Error(`Invalid columns: ${columns.join(', ')}. Available columns: ${header.join(', ')}`)
-  }
-}
-function validateRow({ row, data: { numRows } }: {row: number, data: Pick<DataFrame, 'numRows'>}): void {
-  if (row < 0 || row >= numRows || !Number.isInteger(row)) {
-    throw new Error(`Invalid row index: ${row}, numRows: ${numRows}`)
-  }
-}
-function validateColumn({ column, data: { header } }: {column: string, data: Pick<DataFrame, 'header'>}): void {
-  if (!header.includes(column)) {
-    throw new Error(`Invalid column: ${column}. Available columns: ${header.join(', ')}`)
-  }
-}
-function checkSignal(signal?: AbortSignal): void {
-  if (signal?.aborted) {
-    throw new DOMException('The operation was aborted.', 'AbortError')
-  }
+  return unsortableDataFrame
 }

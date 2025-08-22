@@ -82,7 +82,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
       if (cell?.col === col && cell.row === row) {
         return undefined
       }
-      const columnName = content?.dataframe.header[col]
+      const columnName = content?.dataframe.columnDescriptors[col]?.name
       if (columnName === undefined || !content?.dataframe.getCell({ row, column: columnName })) {
         // don't open the cell panel until it has loaded
         return undefined
