@@ -16,7 +16,8 @@ interface AsyncBufferFromUrl {
 }
 export type AsyncBufferFrom = AsyncBufferFromFile | AsyncBufferFromUrl
 
-export type Rows = unknown[][] | Record<string, unknown>[]
+// Only rowFormat 'object' is supported in the worker
+export type Rows = Record<string, unknown>[]
 
 /**
  * Options for the worker version of parquetRead
@@ -25,9 +26,11 @@ export type Rows = unknown[][] | Record<string, unknown>[]
  * - 'compressors' are not configurable, the worker uses hyparquet-compressors
  * - 'parsers' are not configurable, the worker uses the default parsers
  */
-export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'compressors' | 'parsers' | 'file' | 'onComplete'> {
-  onComplete?: (rows: Rows) => void // fix for https://github.com/hyparam/hyparquet/issues/28
+export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'compressors' | 'parsers' | 'file' | 'rowFormat' | 'onComplete'> {
   from: AsyncBufferFrom
+  // rowFormat 'array' is not supported in the worker.
+  rowFormat?: 'object'
+  onComplete?: (rows: Rows) => void
 }
 /**
  * Options for the worker version of parquetReadObjects
