@@ -42,11 +42,11 @@ export default function CellView({ source, row, col }: CellProps) {
         setProgress(0.75)
         const df = parquetDataFrame(from, metadata)
 
-        const columnName = df.header[col]
+        const columnName = df.columnDescriptors[col]?.name
         if (columnName === undefined) {
           throw new Error(`Column name missing at index col=${col}`)
         }
-        await df.fetch({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
+        await df.fetch?.({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
         const cell = df.getCell({ row, column: columnName })
         const text = cell === undefined ? UNLOADED_CELL_PLACEHOLDER : stringify(cell.value)
         setText(text)
