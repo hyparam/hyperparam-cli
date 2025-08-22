@@ -58,7 +58,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
       try {
         setProgress(0.5)
 
-        const columnName = df.header[col]
+        const columnName = df.columnDescriptors[col]?.name
         if (columnName === undefined) {
           throw new Error(`Column name missing at index col=${col}`)
         }
@@ -67,7 +67,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
           fillContent(undefined)
           return
         }
-        await df.fetch({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
+        await df.fetch?.({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
         cell = df.getCell({ row, column: columnName })
         if (cell === undefined) {
           throw new Error(`Cell at row=${row}, column=${columnName} is undefined`)
@@ -85,7 +85,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
 
   const headers = <>
     <SlideCloseButton onClick={onClose} />
-    <span>column: {df.header[col]}</span>
+    <span>column: {df.columnDescriptors[col]?.name}</span>
     <span>row: {row + 1}</span>
   </>
 
