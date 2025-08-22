@@ -1,4 +1,4 @@
-import { DataFrame, DataFrameEvents, ResolvedValue, checkSignal, createEventTarget, sortableDataFrame, validateFetchParams, validateGetCellParams, validateGetRowNumberParams } from 'hightable'
+import { DataFrame, DataFrameEvents, ResolvedValue, checkSignal, createEventTarget, validateFetchParams, validateGetCellParams, validateGetRowNumberParams } from 'hightable'
 import type { ColumnData } from 'hyparquet'
 import { FileMetaData, ParquetReadOptions, parquetSchema } from 'hyparquet'
 import { parquetReadWorker } from './workers/parquetWorkerClient.js'
@@ -21,7 +21,8 @@ interface VirtualRowGroup {
 /**
  * Convert a parquet file into a dataframe.
  *
- * It's sortable on all the columns, and fetches data on demand in chunks of 1000 rows.
+ * It fetches data on demand in chunks of 1000 rows within each row group.
+ * It's not sortable. You can use sortableDataFrame from hightable to make it sortable.
  */
 export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, options?: Pick<ParquetReadOptions, 'utf8'>): DataFrame<{parquet: FileMetaData}> {
   const { children } = parquetSchema(metadata)
@@ -127,5 +128,5 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, 
     },
   }
 
-  return sortableDataFrame(unsortableDataFrame)
+  return unsortableDataFrame
 }
