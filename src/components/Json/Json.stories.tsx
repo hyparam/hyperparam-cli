@@ -71,3 +71,67 @@ export const Objects: Story = {
   },
   render,
 }
+
+export const OpenAICompletions: Story = {
+  args: {
+    json: {
+      model: 'gpt-4',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a helpful assistant that explains complex concepts clearly.',
+        },
+        {
+          role: 'user',
+          content: 'Can you explain how machine learning works?',
+        },
+        {
+          role: 'assistant',
+          content: 'Machine learning is a method of data analysis that automates analytical model building. It uses algorithms that iteratively learn from data, allowing computers to find hidden insights without being explicitly programmed where to look.',
+        },
+        {
+          role: 'user',
+          content: 'What are the main types of machine learning?',
+        },
+      ],
+      temperature: 0.7,
+      max_tokens: 2048,
+      top_p: 1.0,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+    },
+  },
+  render,
+}
+
+export const MessagesList: Story = {
+  args: {
+    json: [
+      {
+        role: 'user',
+        content: 'Hello, how are you today?',
+      },
+      {
+        role: 'assistant',
+        content: 'I\'m doing well, thank you for asking! How can I help you today?',
+      },
+      {
+        role: 'user',
+        content: 'I need help with debugging a JavaScript function that\'s not working correctly.',
+      },
+      {
+        role: 'assistant',
+        content: 'I\'d be happy to help you debug your JavaScript function. Could you please share the code that\'s causing issues?',
+      },
+      {
+        role: 'user',
+        content: 'Sure, here it is: function calculate(a, b) { return a + b * c; }',
+      },
+      {
+        role: 'assistant',
+        content: 'I can see the issue! The variable `c` is not defined in your function. You\'re using `c` but it\'s not a parameter or declared variable. You probably want either `function calculate(a, b, c)` or just `return a + b` depending on your intended calculation.',
+      },
+    ],
+  },
+  render,
+}

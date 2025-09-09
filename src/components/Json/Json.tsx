@@ -2,6 +2,7 @@ import { ReactNode, useState } from 'react'
 import styles from './Json.module.css'
 import { isPrimitive, shouldObjectCollapse } from './helpers.js'
 import { cn } from '../../lib'
+import { useWidth } from './useWidth.js'
 
 interface JsonProps {
   json: unknown
@@ -45,9 +46,8 @@ function JsonContent({ json, label }: JsonProps): ReactNode {
 }
 
 function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
-  // the character count is approximate, but it should be enough
-  // to avoid showing too many entries
-  const maxCharacterCount = 40
+  const { elementRef, width } = useWidth<HTMLSpanElement>()
+  const maxCharacterCount = Math.max(20, Math.floor(width / 8))
   const separator = ', '
 
   const children: ReactNode[] = []
@@ -78,7 +78,7 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
   return (
     <>
       <span className={styles.array}>{'['}</span>
-      <span className={styles.array}>{children}</span>
+      <span ref={elementRef} className={styles.array}>{children}</span>
       <span className={styles.array}>{']'}</span>
       {suffix && <span className={styles.comment}>{suffix}</span>}
     </>
@@ -109,9 +109,8 @@ function JsonArray({ array, label }: { array: unknown[], label?: string }): Reac
 }
 
 function CollapsedObject({ obj }: {obj: object}): ReactNode {
-  // the character count is approximate, but it should be enough
-  // to avoid showing too many entries
-  const maxCharacterCount = 40
+  const { elementRef, width } = useWidth<HTMLSpanElement>()
+  const maxCharacterCount = Math.max(20, Math.floor(width / 8))
   const separator = ', '
   const kvSeparator = ': '
 
@@ -144,7 +143,7 @@ function CollapsedObject({ obj }: {obj: object}): ReactNode {
   return (
     <>
       <span className={styles.object}>{'{'}</span>
-      <span className={styles.object}>{children}</span>
+      <span ref={elementRef} className={styles.object}>{children}</span>
       <span className={styles.object}>{'}'}</span>
       {suffix && <span className={styles.comment}>{suffix}</span>}
     </>
