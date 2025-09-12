@@ -55,7 +55,7 @@
     "watch:url": "NODE_ENV=development nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
   },
   "dependencies": {
-    "hightable": "0.19.3",
+    "hightable": "0.19.4",
     "hyparquet": "1.17.8",
     "hyparquet-compressors": "1.1.1",
     "icebird": "0.3.0",
@@ -66,8 +66,8 @@
     "@eslint/js": "9.35.0",
     "@storybook/react-vite": "9.1.5",
     "@testing-library/react": "16.3.0",
-    "@types/node": "24.3.1",
-    "@types/react": "19.1.12",
+    "@types/node": "24.3.2",
+    "@types/react": "19.1.13",
     "@types/react-dom": "19.1.9",
     "@vitejs/plugin-react": "5.0.2",
     "@vitest/coverage-v8": "3.2.4",
