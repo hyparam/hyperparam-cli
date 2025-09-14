@@ -152,6 +152,12 @@ function parseMarkdown(text: string): Token[] {
       if (/^(#{1,6})\s+/.test(ln)) break // heading
       if (/^(\s*)([-*+–•‣◦○⚬]|\d+\.)\s+/.test(ln)) break // list item
       if (/^---+$/.test(ln.trim())) break // horizontal rule
+      // table start: a header row followed by a separator row
+      if (ln.includes('|') && i + 1 < lines.length) {
+        const sepLine = lines[i + 1] ?? ''
+        const tableSepRegex = /^\s*\|?\s*:?[-–—]+:?\s*(\|\s*:?[-–—]+:?\s*)*\|?\s*$/
+        if (sepLine.includes('|') && tableSepRegex.test(sepLine)) break
+      }
 
       paraLines.push(ln)
       i++

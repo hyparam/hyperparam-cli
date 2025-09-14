@@ -536,4 +536,17 @@ describe('Markdown with tables', () => {
     expect(getByText('Row 2')).toBeDefined()
     expect(getByText('Data 2')).toBeDefined()
   })
+
+  it('renders a table without preceding newline', () => {
+    const text = 'Oldest houses:\n| id | year |\n|---|---|\n| 83 | 1920 |\n| 19 | 1951 |'
+    const { getByText, getByRole } = render(<Markdown text={text} />)
+    expect(getByRole('table')).toBeDefined()
+    expect(getByText('id')).toBeDefined()
+    expect(getByText('year')).toBeDefined()
+    expect(getByText('83')).toBeDefined()
+    expect(getByText('1920')).toBeDefined()
+    expect(getByText('19')).toBeDefined()
+    expect(getByText('1951')).toBeDefined()
+    expect(getByText('Oldest houses:')).toBeDefined()
+  })
 })
