@@ -36,7 +36,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
       const rows = await parquetReadObjects({ ...options, file, compressors, onChunk, onPage })
       postParquetReadObjectsResultMessage({ queryId, rows })
     } else if (kind === 'parquetQuery') {
-      const rows = await parquetQuery({ ...options, file, compressors, onComplete, onChunk, onPage })
+      const rows = await parquetQuery({ ...options, file, compressors, onChunk, onPage })
       postParquetQueryResultMessage({ queryId, rows })
     } else {
       await parquetRead({ ...options, file, compressors, onComplete, onChunk, onPage })
@@ -46,7 +46,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
     postErrorMessage({ error: error as Error, queryId })
   }
 
-  function onComplete(rows: unknown[][]) {
+  function onComplete(rows: unknown[][] | Record<string, unknown>[]) {
     postCompleteMessage({ queryId, rows })
   }
   function onChunk(chunk: ColumnData) {
