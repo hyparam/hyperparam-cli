@@ -36,7 +36,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
       const rows = (await parquetReadObjects({ ...options, rowFormat: 'object', file, compressors, onChunk, onPage })) as Rows
       postParquetReadObjectsResultMessage({ queryId, rows })
     } else if (kind === 'parquetQuery') {
-      const rows = (await parquetQuery({ ...options, rowFormat: 'object', file, compressors, onComplete, onChunk, onPage })) as Rows
+      const rows = await parquetQuery({ ...options, file, compressors, onChunk, onPage })
       postParquetQueryResultMessage({ queryId, rows })
     } else {
       await parquetRead({ ...options, rowFormat: 'object', file, compressors, onComplete, onChunk, onPage })
