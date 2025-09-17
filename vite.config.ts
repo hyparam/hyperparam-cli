@@ -1,7 +1,8 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 
-// https://vite.dev/config/
+// https://vite.dev/config/ and
+// https://vitest.dev/config/#configuring-vitest
 export default defineConfig({
   plugins: [react()],
   build: {
