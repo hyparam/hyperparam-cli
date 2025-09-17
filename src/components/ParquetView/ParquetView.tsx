@@ -1,4 +1,4 @@
-import HighTable, { DataFrame } from 'hightable'
+import HighTable, { DataFrame, sortableDataFrame } from 'hightable'
 import 'hightable/src/HighTable.css'
 import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
@@ -41,7 +41,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
         const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, requestInit }
         setProgress(0.66)
         const metadata = await parquetMetadataAsync(asyncBuffer)
-        const dataframe = parquetDataFrame(from, metadata)
+        const dataframe = sortableDataFrame(parquetDataFrame(from, metadata))
         const fileSize = asyncBuffer.byteLength
         setContent({ dataframe, fileSize })
       } catch (error) {
