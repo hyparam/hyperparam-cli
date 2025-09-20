@@ -47,15 +47,24 @@ if (arg === 'chat') {
  * Runs in the background.
  * @returns {Promise<void>}
  */
-function checkForUpdates() {
-  const currentVersion = packageJson.version
-  return fetch('https://registry.npmjs.org/hyperparam/latest')
-    .then(response => response.json())
-    .then(data => {
-      const latestVersion = data.version
-      if (latestVersion && latestVersion !== currentVersion) {
-        console.log(`\x1b[33mA newer version of hyperparam is available: ${latestVersion} (current: ${currentVersion})\x1b[0m`)
-        console.log('\x1b[33mRun \'npm install -g hyperparam\' to update\x1b[0m')
-      }
+async function checkForUpdates() {
+  const abortController = new AbortController()
+  const timeout = 1000 // ms
+  const timeoutId = setTimeout(() => abortController.abort(), timeout)
+
+  try {
+    const currentVersion = packageJson.version
+    const response = await fetch('https://registry.npmjs.org/hyperparam/latest', {
+      signal: abortController.signal,
     })
+    const { version } = await response.json()
+    if (version && version !== currentVersion) {
+      console.log(`\x1b[33mA newer version of hyperparam is available: ${version} (current: ${currentVersion})\x1b[0m`)
+      console.log('\x1b[33mRun \'npm install -g hyperparam\' to update\x1b[0m')
+    }
+  } catch {
+    // fail silently
+  } finally {
+    clearTimeout(timeoutId)
+  }
 }
