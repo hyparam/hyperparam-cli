@@ -31,7 +31,7 @@
     "!**/*.test.d.ts"
   ],
   "scripts": {
-    "build:types": "tsc -b",
+    "build:types": "tsc -b tsconfig.build.json",
     "build:lib": "vite build -c vite.lib.config.ts && cp src/assets/global.css lib/global.css",
     "build:app": "vite build",
     "build": "run-s build:lib build:types build:app",

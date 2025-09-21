@@ -12,24 +12,22 @@ export const tools = [
     emoji: '📂',
     tool: {
       type: 'function',
-      function: {
-        name: 'list_files',
-        description: `List the files in a directory. Files are listed recursively up to ${fileLimit} per page.`,
-        parameters: {
-          type: 'object',
-          properties: {
-            path: {
-              type: 'string',
-              description: 'The path to list files from. Optional, defaults to the current directory.',
-            },
-            filetype: {
-              type: 'string',
-              description: 'Optional file type to filter by, e.g. "parquet", "csv". If not provided, all files are listed.',
-            },
-            offset: {
-              type: 'number',
-              description: 'Skip offset number of files in the listing. Defaults to 0. Optional.',
-            },
+      name: 'list_files',
+      description: `List the files in a directory. Files are listed recursively up to ${fileLimit} per page.`,
+      parameters: {
+        type: 'object',
+        properties: {
+          path: {
+            type: 'string',
+            description: 'The path to list files from. Optional, defaults to the current directory.',
+          },
+          filetype: {
+            type: 'string',
+            description: 'Optional file type to filter by, e.g. "parquet", "csv". If not provided, all files are listed.',
+          },
+          offset: {
+            type: 'number',
+            description: 'Skip offset number of files in the listing. Defaults to 0. Optional.',
           },
         },
       },
@@ -61,31 +59,29 @@ export const tools = [
     emoji: '📄',
     tool: {
       type: 'function',
-      function: {
-        name: 'parquet_get_rows',
-        description: 'Get up to 5 rows of data from a parquet file.',
-        parameters: {
-          type: 'object',
-          properties: {
-            filename: {
-              type: 'string',
-              description: 'The name of the parquet file to read.',
-            },
-            offset: {
-              type: 'number',
-              description: 'The starting row index to fetch (0-indexed).',
-            },
-            limit: {
-              type: 'number',
-              description: 'The number of rows to fetch. Default 5. Maximum 5.',
-            },
-            orderBy: {
-              type: 'string',
-              description: 'The column name to sort by.',
-            },
+      name: 'parquet_get_rows',
+      description: 'Get up to 5 rows of data from a parquet file.',
+      parameters: {
+        type: 'object',
+        properties: {
+          filename: {
+            type: 'string',
+            description: 'The name of the parquet file to read.',
           },
-          required: ['filename'],
+          offset: {
+            type: 'number',
+            description: 'The starting row index to fetch (0-indexed).',
+          },
+          limit: {
+            type: 'number',
+            description: 'The number of rows to fetch. Default 5. Maximum 5.',
+          },
+          orderBy: {
+            type: 'string',
+            description: 'The column name to sort by.',
+          },
         },
+        required: ['filename'],
       },
     },
     /**
@@ -133,6 +129,10 @@ function validateInteger(name, value, min, max) {
   return value
 }
 
+/**
+ * @param {unknown} obj
+ * @param {number} [limit=1000]
+ */
 function stringify(obj, limit = 1000) {
   const str = JSON.stringify(toJson(obj))
   return str.length <= limit ? str : str.slice(0, limit) + '…'
