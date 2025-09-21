@@ -4,6 +4,7 @@ import fs from 'fs/promises'
 import packageJson from '../package.json' with { type: 'json' }
 import { chat } from './chat.js'
 import { serve } from './serve.js'
+import { login } from './login.js'
 
 const updateCheck = checkForUpdates()
 
@@ -11,6 +12,9 @@ const arg = process.argv[2]
 if (arg === 'chat') {
   await updateCheck // wait for update check to finish before chat
   chat()
+} else if (arg === 'login') {
+  await updateCheck
+  await login()
 } else if (arg === '--help' || arg === '-H' || arg === '-h') {
   console.log('Usage:')
   console.log('  hyperparam [path]         start hyperparam webapp. "path" is a directory or a URL.')

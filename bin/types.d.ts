@@ -107,3 +107,27 @@ interface ArrayToolProperty extends BaseToolProperty {
   items: ToolProperty
 }
 export type ToolProperty = StringToolProperty | NumberToolProperty | ArrayToolProperty | BooleanToolProperty
+
+// Device Auth types
+export interface DeviceCodeResponse {
+  device_code: string
+  user_code: string
+  verification_url: string
+  verification_url_complete?: string
+  expires_in: number
+  interval?: number
+}
+
+export interface DeviceTokenResponse {
+  access_token: string
+  refresh_token?: string
+  id_token?: string
+  expires_in: number
+  token_type: string
+  scope?: string
+}
+
+export interface DeviceTokenErrorResponse {
+  error: string
+  error_description?: string
+}

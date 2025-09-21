@@ -34,3 +34,5 @@ package-lock.json
 tsconfig.tsbuildinfo
 tsconfig.build.tsbuildinfo
 *storybook.log
+
+AGENTS.md
