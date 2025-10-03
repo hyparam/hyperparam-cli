@@ -15,7 +15,7 @@ describe('JsonView Component', () => {
 
   it('renders json content as nested lists (if not collapsed)', async () => {
     const text = '{"key":["value"]}'
-    const body = encoder.encode(text).buffer as ArrayBuffer
+    const body = encoder.encode(text).buffer
     const source: FileSource = {
       resolveUrl: 'testKey0',
       kind: 'file',
@@ -66,7 +66,7 @@ describe('JsonView Component', () => {
   })
 
   it('displays an error when the json content is invalid', async () => {
-    const body = encoder.encode('INVALIDJSON').buffer as ArrayBuffer
+    const body = encoder.encode('INVALIDJSON').buffer
     const source: FileSource = {
       resolveUrl: 'testKey2',
       kind: 'file',
