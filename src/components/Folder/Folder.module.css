@@ -70,7 +70,7 @@
 .search {
   background: #fff url("../../assets/search.svg") no-repeat center right 8px;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 12px;
   flex-shrink: 1;
   font-size: 12px;
   height: 24px;

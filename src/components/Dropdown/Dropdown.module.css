@@ -20,11 +20,6 @@
   overflow-x: hidden;
   padding: 0;
 }
-.dropdownButton:active,
-.dropdownButton:focus,
-.dropdownButton:hover {
-  color: #113;
-}
 
 /* caret */
 .dropdownButton::before {
