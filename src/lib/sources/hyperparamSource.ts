@@ -8,12 +8,6 @@ export interface HyperparamFileMetadata {
   lastModified: string
 }
 
-function canParse(sourceId: string): boolean {
-  /// we expect relative paths, such as path/to/file or path/to/dir/
-  /// let's just check that it is empty or starts with a "word" character
-  return sourceId === '' || /^[\w]/.test(sourceId)
-}
-
 function getSourceParts(sourceId: string): SourcePart[] {
   const parts = sourceId.split('/')
   const sourceParts = [
@@ -66,12 +60,10 @@ async function listFiles(prefix: string, { endpoint, requestInit }: {endpoint: s
 }
 
 export function getHyperparamSource(sourceId: string, { endpoint, requestInit }: {endpoint: string, requestInit?: RequestInit}): FileSource | DirSource | undefined {
-  if (!URL.canParse(endpoint)) {
-    throw new Error('Invalid endpoint')
-  }
-  if (!canParse(sourceId)) {
-    return undefined
-  }
+  if (!URL.canParse(endpoint)) throw new Error('Invalid endpoint')
+  if (sourceId.startsWith('/')) throw new Error('Source cannot start with a /')
+  if (sourceId.includes('..')) throw new Error('Source cannot include ..')
+
   const sourceParts = getSourceParts(sourceId)
   if (getKind(sourceId) === 'file') {
     return {

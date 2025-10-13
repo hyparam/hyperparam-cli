@@ -1,16 +1,23 @@
+:root {
+  --color-background-dark: #333;
+  --border-radius-lg: 8px;
+  --space-3xs: clamp(0.3125rem, 0.3125rem + 0vw, 0.3125rem);
+}
+
 .breadcrumb {
   /* top navbar */
   align-items: center;
   display: flex;
-  font-size: 18px;
-  height: 32px;
+  font-size: 16px;
+  height: 3em;
   justify-content: space-between;
   gap: 10px;
   min-height: 32px;
-  padding-left: 20px;
-  padding-right: 10px;
   border-bottom: 1px solid #ddd;
-  background: #eee;
+  background: var(--color-background-dark);
+  padding: 0 10px 0 20px;
+  border-radius: var(--border-radius-lg);
+  margin: var(--space-3xs);
   /* TODO(SL): forbid overflow? */
 
   h1 {
@@ -32,10 +39,9 @@
     display: none;
   }
   a {
-    color: #222622;
-    font-family: "Courier New", Courier, monospace;
-    font-weight: 600;
-    font-size: 18px;
+    color: #eee;
+    font-weight: 500;
+    font-size: 12pt;
     text-overflow: ellipsis;
     white-space: nowrap;
     text-decoration-thickness: 1px;

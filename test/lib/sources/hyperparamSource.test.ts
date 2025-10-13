@@ -6,27 +6,26 @@ globalThis.fetch = vi.fn()
 describe('getHyperparamSource', () => {
   const endpoint = 'http://localhost:3000'
 
-  test.for([
-    'test.txt',
-    'no-extension',
-    'folder/subfolder/test.txt',
-  ])('recognizes a local file path', (sourceId: string) => {
-    expect(getHyperparamSource(sourceId, { endpoint })?.kind).toBe('file')
+  it('recognizes local files', () => {
+    expect(getHyperparamSource('test.txt', { endpoint })?.kind).toBe('file')
+    expect(getHyperparamSource('no-extension', { endpoint })?.kind).toBe('file')
+    expect(getHyperparamSource('folder/subfolder/test.txt', { endpoint })?.kind).toBe('file')
   })
 
-  test.for([
-    '',
-    'folder1/',
-    'folder1/folder2/',
-  ])('recognizes a folder', (sourceId: string) => {
-    expect(getHyperparamSource(sourceId, { endpoint })?.kind).toBe('directory')
+  it('recognizes folders', () => {
+    expect(getHyperparamSource('', { endpoint })?.kind).toBe('directory')
+    expect(getHyperparamSource('folder1/', { endpoint })?.kind).toBe('directory')
+    expect(getHyperparamSource('folder1/folder2/', { endpoint })?.kind).toBe('directory')
   })
 
-  test.for([
-    '/',
-    '////',
-  ])('does not support a heading slash', (sourceId: string) => {
-    expect(getHyperparamSource(sourceId, { endpoint })).toBeUndefined()
+  it('throws on leading slash', () => {
+    expect(() => getHyperparamSource('/', { endpoint })).toThrow('Source cannot start with a /')
+    expect(() => getHyperparamSource('/folder/', { endpoint })).toThrow('Source cannot start with a /')
+  })
+
+  it('throws on .. in path', () => {
+    expect(() => getHyperparamSource('..', { endpoint })).toThrow('Source cannot include ..')
+    expect(() => getHyperparamSource('folder/../file.txt', { endpoint })).toThrow('Source cannot include ..')
   })
 
   test.for([
