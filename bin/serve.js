@@ -32,6 +32,12 @@ const mimeTypes = {
   '.woff2': 'font/woff2',
 }
 
+// Paths to ignore for logging
+const ignorePrefix = [
+  '/favicon.svg',
+  '/assets/',
+]
+
 /**
  * @template T
  * @typedef {T | Promise<T>} Awaitable<T>
@@ -284,6 +290,11 @@ function startServer(port, path) {
         res.end(content)
       } else if (content instanceof ReadableStream) {
         pipe(content, res)
+      }
+
+      // Ignored logging paths
+      if (ignorePrefix.some(p => req.url?.startsWith(p))) {
+        return
       }
 
       // log request
