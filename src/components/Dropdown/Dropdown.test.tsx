@@ -5,12 +5,12 @@ import styles from './Dropdown.module.css'
 
 describe('Dropdown Component', () => {
   it('renders dropdown with its children', () => {
-    const { container: { children: [ div ] }, queryByText } = render(
+    const { container: { children: [ div ] }, getByText } = render(
       <Dropdown><div>Child 1</div><div>Child 2</div></Dropdown>
     )
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
-    expect(queryByText('Child 1')).toBeDefined()
-    expect(queryByText('Child 2')).toBeDefined()
+    getByText('Child 1')
+    getByText('Child 2')
     expect(div?.classList).toContain(styles.dropdownLeft)
   })
 

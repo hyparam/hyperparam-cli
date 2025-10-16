@@ -5,35 +5,33 @@ import Markdown from './Markdown.js'
 describe('Markdown', () => {
   it('renders plain text as a paragraph', () => {
     const { getByText } = render(<Markdown text="Hello, world!" />)
-    expect(getByText('Hello, world!')).toBeDefined()
+    getByText('Hello, world!')
   })
 
   it('renders bold text', () => {
     const { getByText } = render(<Markdown text="This is **bold** text." />)
     const boldText = getByText('bold')
-    expect(boldText).toBeDefined()
     expect(boldText.tagName).toBe('STRONG')
   })
 
   it('renders italic text', () => {
     const { getByText } = render(<Markdown text="This is *italic* text." />)
     const italicText = getByText('italic')
-    expect(italicText).toBeDefined()
     expect(italicText.tagName).toBe('EM')
   })
 
   it('does not treat asterisks used for multiplication as italic', () => {
     const text = 'Make tool calls to compute 123123 * 3423542 and 235666 * 233333.'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText(text)).toBeDefined()
+    getByText(text)
     expect(container.querySelector('em')).toBeNull()
   })
 
   it('does italicize numbers without spaces', () => {
     const text = 'Four should be italic: 3*4*5.'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('4')).toBeDefined()
-    expect(container.querySelector('em')).toBeDefined()
+    getByText('4')
+    expect(container.querySelector('em')).toBeTruthy()
   })
 
   it('does not italicize snake case', () => {
@@ -41,49 +39,48 @@ describe('Markdown', () => {
     const { container, getByText } = render(<Markdown text={text} />)
     expect(container.innerHTML).not.toContain('<em>')
     expect(container.innerHTML).toContain('mid_snake_case')
-    expect(getByText(text)).toBeDefined()
+    getByText(text)
   })
 
   it('does italicize surrounding underscores', () => {
     const text = '_this_one_tho_'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('this_one_tho')).toBeDefined()
-    expect(container.querySelector('em')).toBeDefined()
+    getByText('this_one_tho')
+    expect(container.querySelector('em')).toBeTruthy()
   })
 
   it('renders single asterisks for italic', () => {
     const text = '*single asterisks*'
     const { getByText } = render(<Markdown text={text} />)
     const italicText = getByText('single asterisks')
-    expect(italicText).toBeDefined()
     expect(italicText.tagName).toBe('EM')
   })
 
   it('renders headers', () => {
     const text = '# Heading 1\n## Heading 2\n### Heading 3'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Heading 1')).toBeDefined()
-    expect(getByText('Heading 2')).toBeDefined()
-    expect(getByText('Heading 3')).toBeDefined()
+    getByText('Heading 1')
+    getByText('Heading 2')
+    getByText('Heading 3')
   })
 
   it('renders an image', () => {
     const text = '![Hyperparam logo](https://hyperparam.app/logo.png)'
     const { getByAltText } = render(<Markdown text={text} />)
-    expect(getByAltText('Hyperparam logo')).toBeDefined()
+    getByAltText('Hyperparam logo')
   })
 
   it('renders a link', () => {
     const text = 'Check out [Hyp](https://hyperparam.app).'
     const { getByRole, getByText } = render(<Markdown text={text} />)
-    expect(getByText('Hyp')).toBeDefined()
+    getByText('Hyp')
     expect(getByRole('link').getAttribute('href')).toBe('https://hyperparam.app')
   })
 
   it('renders a partial link', () => {
     const text = 'Check out [Hyp](https://hyper'
     const { getByText, queryByText } = render(<Markdown text={text} />)
-    expect(getByText('Hyp')).toBeDefined()
+    getByText('Hyp')
     expect(queryByText('hyper')).toBeNull()
     expect(getByText('Hyp').tagName).toBe('A')
   })
@@ -91,8 +88,8 @@ describe('Markdown', () => {
   it('multiple links in one line', () => {
     const text = 'Check out [Hyp](https://hyperparam.app) on [GitHub](https://github.com/hyparam).'
     const { getAllByRole, getByText } = render(<Markdown text={text} />)
-    expect(getByText('Hyp')).toBeDefined()
-    expect(getByText('GitHub')).toBeDefined()
+    getByText('Hyp')
+    getByText('GitHub')
     const links = getAllByRole('link')
     expect(links[0]?.getAttribute('href')).toBe('https://hyperparam.app')
     expect(links[1]?.getAttribute('href')).toBe('https://github.com/hyparam')
@@ -101,7 +98,7 @@ describe('Markdown', () => {
   it('renders blockquote', () => {
     const text = '> This is a blockquote.'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('This is a blockquote.')).toBeDefined()
+    getByText('This is a blockquote.')
   })
 
   it('soft line break creates a break tag', () => {
@@ -109,19 +106,19 @@ describe('Markdown', () => {
     const text = 'Line one\nLine two'
     const { container } = render(<Markdown text={text} />)
     expect(container.innerHTML).toContain('Line one<br>Line two')
-    expect(container.querySelector('br')).toBeDefined()
+    expect(container.querySelector('br')).toBeTruthy()
   })
 })
 
 describe('Markdown horizontal rules', () => {
   it('renders a horizontal rule', () => {
     const text = 'First paragraph\n---\nSecond paragraph'
-    const { container, getByText, queryByRole } = render(<Markdown text={text} />)
+    const { container, getByText, getByRole } = render(<Markdown text={text} />)
 
-    expect(container.querySelector('hr')).toBeDefined()
-    expect(queryByRole('separator')).toBeDefined()
-    expect(getByText('First paragraph')).toBeDefined()
-    expect(getByText('Second paragraph')).toBeDefined()
+    expect(container.querySelector('hr')).toBeTruthy()
+    getByRole('separator')
+    getByText('First paragraph')
+    getByText('Second paragraph')
   })
 
   it('horizontal rule must be entire line', () => {
@@ -129,9 +126,9 @@ describe('Markdown horizontal rules', () => {
     const { container, getByText, queryByRole } = render(<Markdown text={text} />)
     expect(container.querySelector('hr')).toBeNull()
     expect(queryByRole('separator')).toBeNull()
-    expect(getByText('First paragraph')).toBeDefined()
-    expect(getByText('--- dashes')).toBeDefined()
-    expect(getByText('Second paragraph')).toBeDefined()
+    getByText('First paragraph')
+    getByText('--- dashes')
+    getByText('Second paragraph')
   })
 })
 
@@ -140,7 +137,7 @@ describe('Markdown code blocks', () => {
     const text = '```js\nconsole.log(\'Hello, world!\')\n```'
     const { container } = render(<Markdown text={text} />)
     const code = container.querySelector('pre')
-    expect(code).toBeDefined()
+    expect(code).toBeTruthy()
     expect(code?.textContent).toBe('console.log(\'Hello, world!\')')
   })
 
@@ -148,14 +145,14 @@ describe('Markdown code blocks', () => {
     const text = '```js\nconsole.log(\'Hello, world!\')'
     const { container } = render(<Markdown text={text} />)
     const code = container.querySelector('pre')
-    expect(code).toBeDefined()
+    expect(code).toBeTruthy()
     expect(code?.textContent).toBe('console.log(\'Hello, world!\')')
   })
 
   it('bold code block', () => {
     const text = '**`Math.pow(base, exponent)`**'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('Math.pow(base, exponent)')).toBeDefined()
+    getByText('Math.pow(base, exponent)')
     expect(container.innerHTML).not.toContain('**')
   })
 
@@ -166,7 +163,7 @@ describe('Markdown code blocks', () => {
 \`\`\``
     const { container } = render(<Markdown text={text} />)
     const codeBlock = container.querySelector('pre')
-    expect(codeBlock).toBeDefined()
+    expect(codeBlock).toBeTruthy()
     expect(codeBlock?.textContent).toContain('**This should not be bold**')
     expect(codeBlock?.textContent).toContain('*nor italic*')
     // Ensure markdown inside code block is not parsed
@@ -179,9 +176,9 @@ describe('Markdown lists', () => {
   it('renders a list', () => {
     const text = '- Item 1\n- Item 2\n- Item 3\n\n'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
-    expect(getByText('Item 2')).toBeDefined()
-    expect(getByText('Item 3')).toBeDefined()
+    getByText('Item 1')
+    getByText('Item 2')
+    getByText('Item 3')
     // Should have no <p> tags for simple lists
     expect(container.querySelectorAll('p').length).toBe(0)
   })
@@ -189,18 +186,18 @@ describe('Markdown lists', () => {
   it('list with bold', () => {
     const text = '- **Item 1**\n- Item 2\n- Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
-    expect(getByText('Item 2')).toBeDefined()
-    expect(getByText('Item 3')).toBeDefined()
+    getByText('Item 1')
+    getByText('Item 2')
+    getByText('Item 3')
   })
 
   it('list with indented sub-paragraphs', () => {
     const text = '- Item 1\n  Paragraph 1\n  Paragraph 2\n- Item 2\n\n'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
-    expect(getByText('Paragraph 1')).toBeDefined()
-    expect(getByText('Paragraph 2')).toBeDefined()
-    expect(getByText('Item 2')).toBeDefined()
+    getByText('Item 1')
+    getByText('Paragraph 1')
+    getByText('Paragraph 2')
+    getByText('Item 2')
     // Should have <p> tags for paragraphs
     expect(container.querySelectorAll('p').length).toBe(2)
   })
@@ -208,7 +205,7 @@ describe('Markdown lists', () => {
   it('unterminated list', () => {
     const text = '- Item 1'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
+    getByText('Item 1')
   })
 
   it('nested unordered list with sub-items', () => {
@@ -216,9 +213,9 @@ describe('Markdown lists', () => {
   - Child item
     - Grandchild item`
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Parent item')).toBeDefined()
-    expect(getByText('Child item')).toBeDefined()
-    expect(getByText('Grandchild item')).toBeDefined()
+    getByText('Parent item')
+    getByText('Child item')
+    getByText('Grandchild item')
   })
 
   it('nested ordered list', () => {
@@ -227,18 +224,18 @@ describe('Markdown lists', () => {
    2. Another nested item
 2. Second item`
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('First item')).toBeDefined()
-    expect(getByText('Nested item')).toBeDefined()
-    expect(getByText('Another nested item')).toBeDefined()
-    expect(getByText('Second item')).toBeDefined()
+    getByText('First item')
+    getByText('Nested item')
+    getByText('Another nested item')
+    getByText('Second item')
   })
 
   it('blank lines in lists', () => {
     const text = '- Item 1\n\n- Item 2\n\n- Item 3'
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
-    expect(getByText('Item 2')).toBeDefined()
-    expect(getByText('Item 3')).toBeDefined()
+    getByText('Item 1')
+    getByText('Item 2')
+    getByText('Item 3')
     expect(container.querySelectorAll('ul').length).toBe(1)
     expect(container.querySelectorAll('li').length).toBe(3)
   })
@@ -248,10 +245,10 @@ describe('Markdown lists', () => {
   - Child item with **bold** text and \`inline code\``
     const { getByText, container } = render(<Markdown text={text} />)
     // Check for the plain text parts
-    expect(getByText('Item with inline code:')).toBeDefined()
-    expect(getByText('const x = 10;')).toBeDefined()
-    expect(getByText('bold')).toBeDefined()
-    expect(getByText('inline code')).toBeDefined()
+    getByText('Item with inline code:')
+    getByText('const x = 10;')
+    getByText('bold')
+    getByText('inline code')
     // Verify that inline code elements exist
     const inlineCodes = container.querySelectorAll('code')
     expect(inlineCodes.length).toBe(2)
@@ -263,27 +260,27 @@ describe('Markdown lists', () => {
   console.log("Nested code")
   \`\`\``
     const { container, getByText } = render(<Markdown text={text} />)
-    expect(getByText('List item with code:')).toBeDefined()
-    expect(getByText('console.log("Nested code")')).toBeDefined()
+    getByText('List item with code:')
+    getByText('console.log("Nested code")')
     const codeBlock = container.querySelector('pre')
-    expect(codeBlock).toBeDefined()
+    expect(codeBlock).toBeTruthy()
     expect(codeBlock?.textContent).toContain('console.log("Nested code")')
   })
 
   it('list with unicode dash –', () => {
     const text = '– Item 1\n– Item 2\n– Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
-    expect(getByText('Item 2')).toBeDefined()
-    expect(getByText('Item 3')).toBeDefined()
+    getByText('Item 1')
+    getByText('Item 2')
+    getByText('Item 3')
   })
 
   it('list with unicode dot •', () => {
     const text = '• Item 1\n• Item 2\n• Item 3\n\n'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Item 1')).toBeDefined()
-    expect(getByText('Item 2')).toBeDefined()
-    expect(getByText('Item 3')).toBeDefined()
+    getByText('Item 1')
+    getByText('Item 2')
+    getByText('Item 3')
   })
 })
 
@@ -294,13 +291,13 @@ describe('Markdown images', () => {
 
     // Check that we have an image
     const img = container.querySelector('img')
-    expect(img).toBeDefined()
+    expect(img).toBeTruthy()
     expect(img?.getAttribute('alt')).toBe('mit license')
     expect(img?.getAttribute('src')).toBe('https://img.shields.io/badge/License-MIT-orange.svg')
 
     // Check that the image is inside a link
     const link = container.querySelector('a')
-    expect(link).toBeDefined()
+    expect(link).toBeTruthy()
     expect(link?.getAttribute('href')).toBe('https://opensource.org/licenses/MIT')
     expect(link?.contains(img)).toBe(true)
   })
@@ -334,7 +331,7 @@ describe('Markdown images', () => {
     const { container } = render(<Markdown text={text} />)
 
     const link = container.querySelector('a')
-    expect(link).toBeDefined()
+    expect(link).toBeTruthy()
     expect(link?.getAttribute('href')).toBe('https://example.com')
 
     // Check that the link contains both text fragments
@@ -344,7 +341,7 @@ describe('Markdown images', () => {
 
     // Image should be inside the link
     const img = container.querySelector('img')
-    expect(img).toBeDefined()
+    expect(img).toBeTruthy()
     expect(img?.getAttribute('src')).toBe('https://example.com/icon.png')
     expect(link?.contains(img)).toBe(true)
   })
@@ -380,14 +377,14 @@ describe('Markdown with nested elements', () => {
     const { container } = render(<Markdown text={text} />)
     // Check for inline code element
     const codeElem = container.querySelector('code')
-    expect(codeElem).toBeDefined()
+    expect(codeElem).toBeTruthy()
     // Check for italic element that should contain the inline code
     const italicElem = container.querySelector('em')
-    expect(italicElem).toBeDefined()
+    expect(italicElem).toBeTruthy()
     expect(italicElem?.textContent).toContain('code')
     // The bold text should wrap the entire content
     const boldElem = container.querySelector('strong')
-    expect(boldElem).toBeDefined()
+    expect(boldElem).toBeTruthy()
     expect(boldElem?.textContent).toContain('bold text with')
   })
 
@@ -419,9 +416,9 @@ describe('Markdown with nested elements', () => {
   it('renders a list immediately after a paragraph', () => {
     const text = 'List:\n   - First\n   - Second'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('First')).toBeDefined()
-    expect(getByText('Second')).toBeDefined()
-    expect(getByText('List:')).toBeDefined()
+    getByText('First')
+    getByText('Second')
+    getByText('List:')
     expect(getByText('List:').tagName).toBe('P')
     expect(getByText('First').tagName).toBe('LI')
     expect(getByText('Second').tagName).toBe('LI')
@@ -432,28 +429,28 @@ describe('Markdown with tables', () => {
   it('renders a simple table', () => {
     const text = '| Header 1 | Header 2 |\n|----------|----------|\n| Row 1   | Data 1  |\n| Row 2   | Data 2  |'
     const { getByText } = render(<Markdown text={text} />)
-    expect(getByText('Header 1')).toBeDefined()
-    expect(getByText('Header 2')).toBeDefined()
-    expect(getByText('Row 1')).toBeDefined()
-    expect(getByText('Data 1')).toBeDefined()
-    expect(getByText('Row 2')).toBeDefined()
-    expect(getByText('Data 2')).toBeDefined()
+    getByText('Header 1')
+    getByText('Header 2')
+    getByText('Row 1')
+    getByText('Data 1')
+    getByText('Row 2')
+    getByText('Data 2')
   })
 
   it('table that omits the outer pipes', () => {
     const text = 'Header A | Header B\n---|---\nCell 1 | Cell 2'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('Header A')).toBeDefined()
-    expect(getByText('Cell 2')).toBeDefined()
+    getByRole('table')
+    getByText('Header A')
+    getByText('Cell 2')
   })
 
   it('inline formatting inside cells', () => {
     const text = '| **Bold** | Link |\n|-----------|------|\n| `code`    | [x](#) |'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
+    getByRole('table')
     expect(getByText('Bold').tagName).toBe('STRONG')
-    expect(getByRole('link', { name: 'x' })).toBeDefined()
+    getByRole('link', { name: 'x' })
   })
 
   it('keeps surrounding paragraphs intact', () => {
@@ -468,85 +465,85 @@ describe('Markdown with tables', () => {
     const bogus = 'not | a | table'
     const { queryByRole, getByText } = render(<Markdown text={bogus} />)
     expect(queryByRole('table')).toBeNull() // no table
-    expect(getByText('not | a | table')).toBeDefined()
+    getByText('not | a | table')
   })
 
   it('single column table', () => {
     const text = '| Only Header |\n|-------------|\n| Single cell |'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('Only Header')).toBeDefined()
-    expect(getByText('Single cell')).toBeDefined()
+    getByRole('table')
+    getByText('Only Header')
+    getByText('Single cell')
   })
 
   it('table with no leading or trailing pipes', () => {
     const text = 'Header1 | Header2\n------- | -------\nData1   | Data2'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('Header1')).toBeDefined()
-    expect(getByText('Data2')).toBeDefined()
+    getByRole('table')
+    getByText('Header1')
+    getByText('Data2')
   })
 
   it('keeps a pipe that is inside inline code in a table', () => {
     const text = 'Header1 | Header2\n------- | -------\n| Here is some `inline | code` with a pipe. |'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('inline | code')).toBeDefined()
+    getByRole('table')
+    getByText('inline | code')
   })
 
   it('does not treat --- as a table separator', () => {
     const text = 'Column 1 | Column 2\n---\nData 1 | Data 2'
     const { queryByRole, getByRole, getByText } = render(<Markdown text={text} />)
     expect(queryByRole('table')).toBeNull() // no table
-    expect(getByText('Column 1 | Column 2')).toBeDefined()
-    expect(getByRole('separator')).toBeDefined() // horizontal rule
-    expect(getByText('Data 1 | Data 2')).toBeDefined()
+    getByText('Column 1 | Column 2')
+    getByRole('separator') // horizontal rule
+    getByText('Data 1 | Data 2')
   })
 
   it('handles escaped pipes in table cells', () => {
     const text = '| Header \\| 1 | Header 2 |\n|----------|----------|\n| Cell with \\| escaped pipe | Normal cell |'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('Header | 1')).toBeDefined()
-    expect(getByText('Header 2')).toBeDefined()
-    expect(getByText('Cell with | escaped pipe')).toBeDefined()
-    expect(getByText('Normal cell')).toBeDefined()
+    getByRole('table')
+    getByText('Header | 1')
+    getByText('Header 2')
+    getByText('Cell with | escaped pipe')
+    getByText('Normal cell')
   })
 
   it('renders a table even with unicode en dash', () => {
     const text = 'Header 1 | Header 2\n–|–\nRow 1 | Data 1\nRow 2 | Data 2'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('Header 1')).toBeDefined()
-    expect(getByText('Header 2')).toBeDefined()
-    expect(getByText('Row 1')).toBeDefined()
-    expect(getByText('Data 1')).toBeDefined()
-    expect(getByText('Row 2')).toBeDefined()
-    expect(getByText('Data 2')).toBeDefined()
+    getByRole('table')
+    getByText('Header 1')
+    getByText('Header 2')
+    getByText('Row 1')
+    getByText('Data 1')
+    getByText('Row 2')
+    getByText('Data 2')
   })
 
   it('renders a table even with unicode em dash', () => {
     const text = 'Header 1 | Header 2\n—|—\nRow 1 | Data 1\nRow 2 | Data 2'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('Header 1')).toBeDefined()
-    expect(getByText('Header 2')).toBeDefined()
-    expect(getByText('Row 1')).toBeDefined()
-    expect(getByText('Data 1')).toBeDefined()
-    expect(getByText('Row 2')).toBeDefined()
-    expect(getByText('Data 2')).toBeDefined()
+    getByRole('table')
+    getByText('Header 1')
+    getByText('Header 2')
+    getByText('Row 1')
+    getByText('Data 1')
+    getByText('Row 2')
+    getByText('Data 2')
   })
 
   it('renders a table without preceding newline', () => {
     const text = 'Oldest houses:\n| id | year |\n|---|---|\n| 83 | 1920 |\n| 19 | 1951 |'
     const { getByText, getByRole } = render(<Markdown text={text} />)
-    expect(getByRole('table')).toBeDefined()
-    expect(getByText('id')).toBeDefined()
-    expect(getByText('year')).toBeDefined()
-    expect(getByText('83')).toBeDefined()
-    expect(getByText('1920')).toBeDefined()
-    expect(getByText('19')).toBeDefined()
-    expect(getByText('1951')).toBeDefined()
-    expect(getByText('Oldest houses:')).toBeDefined()
+    getByRole('table')
+    getByText('id')
+    getByText('year')
+    getByText('83')
+    getByText('1920')
+    getByText('19')
+    getByText('1951')
+    getByText('Oldest houses:')
   })
 })

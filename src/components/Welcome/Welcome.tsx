@@ -33,7 +33,8 @@ export default function Welcome({ onClose }: WelcomePopupProps) {
   }, [onClose])
 
   return (
-    <div className={cn(styles.welcome, customClass?.welcome)} onClick={handleBackdropClick}>
+    /* TODO(SL): we could use <dialog> */
+    <div role="dialog" className={cn(styles.welcome, customClass?.welcome)} onClick={handleBackdropClick}>
       <div>
         {welcome?.content ?? <>
           <h2>npx hyperparam</h2>

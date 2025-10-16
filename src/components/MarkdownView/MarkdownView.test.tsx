@@ -22,8 +22,8 @@ describe('MarkdownView Component', () => {
     )
 
     expect(fetch).toHaveBeenCalled()
-    await expect(findByText('Markdown')).resolves.toBeDefined()
-    await expect(findByText('This is a test of the markdown viewer.')).resolves.toBeDefined()
-    await expect(findByText('50 b')).resolves.toBeDefined()
+    await findByText('Markdown')
+    await findByText('This is a test of the markdown viewer.')
+    await findByText('50 b')
   })
 })

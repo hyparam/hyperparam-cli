@@ -35,9 +35,9 @@ describe('JsonView Component', () => {
 
     expect(fetch).toHaveBeenCalledWith('testKey0', undefined)
     // Wait for asynchronous JSON loading and parsing
-    await expect(findByRole('list')).resolves.toBeDefined()
-    await expect(findByText('key:')).resolves.toBeDefined()
-    await expect(findByText('"value"')).resolves.toBeDefined()
+    await findByRole('list')
+    await findByText('key:')
+    await findByText('"value"')
   })
 
   it('displays an error when the json content is too long', async () => {
