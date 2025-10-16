@@ -50,8 +50,7 @@ describe('Breadcrumb Component', () => {
       <Breadcrumb source={source} />
     </ConfigProvider>)
 
-    const versionsLabel = await findByText('Versions')
-    expect(versionsLabel).toBeDefined()
+    await findByText('Versions')
     const versionLinks = getAllByRole('menuitem')
     expect(versionLinks.length).toBe(2)
     expect(versionLinks[0]?.getAttribute('href')).toBe('/files?key=v1.0')
