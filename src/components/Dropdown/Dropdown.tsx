@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { cn } from '../../lib/utils'
 import styles from './Dropdown.module.css'
 
@@ -19,7 +19,7 @@ interface DropdownProps {
  * </Dropdown>
  */
 export default function Dropdown({ label, align = 'left', className, children }: DropdownProps) {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, _setIsOpen] = useState(false)
   const [focusedIndex, setFocusedIndex] = useState(-1)
 
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -34,14 +34,20 @@ export default function Dropdown({ label, align = 'left', className, children }:
     ))
   }
 
+  const setIsOpen = useCallback((value: React.SetStateAction<boolean>) => {
+    _setIsOpen(prev => {
+      const nextIsOpen = typeof value === 'function' ? value(prev) : value
+      if (nextIsOpen) {
+        // reset focus so we start at the first item
+        setFocusedIndex(0)
+      }
+      return nextIsOpen
+    })
+  }, [])
+
   function toggleDropdown() {
     setIsOpen(prev => !prev)
   }
-
-  // reset focus so we start at the first item
-  useEffect(() => {
-    if (isOpen) setFocusedIndex(0)
-  }, [isOpen])
 
   // whenever focusedIndex changes, focus the corresponding menu item
   useEffect(() => {
@@ -116,7 +122,7 @@ export default function Dropdown({ label, align = 'left', className, children }:
       document.removeEventListener('keydown', handleEscape)
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [])
+  }, [setIsOpen])
 
   return (
     <div

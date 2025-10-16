@@ -25,14 +25,9 @@ interface LayoutProps {
  * @param props.title - page title
  */
 export default function Layout({ children, progress, error, title }: LayoutProps) {
-  const [showWelcome, setShowWelcome] = useState(false)
-  const { customClass } = useConfig()
-
   // Check localStorage on mount to see if the user has seen the welcome popup
-  useEffect(() => {
-    const dismissed = localStorage.getItem('welcome:dismissed') === 'true'
-    setShowWelcome(!dismissed)
-  }, [])
+  const [showWelcome, setShowWelcome] = useState(() => localStorage.getItem('welcome:dismissed') !== 'true')
+  const { customClass } = useConfig()
 
   // Handle closing the welcome popup
   function handleCloseWelcome() {
