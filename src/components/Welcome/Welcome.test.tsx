@@ -8,10 +8,9 @@ describe('Welcome Component', () => {
     const onClose = vi.fn()
     const { getByRole, getByText } = render(<Welcome onClose={onClose} />)
 
-    expect(getByText('npx hyperparam')).toBeDefined()
-    expect(getByText('Got it')).toBeDefined()
+    getByText('npx hyperparam')
+    getByText('Got it')
     const button = getByRole('button')
-    expect(button).toBeDefined()
     expect(button.textContent).toBe('Got it')
   })
 
@@ -25,16 +24,13 @@ describe('Welcome Component', () => {
 
   it('calls onClose when clicking outside the popup', () => {
     const onClose = vi.fn()
-    const { container } = render(<Welcome onClose={onClose} />)
+    const { getByRole } = render(<Welcome onClose={onClose} />)
 
     // Find the backdrop element
-    const backdropElement = container.querySelector('.welcome')
-    expect(backdropElement).toBeDefined()
+    const backdropElement = getByRole('dialog')
 
-    if (backdropElement) {
-      fireEvent.click(backdropElement)
-      expect(onClose).toHaveBeenCalledTimes(1)
-    }
+    fireEvent.click(backdropElement)
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 
   it('does not call onClose when clicking inside the popup', () => {
@@ -76,7 +72,7 @@ describe('Welcome Component', () => {
       </ConfigProvider>
     )
 
-    expect(getByText('Custom welcome message')).toBeDefined()
-    expect(getByText('Custom Got it')).toBeDefined()
+    getByText('Custom welcome message')
+    getByText('Custom Got it')
   })
 })

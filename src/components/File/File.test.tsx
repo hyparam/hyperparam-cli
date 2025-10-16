@@ -32,10 +32,10 @@ describe('File Component', () => {
       </ConfigProvider>
     ))
 
-    expect(getByText('/')).toBeDefined()
-    expect(getByText('folder/')).toBeDefined()
-    expect(getByText('subfolder/')).toBeDefined()
-    expect(getByText('test.txt')).toBeDefined()
+    getByText('/')
+    getByText('folder/')
+    getByText('subfolder/')
+    getByText('test.txt')
   })
 
   it('renders a URL', async () => {

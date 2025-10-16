@@ -22,11 +22,11 @@ describe('Spinner Component', () => {
   })
   it('contains an accessible text for screen readers', () => {
     const { getByText } = render( <Spinner/> )
-    expect(getByText('Loading...')).toBeDefined()
+    getByText('Loading...')
   })
   it('let pass a custom accessible text for screen readers', () => {
     const text = 'Fetching data'
     const { getByText } = render( <Spinner text={text}/> )
-    expect(getByText(text)).toBeDefined()
+    getByText(text)
   })
 })

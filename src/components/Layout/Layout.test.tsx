@@ -5,7 +5,7 @@ import Layout from './Layout.js'
 describe('Layout Component', () => {
   it('renders children', () => {
     const { getByText } = render(<Layout>Test Content</Layout>)
-    expect(getByText('Test Content')).toBeDefined()
+    getByText('Test Content')
     expect(document.title).toBe('hyperparam')
   })
 
@@ -16,12 +16,12 @@ describe('Layout Component', () => {
 
   it('displays progress bar', () => {
     const { getByRole } = render(<Layout progress={0.5}>Test Content</Layout>)
-    expect(getByRole('progressbar')).toBeDefined()
+    getByRole('progressbar')
   })
 
   it('displays error message', () => {
     const testError = new Error('Test Error')
     const { getByText } = render(<Layout error={testError}>Test Content</Layout>)
-    expect(getByText('Error: Test Error')).toBeDefined()
+    getByText('Error: Test Error')
   })
 })

@@ -30,8 +30,8 @@ describe('SlidePanel', () => {
         isPanelOpen
       />
     )
-    expect(getByText('Main')).toBeDefined()
-    expect(getByText('Panel')).toBeDefined()
+    getByText('Main')
+    getByText('Panel')
   })
 
   it('does not render the resizer if panel is closed', () => {

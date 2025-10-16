@@ -24,10 +24,9 @@ describe('ImageView Component', () => {
     // wait for asynchronous image loading
     expect(fetch).toHaveBeenCalled()
     const image = await findByRole('img')
-    expect(image).toBeDefined()
     expect(image.getAttribute('src')).not.toBeNull()
     expect(image.getAttribute('alt')).toBe('test.png')
-    await expect(findByText('8 b')).resolves.toBeDefined()
+    await findByText('8 b')
   })
 
   // TODO: test error handling

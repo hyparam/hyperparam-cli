@@ -41,12 +41,12 @@ describe('Folder Component', () => {
     const folderLink = await findByText('folder1/')
     expect(folderLink.closest('a')?.getAttribute('href')).toBe(`/files?key=${path}folder1/`)
 
-    expect(getByText('/')).toBeDefined()
+    getByText('/')
 
     const fileLink = getByText('file1.txt')
     expect(fileLink.closest('a')?.getAttribute('href')).toBe(`/files?key=${path}file1.txt`)
-    expect(getByText('8.0 kb')).toBeDefined()
-    expect(getByText('1/1/2023')).toBeDefined()
+    getByText('8.0 kb')
+    getByText('1/1/2023')
   })
 
   it('displays the spinner while loading', async () => {
@@ -60,8 +60,7 @@ describe('Folder Component', () => {
     assert(source?.kind === 'directory')
 
     const { getByText } = await act(() => render(<Folder source={source} />))
-    const spinner = getByText('Loading...')
-    expect(spinner).toBeDefined()
+    getByText('Loading...')
   })
 
   it('handles file listing errors', async () => {
@@ -96,7 +95,7 @@ describe('Folder Component', () => {
       prefix: '',
       listFiles: () => Promise.resolve(mockFiles),
     }
-    const { getByPlaceholderText, getByText, queryByText } = render(<Folder source={dirSource} />)
+    const { getByPlaceholderText, findByText, getByText, queryByText } = render(<Folder source={dirSource} />)
 
     // Type a search query
     const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
@@ -105,22 +104,18 @@ describe('Folder Component', () => {
     })
 
     // Only matching files are displayed
-    await waitFor(() => {
-      expect(getByText('file1.txt')).toBeDefined()
-      expect(queryByText('folder1/')).toBeNull()
-      expect(queryByText('report.pdf')).toBeNull()
-    })
+    await findByText('file1.txt')
+    expect(queryByText('folder1/')).toBeNull()
+    expect(queryByText('report.pdf')).toBeNull()
 
     // Clear search with escape key
     act(() => {
       fireEvent.keyUp(searchInput, { key: 'Escape' })
     })
 
-    await waitFor(() => {
-      expect(getByText('file1.txt')).toBeDefined()
-      expect(getByText('folder1/')).toBeDefined()
-      expect(getByText('report.pdf')).toBeDefined()
-    })
+    await findByText('report.pdf')
+    getByText('folder1/')
+    getByText('file1.txt')
   })
 
   it('hitting enter on single search result navigates to file', async () => {
@@ -141,7 +136,7 @@ describe('Folder Component', () => {
       prefix: '',
       listFiles: () => Promise.resolve(mockFiles),
     }
-    const { getByPlaceholderText, getByText } = render(<Folder source={dirSource} />)
+    const { getByPlaceholderText, findByText } = render(<Folder source={dirSource} />)
 
     // Type a search query and hit enter
     const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
@@ -149,9 +144,7 @@ describe('Folder Component', () => {
       fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
     })
 
-    await waitFor(() => {
-      expect(getByText('file1.txt')).toBeDefined()
-    })
+    await findByText('file1.txt')
 
     act(() => {
       fireEvent.keyUp(searchInput, { key: 'Enter' })
