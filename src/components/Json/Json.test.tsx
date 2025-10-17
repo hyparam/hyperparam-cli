@@ -22,12 +22,10 @@ describe('Json Component', () => {
   })
 
   it.for([
-    ['foo', 'bar'],
     [],
     [1, 2, 3],
-    [1, 'foo', null],
     Array.from({ length: 101 }, (_, i) => i),
-  ])('collapses any array', (array) => {
+  ])('collapses any array with primitives', (array) => {
     const { getByRole } = render(<Json json={array} />)
     expect(getByRole('treeitem').ariaExpanded).toBe('false')
   })
@@ -68,12 +66,20 @@ describe('Json Component', () => {
   it.for([
     [1, 'foo', [1, 2, 3]],
     [1, 'foo', { nested: true }],
-  ])('expands short arrays with non-primitive values', (arr) => {
+  ])('expands short arrays with inner arrays or objects', (arr) => {
     const { getAllByRole } = render(<Json json={arr} />)
     const treeItems = getAllByRole('treeitem')
     expect(treeItems.length).toBe(2)
     expect(treeItems[0]?.getAttribute('aria-expanded')).toBe('true') // the root
     expect(treeItems[1]?.getAttribute('aria-expanded')).toBe('false') // the non-primitive value (object/array)
+  })
+
+  it.for([
+    ['foo', 'bar'],
+    [1, 'foo', null],
+  ])('expands short arrays with strings', (arr) => {
+    const { getByRole } = render(<Json json={arr} />)
+    expect(getByRole('treeitem').getAttribute('aria-expanded')).toBe('true')
   })
 
   it.for([
