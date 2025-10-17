@@ -52,7 +52,7 @@ describe('Dropdown Component', () => {
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('close dropdown when clicking inside', async () => {
+  it('closes dropdown when clicking inside', async () => {
     const { container: { children: [ div ] }, getByRole, getByText } = render(
       <Dropdown>
         <div>Child 1</div>
