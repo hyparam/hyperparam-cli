@@ -153,8 +153,7 @@ describe('Json Component', () => {
 })
 
 describe('isPrimitive', () => {
-  it('returns true only for primitive types', () => {
-    expect(isPrimitive('test')).toBe(true)
+  it('returns true only for primitive types (string is an exception)', () => {
     expect(isPrimitive(42)).toBe(true)
     expect(isPrimitive(true)).toBe(true)
     expect(isPrimitive(1n)).toBe(true)
@@ -162,16 +161,18 @@ describe('isPrimitive', () => {
     expect(isPrimitive(undefined)).toBe(true)
     expect(isPrimitive({})).toBe(false)
     expect(isPrimitive([])).toBe(false)
+    expect(isPrimitive('test')).toBe(false)
   })
 })
 
 describe('shouldObjectCollapse', () => {
   it('returns true for objects with all primitive values', () => {
-    expect(shouldObjectCollapse({ a: 1, b: 'test' })).toBe(true)
+    expect(shouldObjectCollapse({ a: 1, b: false })).toBe(true)
   })
 
   it('returns false for objects with non-primitive values', () => {
     expect(shouldObjectCollapse({ a: 1, b: {} })).toBe(false)
+    expect(shouldObjectCollapse({ a: 1, b: 'test' })).toBe(false)
   })
 
   it('returns true for large objects', () => {
