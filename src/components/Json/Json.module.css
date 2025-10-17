@@ -25,19 +25,26 @@
 
 .clickable {
   cursor: pointer;
+
+  /* drill */
+  &::before {
+    content: '▶';
+    color: #556;
+    font-size: 10pt;
+    margin-left: -12px;
+    margin-right: 4px;
+    padding: 2px 0;
+    user-select: none;
+  }
+  &:hover::before {
+    color: #778;
+  }
+  &[aria-expanded="true"]::before {
+    content: '▼';
+  }  
 }
 
-.drill {
-  color: #556;
-  font-size: 10pt;
-  margin-left: -12px;
-  margin-right: 4px;
-  padding: 2px 0;
-  user-select: none;
-}
-.clickable:hover .drill {
-  color: #778;
-}
+
 .key {
   color: #aad;
   font-weight: bold;
