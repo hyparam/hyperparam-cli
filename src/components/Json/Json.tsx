@@ -14,7 +14,7 @@ interface JsonProps {
  * JSON viewer component with collapsible objects and arrays.
  */
 export default function Json({ json, label, className }: JsonProps): ReactNode {
-  return <div className={cn(styles.json, className)}>
+  return <div className={cn(styles.json, className)} role="tree">
     <JsonContent json={json} label={label} />
   </div>
 }
@@ -89,19 +89,17 @@ function JsonArray({ array, label }: { array: unknown[], label?: string }): Reac
   const [collapsed, setCollapsed] = useState(shouldObjectCollapse(array))
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
-    return <div className={styles.clickable} onClick={() => { setCollapsed(false) }}>
-      <span className={styles.drill}>{'\u25B6'}</span>
+    return <div role="treeitem" className={styles.clickable} aria-expanded="false" onClick={() => { setCollapsed(false) }}>
       {key}
       <CollapsedArray array={array}></CollapsedArray>
     </div>
   }
   return <>
-    <div className={styles.clickable} onClick={() => { setCollapsed(true) }}>
-      <span className={styles.drill}>{'\u25BC'}</span>
+    <div role="treeitem" className={styles.clickable} aria-expanded="true" onClick={() => { setCollapsed(true) }}>
       {key}
       <span className={styles.array}>{'['}</span>
     </div>
-    <ul>
+    <ul role="group">
       {array.map((item, index) => <li key={index}>{<Json json={item} />}</li>)}
     </ul>
     <div className={styles.array}>{']'}</div>
@@ -154,19 +152,17 @@ function JsonObject({ obj, label }: { obj: object, label?: string }): ReactNode 
   const [collapsed, setCollapsed] = useState(shouldObjectCollapse(obj))
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
-    return <div className={styles.clickable} onClick={() => { setCollapsed(false) }}>
-      <span className={styles.drill}>{'\u25B6'}</span>
+    return <div role="treeitem" className={styles.clickable} aria-expanded="false" onClick={() => { setCollapsed(false) }}>
       {key}
       <CollapsedObject obj={obj}></CollapsedObject>
     </div>
   }
   return <>
-    <div className={styles.clickable} onClick={() => { setCollapsed(true) }}>
-      <span className={styles.drill}>{'\u25BC'}</span>
+    <div role="treeitem" className={styles.clickable} aria-expanded="true" onClick={() => { setCollapsed(true) }}>
       {key}
       <span className={styles.object}>{'{'}</span>
     </div>
-    <ul>
+    <ul role="group">
       {Object.entries(obj).map(([key, value]) =>
         <li key={key}>
           <Json json={value as unknown} label={key} />

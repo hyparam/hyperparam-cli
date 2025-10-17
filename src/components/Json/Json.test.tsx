@@ -27,9 +27,8 @@ describe('Json Component', () => {
     [1, 'foo', null],
     Array.from({ length: 101 }, (_, i) => i),
   ])('collapses any array', (array) => {
-    const { queryByText } = render(<Json json={array} />)
-    expect(queryByText('▶')).toBeTruthy()
-    expect(queryByText('▼')).toBeNull()
+    const { getByRole } = render(<Json json={array} />)
+    expect(getByRole('treeitem').ariaExpanded).toBe('false')
   })
 
   it.for([
@@ -40,13 +39,12 @@ describe('Json Component', () => {
   ])('shows short arrays of primitive items, without trailing comment about length', (array) => {
     const { queryByText } = render(<Json json={array} />)
     expect(queryByText('...')).toBeNull()
-    expect(queryByText('length')).toBeNull()
+    expect(queryByText(/length/)).toBeNull()
   })
 
   it.for([
-    // [1, 'foo', [1, 2, 3]], // TODO(SL): this one does not collapses, what to do? The text is wrong
     Array.from({ length: 101 }, (_, i) => i),
-  ])('hides long arrays, and non-primitive items, with trailing comment about length', (array) => {
+  ])('hides long arrays with trailing comment about length', (array) => {
     const { getByText } = render(<Json json={array} />)
     getByText('...')
     getByText(/length/)
@@ -67,19 +65,38 @@ describe('Json Component', () => {
   })
 
   it.for([
+    [1, 'foo', [1, 2, 3]],
+    [1, 'foo', { nested: true }],
+  ])('expands short arrays with non-primitive values', (arr) => {
+    const { getAllByRole } = render(<Json json={arr} />)
+    const treeItems = getAllByRole('treeitem')
+    expect(treeItems.length).toBe(2)
+    expect(treeItems[0]?.getAttribute('aria-expanded')).toBe('true') // the root
+    expect(treeItems[1]?.getAttribute('aria-expanded')).toBe('false') // the non-primitive value (object/array)
+  })
+
+  it.for([
     { obj: [314, null] },
     { obj: { nested: true } },
   ])('expands short objects with non-primitive values', (obj) => {
-    const { getByText } = render(<Json json={obj} />)
-    getByText('▼')
+    const { getAllByRole } = render(<Json json={obj} />)
+    const treeItems = getAllByRole('treeitem')
+    expect(treeItems.length).toBe(2)
+    expect(treeItems[0]?.getAttribute('aria-expanded')).toBe('true') // the root
+    expect(treeItems[1]?.getAttribute('aria-expanded')).toBe('false') // the non-primitive value (object/array)
   })
 
   it.for([
     { obj: [314, null] },
     { obj: { nested: true } },
   ])('hides the content and append number of entries when objects with non-primitive values are collapsed', (obj) => {
-    const { getByText } = render(<Json json={obj} />)
-    fireEvent.click(getByText('▼'))
+    const { getAllByRole, getByText } = render(<Json json={obj} />)
+    const root = getAllByRole('treeitem')[0]
+    if (!root) { /* type assertion, getAllByRole would already have thrown */
+      throw new Error('No root element found')
+    }
+    fireEvent.click(root)
+    expect(root.getAttribute('aria-expanded')).toBe('false')
     getByText('...')
     getByText(/entries/)
   })
@@ -90,9 +107,8 @@ describe('Json Component', () => {
     { a: 1, b: true, c: null, d: undefined },
     Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }])),
   ])('collapses long objects, or objects with only primitive values (included empty object)', (obj) => {
-    const { queryByText } = render(<Json json={obj} />)
-    expect(queryByText('▶')).toBeTruthy()
-    expect(queryByText('▼')).toBeNull()
+    const { getByRole } = render(<Json json={obj} />)
+    expect(getByRole('treeitem').getAttribute('aria-expanded')).toBe('false')
   })
 
   it.for([
@@ -105,21 +121,23 @@ describe('Json Component', () => {
 
   it('toggles array collapse state', () => {
     const longArray = Array.from({ length: 101 }, (_, i) => i)
-    const { getByText, queryByText } = render(<Json json={longArray} />)
+    const { getByRole, getByText, queryByText } = render(<Json json={longArray} />)
+    const treeItem = getByRole('treeitem')
     getByText('...')
-    fireEvent.click(getByText('▶'))
+    fireEvent.click(treeItem)
     expect(queryByText('...')).toBeNull()
-    fireEvent.click(getByText('▼'))
+    fireEvent.click(treeItem)
     getByText('...')
   })
 
   it('toggles object collapse state', () => {
     const longObject = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }]))
-    const { getByText, queryByText } = render(<Json json={longObject} />)
+    const { getByRole, getByText, queryByText } = render(<Json json={longObject} />)
+    const treeItem = getByRole('treeitem') // only one treeitem because the inner objects are collapsed and not represented as treeitems
     getByText('...')
-    fireEvent.click(getByText('▶'))
+    fireEvent.click(treeItem)
     expect(queryByText('...')).toBeNull()
-    fireEvent.click(getByText('▼'))
+    fireEvent.click(treeItem)
     getByText('...')
   })
 })

@@ -13,7 +13,7 @@ globalThis.fetch = vi.fn()
 describe('JsonView Component', () => {
   const encoder = new TextEncoder()
 
-  it('renders json content as nested lists (if not collapsed)', async () => {
+  it('renders json content as nested tree items (if not collapsed)', async () => {
     const text = '{"key":["value"]}'
     const body = encoder.encode(text).buffer
     const source: FileSource = {
@@ -29,13 +29,13 @@ describe('JsonView Component', () => {
       text: () => Promise.resolve(text),
     } as Response)
 
-    const { findByRole, findByText } = render(
+    const { findAllByRole, findByText } = render(
       <JsonView source={source} setError={console.error} />
     )
 
     expect(fetch).toHaveBeenCalledWith('testKey0', undefined)
     // Wait for asynchronous JSON loading and parsing
-    await findByRole('list')
+    await findAllByRole('treeitem')
     await findByText('key:')
     await findByText('"value"')
   })
