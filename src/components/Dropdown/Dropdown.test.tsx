@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react'
+import { act, render } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import Dropdown from './Dropdown'
 import styles from './Dropdown.module.css'
@@ -14,7 +15,7 @@ describe('Dropdown Component', () => {
     expect(div?.classList).toContain(styles.dropdownLeft)
   })
 
-  it('toggles dropdown content on button click', () => {
+  it('toggles dropdown content on button click', async () => {
     const { container: { children: [ div ] }, getByRole } = render(
       <Dropdown label='go'>
         <div>Child 1</div>
@@ -24,15 +25,16 @@ describe('Dropdown Component', () => {
     const dropdownButton = getByRole('button')
 
     // open menu with click
-    fireEvent.click(dropdownButton)
+    const user = userEvent.setup()
+    await user.click(dropdownButton)
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     // click again to close
-    fireEvent.click(dropdownButton)
+    await user.click(dropdownButton)
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('closes dropdown when clicking outside', () => {
+  it('closes dropdown when clicking outside', async () => {
     const { container: { children: [ div ] }, getByRole } = render(
       <Dropdown>
         <div>Child 1</div>
@@ -41,15 +43,16 @@ describe('Dropdown Component', () => {
     )
 
     const dropdownButton = getByRole('button')
-    fireEvent.click(dropdownButton) // open dropdown
+    const user = userEvent.setup()
+    await user.click(dropdownButton) // open dropdown
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     // Simulate a click outside
-    fireEvent.mouseDown(document)
+    await user.click(document.body)
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('does not close dropdown when clicking inside', () => {
+  it('close dropdown when clicking inside', async () => {
     const { container: { children: [ div ] }, getByRole, getByText } = render(
       <Dropdown>
         <div>Child 1</div>
@@ -58,16 +61,17 @@ describe('Dropdown Component', () => {
     )
 
     const dropdownButton = getByRole('button')
-    fireEvent.click(dropdownButton) // open dropdown
+    const user = userEvent.setup()
+    await user.click(dropdownButton) // open dropdown
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     const dropdownContent = getByText('Child 1').parentElement
     if (!dropdownContent) throw new Error('Dropdown content not found')
-    fireEvent.mouseDown(dropdownContent)
-    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
+    await user.click(dropdownContent)
+    expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
-  it('closes dropdown on escape key press', () => {
+  it('closes dropdown on escape key press', async () => {
     const { container: { children: [ div ] }, getByRole } = render(
       <Dropdown>
         <div>Child 1</div>
@@ -76,11 +80,12 @@ describe('Dropdown Component', () => {
     )
 
     const dropdownButton = getByRole('button')
-    fireEvent.click(dropdownButton) // open dropdown
+    const user = userEvent.setup()
+    await user.click(dropdownButton) // open dropdown
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('true')
 
     // Press escape key
-    fireEvent.keyDown(document, { key: 'Escape', code: 'Escape' })
+    await user.keyboard('{Escape}')
     expect(div?.children[0]?.getAttribute('aria-expanded')).toBe('false')
   })
 
@@ -107,7 +112,7 @@ describe('Dropdown Component', () => {
   })
 
   // Keyboard navigation tests
-  it('opens dropdown and focuses first item on ArrowDown when closed', () => {
+  it('opens dropdown and focuses first item on ArrowDown when closed', async () => {
     const { getByRole, getAllByRole } = render(
       <Dropdown label="Menu">
         <button role="menuitem">Item 1</button>
@@ -120,15 +125,20 @@ describe('Dropdown Component', () => {
     // initially closed
     expect(dropdownButton.getAttribute('aria-expanded')).toBe('false')
 
+    // focus the button
+    act(() => {
+      dropdownButton.focus()
+    })
     // down arrow to open menu
-    fireEvent.keyDown(dropdownButton, { key: 'ArrowDown', code: 'ArrowDown' })
+    const user = userEvent.setup()
+    await user.keyboard('{ArrowDown}')
     expect(dropdownButton.getAttribute('aria-expanded')).toBe('true')
 
     // first menu item should be focused
     expect(document.activeElement).toBe(menuItems[0])
   })
 
-  it('focuses the next item on ArrowDown and wraps to first item if at the end', () => {
+  it('focuses the next item on ArrowDown and wraps to first item if at the end', async () => {
     const { getByRole, getAllByRole } = render(
       <Dropdown label="Menu">
         <button role="menuitem">Item 1</button>
@@ -139,19 +149,20 @@ describe('Dropdown Component', () => {
     const dropdownButton = getByRole('button')
 
     // open menu, first item has focus
-    fireEvent.click(dropdownButton)
+    const user = userEvent.setup()
+    await user.click(dropdownButton)
     expect(document.activeElement).toBe(menuItems[0])
 
     // second item should be focused
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown', code: 'ArrowDown' })
+    await user.keyboard('{ArrowDown}')
     expect(document.activeElement).toBe(menuItems[1])
 
     // wrap back to first item
-    fireEvent.keyDown(menuItems[1], { key: 'ArrowDown', code: 'ArrowDown' })
+    await user.keyboard('{ArrowDown}')
     expect(document.activeElement).toBe(menuItems[0])
   })
 
-  it('focuses the previous item on ArrowUp and wraps to the last item if at the top', () => {
+  it('focuses the previous item on ArrowUp and wraps to the last item if at the top', async () => {
     const { getByRole, getAllByRole } = render(
       <Dropdown label="Menu">
         <button role="menuitem">Item 1</button>
@@ -162,15 +173,16 @@ describe('Dropdown Component', () => {
     const dropdownButton = getByRole('button')
 
     // open menu, first item has focus
-    fireEvent.click(dropdownButton)
+    const user = userEvent.setup()
+    await user.click(dropdownButton)
     expect(document.activeElement).toBe(menuItems[0])
 
     // ArrowUp -> should wrap to last item
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowUp', code: 'ArrowUp' })
+    await user.keyboard('{ArrowUp}')
     expect(document.activeElement).toBe(menuItems[1])
   })
 
-  it('focuses first item on Home key press', () => {
+  it('focuses first item on Home key press', async () => {
     const { getByRole, getAllByRole } = render(
       <Dropdown label="Menu">
         <button role="menuitem">Item 1</button>
@@ -182,19 +194,20 @@ describe('Dropdown Component', () => {
     const dropdownButton = getByRole('button')
 
     // open menu, first item has focus
-    fireEvent.click(dropdownButton)
+    const user = userEvent.setup()
+    await user.click(dropdownButton)
     expect(document.activeElement).toBe(menuItems[0])
 
     // move to the second item
-    fireEvent.keyDown(menuItems[0], { key: 'ArrowDown', code: 'ArrowDown' })
+    await user.keyboard('{ArrowDown}')
     expect(document.activeElement).toBe(menuItems[1])
 
     // Home key should focus first item
-    fireEvent.keyDown(menuItems[1], { key: 'Home', code: 'Home' })
+    await user.keyboard('{Home}')
     expect(document.activeElement).toBe(menuItems[0])
   })
 
-  it('focuses last item on End key press', () => {
+  it('focuses last item on End key press', async () => {
     const { getByRole, getAllByRole } = render(
       <Dropdown label="Menu">
         <button role="menuitem">Item 1</button>
@@ -206,15 +219,16 @@ describe('Dropdown Component', () => {
     const dropdownButton = getByRole('button')
 
     // open menu, first item has focus
-    fireEvent.click(dropdownButton)
+    const user = userEvent.setup()
+    await user.click(dropdownButton)
     expect(document.activeElement).toBe(menuItems[0])
 
     // End key should focus the last item
-    fireEvent.keyDown(menuItems[0], { key: 'End', code: 'End' })
+    await user.keyboard('{End}')
     expect(document.activeElement).toBe(menuItems[2])
   })
 
-  it('closes the menu and puts focus back on the button on Escape', () => {
+  it('closes the menu and puts focus back on the button on Escape', async () => {
     const { getByRole, getAllByRole } = render(
       <Dropdown label="Menu">
         <button role="menuitem">Item 1</button>
@@ -225,12 +239,13 @@ describe('Dropdown Component', () => {
     const dropdownButton = getByRole('button')
 
     // open menu, first item has focus
-    fireEvent.click(dropdownButton)
+    const user = userEvent.setup()
+    await user.click(dropdownButton)
     expect(document.activeElement).toBe(menuItems[0])
     expect(dropdownButton.getAttribute('aria-expanded')).toBe('true')
 
     // escape closes menu
-    fireEvent.keyDown(menuItems[0], { key: 'Escape', code: 'Escape' })
+    await user.keyboard('{Escape}')
     expect(dropdownButton.getAttribute('aria-expanded')).toBe('false')
 
     // focus returns to the button

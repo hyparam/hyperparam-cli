@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfigProvider } from '../../hooks/useConfig.js'
 import Welcome from './Welcome.js'
@@ -19,46 +20,46 @@ describe('Welcome Component', () => {
     expect(button.textContent).toBe('Got it')
   })
 
-  it('calls onClose when button is clicked', () => {
+  it('calls onClose when button is clicked', async () => {
     const { getByRole } = render(<Welcome onClose={onClose} />)
 
-    fireEvent.click(getByRole('button'))
+    await userEvent.setup().click(getByRole('button'))
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('calls onClose when clicking outside the popup', () => {
+  it('calls onClose when clicking outside the popup', async () => {
     const { getByRole } = render(<Welcome onClose={onClose} />)
 
     // Find the backdrop element
     const backdropElement = getByRole('dialog')
 
-    fireEvent.click(backdropElement)
+    await userEvent.setup().click(backdropElement)
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('does not call onClose when clicking inside the popup', () => {
+  it('does not call onClose when clicking inside the popup', async () => {
     const { getByText } = render(<Welcome onClose={onClose} />)
 
     // Find and click on an element inside the popup content
     const paragraphElement = getByText('Supported file types include Parquet, CSV, JSON, Markdown, and Text.')
-    fireEvent.click(paragraphElement)
+    await userEvent.setup().click(paragraphElement)
 
     expect(onClose).not.toHaveBeenCalled()
   })
 
-  it('calls onClose when pressing Escape key', () => {
+  it('calls onClose when pressing Escape key', async () => {
     render(<Welcome onClose={onClose} />)
 
     // Simulate pressing the Escape key
-    fireEvent.keyDown(window, { key: 'Escape' })
+    await userEvent.setup().keyboard('{Escape}')
     expect(onClose).toHaveBeenCalledTimes(1)
   })
 
-  it('does not call onClose when pressing other keys', () => {
+  it('does not call onClose when pressing other keys', async () => {
     render(<Welcome onClose={onClose} />)
 
     // Simulate pressing a different key
-    fireEvent.keyDown(window, { key: 'Enter' })
+    await userEvent.setup().keyboard('{Enter}')
     expect(onClose).not.toHaveBeenCalled()
   })
 

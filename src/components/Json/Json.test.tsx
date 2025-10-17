@@ -1,4 +1,5 @@
-import { fireEvent, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import Json from './Json.js'
 import { isPrimitive, shouldObjectCollapse } from './helpers.js'
@@ -89,13 +90,14 @@ describe('Json Component', () => {
   it.for([
     { obj: [314, null] },
     { obj: { nested: true } },
-  ])('hides the content and append number of entries when objects with non-primitive values are collapsed', (obj) => {
+  ])('hides the content and append number of entries when objects with non-primitive values are collapsed', async (obj) => {
     const { getAllByRole, getByText } = render(<Json json={obj} />)
     const root = getAllByRole('treeitem')[0]
     if (!root) { /* type assertion, getAllByRole would already have thrown */
       throw new Error('No root element found')
     }
-    fireEvent.click(root)
+    const user = userEvent.setup()
+    await user.click(root)
     expect(root.getAttribute('aria-expanded')).toBe('false')
     getByText('...')
     getByText(/entries/)
@@ -119,25 +121,27 @@ describe('Json Component', () => {
     getByText(/entries/)
   })
 
-  it('toggles array collapse state', () => {
+  it('toggles array collapse state', async () => {
     const longArray = Array.from({ length: 101 }, (_, i) => i)
     const { getByRole, getByText, queryByText } = render(<Json json={longArray} />)
     const treeItem = getByRole('treeitem')
     getByText('...')
-    fireEvent.click(treeItem)
+    const user = userEvent.setup()
+    await user.click(treeItem)
     expect(queryByText('...')).toBeNull()
-    fireEvent.click(treeItem)
+    await user.click(treeItem)
     getByText('...')
   })
 
-  it('toggles object collapse state', () => {
+  it('toggles object collapse state', async () => {
     const longObject = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }]))
     const { getByRole, getByText, queryByText } = render(<Json json={longObject} />)
     const treeItem = getByRole('treeitem') // only one treeitem because the inner objects are collapsed and not represented as treeitems
     getByText('...')
-    fireEvent.click(treeItem)
+    const user = userEvent.setup()
+    await user.click(treeItem)
     expect(queryByText('...')).toBeNull()
-    fireEvent.click(treeItem)
+    await user.click(treeItem)
     getByText('...')
   })
 })
