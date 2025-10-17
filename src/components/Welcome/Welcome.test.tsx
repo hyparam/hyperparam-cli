@@ -1,11 +1,16 @@
 import { fireEvent, render } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfigProvider } from '../../hooks/useConfig.js'
 import Welcome from './Welcome.js'
 
+const onClose = vi.fn()
+
 describe('Welcome Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('renders welcome content', () => {
-    const onClose = vi.fn()
     const { getByRole, getByText } = render(<Welcome onClose={onClose} />)
 
     getByText('npx hyperparam')
@@ -15,7 +20,6 @@ describe('Welcome Component', () => {
   })
 
   it('calls onClose when button is clicked', () => {
-    const onClose = vi.fn()
     const { getByRole } = render(<Welcome onClose={onClose} />)
 
     fireEvent.click(getByRole('button'))
@@ -23,7 +27,6 @@ describe('Welcome Component', () => {
   })
 
   it('calls onClose when clicking outside the popup', () => {
-    const onClose = vi.fn()
     const { getByRole } = render(<Welcome onClose={onClose} />)
 
     // Find the backdrop element
@@ -34,7 +37,6 @@ describe('Welcome Component', () => {
   })
 
   it('does not call onClose when clicking inside the popup', () => {
-    const onClose = vi.fn()
     const { getByText } = render(<Welcome onClose={onClose} />)
 
     // Find and click on an element inside the popup content
@@ -45,7 +47,6 @@ describe('Welcome Component', () => {
   })
 
   it('calls onClose when pressing Escape key', () => {
-    const onClose = vi.fn()
     render(<Welcome onClose={onClose} />)
 
     // Simulate pressing the Escape key
@@ -54,7 +55,6 @@ describe('Welcome Component', () => {
   })
 
   it('does not call onClose when pressing other keys', () => {
-    const onClose = vi.fn()
     render(<Welcome onClose={onClose} />)
 
     // Simulate pressing a different key
@@ -63,7 +63,6 @@ describe('Welcome Component', () => {
   })
 
   it('renders custom content and button text', () => {
-    const onClose = vi.fn()
     const customContent = <p>Custom welcome message</p>
     const customButtonText = 'Custom Got it'
     const { getByText } = render(

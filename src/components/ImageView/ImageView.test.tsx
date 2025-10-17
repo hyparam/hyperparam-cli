@@ -1,12 +1,17 @@
 import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getHyperparamSource } from '../../lib/sources/index.js'
 import ImageView from './ImageView.js'
 
 globalThis.fetch = vi.fn()
 
 describe('ImageView Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // unnecessary for now because it has only one test, but safer for future tests
+  })
+
   it('renders the image correctly', async () => {
     const body = new ArrayBuffer(8)
     vi.mocked(fetch).mockResolvedValueOnce({

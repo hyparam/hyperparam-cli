@@ -1,12 +1,17 @@
 import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getHyperparamSource } from '../../lib/sources/index.js'
 import MarkdownView from './MarkdownView.js'
 
 globalThis.fetch = vi.fn()
 
 describe('MarkdownView Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    // unnecessary for now because it has only one test, but safer for future tests
+  })
+
   it('renders markdown correctly', async () => {
     const text = '# Markdown\n\nThis is a test of the markdown viewer.'
     vi.mocked(fetch).mockResolvedValueOnce({

@@ -1,7 +1,7 @@
 import { render } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import { act } from 'react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Config, ConfigProvider } from '../../hooks/useConfig.js'
 import { getHttpSource, getHyperparamSource } from '../../lib/sources/index.js'
 import File from './File.js'
@@ -21,6 +21,10 @@ const headers = { get: vi.fn() }
 globalThis.fetch = vi.fn(() => Promise.resolve({ text, headers } as unknown as Response))
 
 describe('File Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   it('renders a local file path', async () => {
     text.mockResolvedValueOnce('test content')
     const source = getHyperparamSource('folder/subfolder/test.txt', { endpoint })

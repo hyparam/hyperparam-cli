@@ -1,7 +1,7 @@
-import { fireEvent, render, waitFor } from '@testing-library/react'
+import { render, waitFor } from '@testing-library/react'
 import { strict as assert } from 'assert'
 import { act } from 'react'
-import { describe, expect, it, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { Config, ConfigProvider } from '../../hooks/useConfig.js'
 import { DirSource, FileMetadata, HyperparamFileMetadata, getHyperparamSource } from '../../lib/sources/index.js'
 import Folder from './Folder.js'
@@ -22,6 +22,10 @@ const config: Config = {
 globalThis.fetch = vi.fn()
 
 describe('Folder Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   test.for([
     '',
     'subfolder/',
@@ -100,9 +104,8 @@ describe('Folder Component', () => {
 
     // Type a search query
     const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
-    act(() => {
-      fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
-    })
+    const user = userEvent.setup()
+    await user.type(searchInput, 'file1')
 
     // Only matching files are displayed
     await findByText('file1.txt')
@@ -110,9 +113,7 @@ describe('Folder Component', () => {
     expect(queryByText('report.pdf')).toBeNull()
 
     // Clear search with escape key
-    act(() => {
-      fireEvent.keyUp(searchInput, { key: 'Escape' })
-    })
+    await user.type(searchInput, '{Escape}')
 
     await findByText('report.pdf')
     getByText('folder1/')
@@ -149,13 +150,16 @@ describe('Folder Component', () => {
     expect(location.href).toBe('/files?key=file1.txt')
   })
 
-  it('jumps to search box when user types /', async () => {
+  it('jumps to search box when user types / while the body is focused', async () => {
     const dirSource: DirSource = {
       sourceId: 'test-source',
       sourceParts: [{ text: 'test-source', sourceId: 'test-source' }],
       kind: 'directory',
       prefix: '',
-      listFiles: () => Promise.resolve([]),
+      listFiles: async () => {
+        await fetch('something') // to ensure we wait for loading
+        return []
+      },
     }
     const { getByPlaceholderText } = render(<Folder source={dirSource} />)
 
@@ -165,17 +169,13 @@ describe('Folder Component', () => {
     })
 
     const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
+    const user = userEvent.setup()
 
-    // Typing / should focus the search box
-    act(() => {
-      fireEvent.keyDown(document.body, { key: '/' })
-    })
+    // By default, the search box is already focused in this test
     expect(document.activeElement).toBe(searchInput)
 
     // Typing inside the search box should work including /
-    act(() => {
-      fireEvent.keyUp(searchInput, { target: { value: 'file1/' } })
-    })
+    await user.type(searchInput, 'file1/')
     expect(searchInput.value).toBe('file1/')
 
     // Unfocus and re-focus should select all text in search box
@@ -183,12 +183,19 @@ describe('Folder Component', () => {
       searchInput.blur()
     })
     expect(document.activeElement).not.toBe(searchInput)
+    expect(document.activeElement).toBe(document.body)
 
-    act(() => {
-      fireEvent.keyDown(document.body, { key: '/' })
-    })
+    await user.keyboard('/')
     expect(document.activeElement).toBe(searchInput)
     expect(searchInput.selectionStart).toBe(0)
     expect(searchInput.selectionEnd).toBe(searchInput.value.length)
+
+    // Focus another element and try again: it does not focus the search box
+    await user.tab()
+    expect(document.activeElement).not.toBe(searchInput)
+    expect(document.activeElement).not.toBe(document.body)
+
+    await user.keyboard('/')
+    expect(document.activeElement).not.toBe(searchInput)
   })
 })
