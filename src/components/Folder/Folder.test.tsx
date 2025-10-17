@@ -5,6 +5,7 @@ import { describe, expect, it, test, vi } from 'vitest'
 import { Config, ConfigProvider } from '../../hooks/useConfig.js'
 import { DirSource, FileMetadata, HyperparamFileMetadata, getHyperparamSource } from '../../lib/sources/index.js'
 import Folder from './Folder.js'
+import { userEvent } from '@testing-library/user-event'
 
 const endpoint = 'http://localhost:3000'
 const mockFiles: HyperparamFileMetadata[] = [
@@ -140,16 +141,11 @@ describe('Folder Component', () => {
 
     // Type a search query and hit enter
     const searchInput = getByPlaceholderText('Search...') as HTMLInputElement
-    act(() => {
-      fireEvent.keyUp(searchInput, { target: { value: 'file1' } })
-    })
-
+    const user = userEvent.setup()
+    await user.type(searchInput, 'file1')
     await findByText('file1.txt')
 
-    act(() => {
-      fireEvent.keyUp(searchInput, { key: 'Enter' })
-    })
-
+    await user.type(searchInput, '{Enter}')
     expect(location.href).toBe('/files?key=file1.txt')
   })
 
