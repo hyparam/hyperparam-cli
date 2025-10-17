@@ -166,11 +166,11 @@ describe('isPrimitive', () => {
 })
 
 describe('shouldObjectCollapse', () => {
-  it('returns true for objects with all primitive values', () => {
+  it('returns true for objects with all primitive (but string) values', () => {
     expect(shouldObjectCollapse({ a: 1, b: false })).toBe(true)
   })
 
-  it('returns false for objects with non-primitive values', () => {
+  it('returns false for objects with non-primitive (or string) values', () => {
     expect(shouldObjectCollapse({ a: 1, b: {} })).toBe(false)
     expect(shouldObjectCollapse({ a: 1, b: 'test' })).toBe(false)
   })
