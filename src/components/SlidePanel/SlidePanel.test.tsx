@@ -1,5 +1,5 @@
 
-import { act, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfigProvider } from '../../hooks/useConfig.js'
