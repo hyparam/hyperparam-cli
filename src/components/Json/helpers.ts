@@ -4,7 +4,8 @@ export function isPrimitive(value: unknown): boolean {
     value === null ||
     !Array.isArray(value) &&
     typeof value !== 'object' &&
-    typeof value !== 'function'
+    typeof value !== 'function' &&
+    typeof value !== 'string' // exception: don't consider strings as primitive here
   )
 }
 

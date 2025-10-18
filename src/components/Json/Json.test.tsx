@@ -22,12 +22,10 @@ describe('Json Component', () => {
   })
 
   it.for([
-    ['foo', 'bar'],
     [],
     [1, 2, 3],
-    [1, 'foo', null],
     Array.from({ length: 101 }, (_, i) => i),
-  ])('collapses any array', (array) => {
+  ])('collapses any array with primitives', (array) => {
     const { getByRole } = render(<Json json={array} />)
     expect(getByRole('treeitem').ariaExpanded).toBe('false')
   })
@@ -68,12 +66,20 @@ describe('Json Component', () => {
   it.for([
     [1, 'foo', [1, 2, 3]],
     [1, 'foo', { nested: true }],
-  ])('expands short arrays with non-primitive values', (arr) => {
+  ])('expands short arrays with inner arrays or objects', (arr) => {
     const { getAllByRole } = render(<Json json={arr} />)
     const treeItems = getAllByRole('treeitem')
     expect(treeItems.length).toBe(2)
     expect(treeItems[0]?.getAttribute('aria-expanded')).toBe('true') // the root
     expect(treeItems[1]?.getAttribute('aria-expanded')).toBe('false') // the non-primitive value (object/array)
+  })
+
+  it.for([
+    ['foo', 'bar'],
+    [1, 'foo', null],
+  ])('expands short arrays with strings', (arr) => {
+    const { getByRole } = render(<Json json={arr} />)
+    expect(getByRole('treeitem').getAttribute('aria-expanded')).toBe('true')
   })
 
   it.for([
@@ -147,8 +153,7 @@ describe('Json Component', () => {
 })
 
 describe('isPrimitive', () => {
-  it('returns true only for primitive types', () => {
-    expect(isPrimitive('test')).toBe(true)
+  it('returns true only for primitive types (string is an exception)', () => {
     expect(isPrimitive(42)).toBe(true)
     expect(isPrimitive(true)).toBe(true)
     expect(isPrimitive(1n)).toBe(true)
@@ -156,16 +161,18 @@ describe('isPrimitive', () => {
     expect(isPrimitive(undefined)).toBe(true)
     expect(isPrimitive({})).toBe(false)
     expect(isPrimitive([])).toBe(false)
+    expect(isPrimitive('test')).toBe(false)
   })
 })
 
 describe('shouldObjectCollapse', () => {
-  it('returns true for objects with all primitive values', () => {
-    expect(shouldObjectCollapse({ a: 1, b: 'test' })).toBe(true)
+  it('returns true for objects with all primitive (but string) values', () => {
+    expect(shouldObjectCollapse({ a: 1, b: false })).toBe(true)
   })
 
-  it('returns false for objects with non-primitive values', () => {
+  it('returns false for objects with non-primitive (or string) values', () => {
     expect(shouldObjectCollapse({ a: 1, b: {} })).toBe(false)
+    expect(shouldObjectCollapse({ a: 1, b: 'test' })).toBe(false)
   })
 
   it('returns true for large objects', () => {
