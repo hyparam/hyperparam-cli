@@ -1,5 +1,5 @@
 import { render, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { FileSource } from '../../lib/sources/types.js'
 import JsonView from './JsonView.js'
 
@@ -11,6 +11,10 @@ vi.mock('../../../src/lib/utils.js', async () => {
 globalThis.fetch = vi.fn()
 
 describe('JsonView Component', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   const encoder = new TextEncoder()
 
   it('renders json content as nested tree items (if not collapsed)', async () => {

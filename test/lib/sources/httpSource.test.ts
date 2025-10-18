@@ -1,9 +1,13 @@
-import { describe, expect, it, test, vi } from 'vitest'
+import { beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { getHttpSource } from '../../../src/lib/sources/httpSource.js'
 
 globalThis.fetch = vi.fn()
 
 describe('getHttpSource', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   test.for([
     'http://example.com/test.txt',
     'https://example.com/test.txt',

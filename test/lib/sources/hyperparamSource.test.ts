@@ -1,9 +1,13 @@
-import { assert, describe, expect, it, test, vi } from 'vitest'
+import { assert, beforeEach, describe, expect, it, test, vi } from 'vitest'
 import { HyperparamFileMetadata, getHyperparamSource } from '../../../src/lib/sources/hyperparamSource.js'
 
 globalThis.fetch = vi.fn()
 
 describe('getHyperparamSource', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
   const endpoint = 'http://localhost:3000'
 
   it('recognizes local files', () => {

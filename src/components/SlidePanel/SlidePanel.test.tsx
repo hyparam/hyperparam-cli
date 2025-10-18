@@ -1,5 +1,6 @@
 
-import { act, fireEvent, render } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import { userEvent } from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ConfigProvider } from '../../hooks/useConfig.js'
 import SlidePanel from './SlidePanel.js'
@@ -86,7 +87,7 @@ describe('SlidePanel', () => {
     expect(panel.style.width).toBe('400px')
   })
 
-  it('respects minWidth from config', () => {
+  it('respects minWidth from config', async () => {
     const { getByRole } = render(
       <ConfigProvider value={{ slidePanel: { minWidth: 300 } }}>
         <SlidePanel
@@ -100,22 +101,20 @@ describe('SlidePanel', () => {
     const panel = getByRole('complementary')
     expect(panel.style.width).toBe('400px')
 
-    // Simulate mousedown on resizer with clientX 800
-    act(() => {
-      fireEvent.mouseDown(resizer, { clientX: 800 })
-    })
-
-    // Simulate mousemove on document with clientX such that new width is less than minWidth
-    act(() => {
-      fireEvent.mouseMove(document, { clientX: 950 })
-      fireEvent.mouseUp(document)
-    })
+    const user = userEvent.setup()
+    await user.pointer([
+      // Simulate mousedown on resizer with clientX 800
+      { keys: '[MouseLeft>]', target: resizer, coords: { x: 800, y: 0 } },
+      // Simulate mousemove on document with clientX such that new width is less than minWidth
+      { coords: { x: 950, y: 0 } },
+      { keys: '[/MouseLeft]' },
+    ])
 
     // resizingClientX was set to 800 + 400 = 1200 so new width = max(300, 1200 - 950) = 300
     expect(panel.style.width).toBe('300px')
   })
 
-  it('handles dragging to resize', () => {
+  it('handles dragging to resize', async () => {
     const { getByRole } = render(
       <SlidePanel
         mainContent={<div>Main</div>}
@@ -130,20 +129,12 @@ describe('SlidePanel', () => {
     // Mock panel's offsetWidth to be 400px
     Object.defineProperty(panel, 'offsetWidth', { value: 400, configurable: true })
 
-    // Simulate mousedown
-    act(() => {
-      fireEvent.mouseDown(resizer, { clientX: 800 })
-    })
-
-    // Simulate dragging
-    act(() => {
-      fireEvent.mouseMove(document, { clientX: 750 })
-    })
-
-    // End dragging
-    act(() => {
-      fireEvent.mouseUp(document)
-    })
+    const user = userEvent.setup()
+    await user.pointer([
+      { keys: '[MouseLeft>]', target: resizer, coords: { x: 800, y: 0 } },
+      { coords: { x: 750, y: 0 } },
+      { keys: '[/MouseLeft]' },
+    ])
 
     // Expected new width = 1200 - 750 = 450
     expect(panel.style.width).toBe('450px')
