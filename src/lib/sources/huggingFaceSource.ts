@@ -1,6 +1,6 @@
 import { listFiles } from '@huggingface/hub'
-import type { DirSource, FileMetadata, FileSource, SourcePart } from 'hyperparam'
-import { getFileName } from 'hyperparam'
+import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
+import { getFileName } from './utils.js'
 
 export const baseUrl = 'https://huggingface.co/datasets'
 
