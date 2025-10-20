@@ -39,14 +39,11 @@ describe('parseHuggingFaceUrl', () => {
     '/anything',
     '/tasks',
     '/models',
-    '/namespace/model', // TODO(SL): support model
-    '/settings/profile', // TODO(SL): add a block/allow list?
+    '/spaces',
     '/datasets',
     '/datasets/',
     '/datasets/namespace',
     '/datasets/namespace/',
-    '/spaces',
-    '/spaces/namespace',
     '/datasets/namespace/repo/branch',
     '/datasets/namespace/repo/tree',
     '/datasets/namespace/repo/tree/',
@@ -67,7 +64,7 @@ describe('parseHuggingFaceUrl', () => {
   test.for([
     { type: 'dataset', typePath: 'datasets/' },
     { type: 'space', typePath: 'spaces/' },
-    // { type: 'model', typePath: '' },
+    { type: 'model', typePath: '' },
   ].flatMap(({ type, typePath }) => [
     // Root directory
     [
@@ -166,7 +163,7 @@ describe('parseHuggingFaceUrl', () => {
       '/folder.parquet',
     ],
   ]))(
-    'parses a DirectoryUrl for dataset/space/model root or subdirectory: %s',
+    'parses a DirectoryUrl for $type root or subdirectory: %s',
     ([url, source, repo, type, branch, path]) => {
       expect(parseHuggingFaceUrl(url)).toEqual({
         kind: 'directory',
@@ -187,6 +184,7 @@ describe('parseHuggingFaceUrl', () => {
     [
       { type: 'dataset', typePath: 'datasets/' },
       { type: 'space', typePath: 'spaces/' },
+      { type: 'model', typePath: '' },
     ].flatMap(d => [
       { ...d, branch: 'branch', sanitizedBranch: 'branch' },
       { ...d, branch: 'refs/convert/parquet', sanitizedBranch: 'refs%2Fconvert%2Fparquet' },
@@ -197,7 +195,7 @@ describe('parseHuggingFaceUrl', () => {
     ]).flatMap(d => [
       { ...d, url: `https://huggingface.co/${d.typePath}${repo}/${d.action}/${d.branch}${path}` },
     ]))(
-    'parses a FileUrl for dataset/space/model file URL: $url',
+    'parses a FileUrl for $type file URL: $url',
     ({ type, typePath, sanitizedBranch, action, url }) => {
       const source = `https://huggingface.co/${typePath}${repo}/${action}/${sanitizedBranch}${path}`
       const resolveUrl = `https://huggingface.co/${typePath}${repo}/resolve/${sanitizedBranch}${path}`

@@ -1,9 +1,12 @@
-import { type RepoFullName, type RepoType, listFiles, parseRepoType } from '@huggingface/hub'
+import { type RepoFullName, type RepoType, listFiles } from '@huggingface/hub'
 import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
 export const baseUrl = 'https://huggingface.co'
 
+function getFullName(url: HFUrl): RepoFullName {
+  return url.type === 'dataset' ? `datasets/${url.repo}` : url.type === 'space' ? `spaces/${url.repo}` : url.repo
+}
 function getSourceParts(url: HFUrl): SourcePart[] {
   const fullName = getFullName(url)
   const sourceParts: SourcePart[] = [{
@@ -29,9 +32,6 @@ function getSourceParts(url: HFUrl): SourcePart[] {
 }
 function getPrefix(url: DirectoryUrl): string {
   return `${url.origin}/${getFullName(url)}/tree/${url.branch}${url.path}`.replace(/\/$/, '')
-}
-function getFullName(url: HFUrl): RepoFullName {
-  return url.type === 'dataset' ? `datasets/${url.repo}` : url.type === 'space' ? `spaces/${url.repo}` : url.repo
 }
 async function fetchFilesList(url: DirectoryUrl, options?: {requestInit?: RequestInit, accessToken?: string}): Promise<FileMetadata[]> {
   const filesIterator = listFiles({
@@ -141,15 +141,25 @@ export function parseHuggingFaceUrl(url: string): HFUrl {
     throw new Error('Not a Hugging Face URL')
   }
 
-  const repoGroups = /^(?<type>\/datasets|\/spaces)\/(?<namespace>[^/]+)\/(?<repo>[^/]+)\/?$/.exec(
-    urlObject.pathname
+  let { pathname } = urlObject
+  let type: RepoType = 'model'
+  if (pathname.startsWith('/datasets')) {
+    type = 'dataset'
+    pathname = pathname.slice('/datasets'.length)
+  } else if (pathname.startsWith('/spaces')) {
+    type = 'space'
+    pathname = pathname.slice('/spaces'.length)
+  }
+
+  const repoGroups = /^\/(?<namespace>[^/]+)\/(?<repo>[^/]+)\/?$/.exec(
+    pathname
   )?.groups
-  if (repoGroups?.type !== undefined && repoGroups.namespace !== undefined && repoGroups.repo !== undefined) {
+  if (repoGroups?.namespace !== undefined && repoGroups.repo !== undefined) {
     return {
       kind: 'directory',
       source: url,
       origin: urlObject.origin,
-      type: parseRepoType(repoGroups.type.slice(1)),
+      type,
       repo: repoGroups.namespace + '/' + repoGroups.repo,
       action: 'tree',
       branch: 'main', // hardcode the default branch
@@ -158,25 +168,25 @@ export function parseHuggingFaceUrl(url: string): HFUrl {
   }
 
   const folderGroups =
-    /^(?<type>\/datasets|\/spaces)\/(?<namespace>[^/]+)\/(?<repo>[^/]+)\/(?<action>tree)\/(?<branch>(refs\/(convert|pr)\/)?[^/]+)(?<path>(\/[^/]+)*)\/?$/.exec(
-      urlObject.pathname
+    /^\/(?<namespace>[^/]+)\/(?<repo>[^/]+)\/(?<action>tree)\/(?<branch>(refs\/(convert|pr)\/)?[^/]+)(?<path>(\/[^/]+)*)\/?$/.exec(
+      pathname
     )?.groups
   if (
-    folderGroups?.type !== undefined &&
-    folderGroups.namespace !== undefined &&
+    folderGroups?.namespace !== undefined &&
     folderGroups.repo !== undefined &&
     folderGroups.action !== undefined &&
     folderGroups.branch !== undefined &&
     folderGroups.path !== undefined &&
     folderGroups.branch !== 'refs'
   ) {
+    const typePath = type === 'dataset' ? '/datasets' : type === 'space' ? '/spaces' : ''
     const branch = folderGroups.branch.replace(/\//g, '%2F')
-    const source = `${urlObject.origin}${folderGroups.type}/${folderGroups.namespace}/${folderGroups.repo}/${folderGroups.action}/${branch}${folderGroups.path}`
+    const source = `${urlObject.origin}${typePath}/${folderGroups.namespace}/${folderGroups.repo}/${folderGroups.action}/${branch}${folderGroups.path}`
     return {
       kind: 'directory',
       source,
       origin: urlObject.origin,
-      type: parseRepoType(folderGroups.type.slice(1)),
+      type,
       repo: folderGroups.namespace + '/' + folderGroups.repo,
       action: 'tree',
       branch,
@@ -185,30 +195,30 @@ export function parseHuggingFaceUrl(url: string): HFUrl {
   }
 
   const fileGroups =
-    /^(?<type>\/datasets|\/spaces)\/(?<namespace>[^/]+)\/(?<repo>[^/]+)\/(?<action>blob|resolve)\/(?<branch>(refs\/(convert|pr)\/)?[^/]+)(?<path>(\/[^/]+)+)$/.exec(
-      urlObject.pathname
+    /^\/(?<namespace>[^/]+)\/(?<repo>[^/]+)\/(?<action>blob|resolve)\/(?<branch>(refs\/(convert|pr)\/)?[^/]+)(?<path>(\/[^/]+)+)$/.exec(
+      pathname
     )?.groups
   if (
-    fileGroups?.type !== undefined &&
-    fileGroups.namespace !== undefined &&
+    fileGroups?.namespace !== undefined &&
     fileGroups.repo !== undefined &&
     fileGroups.action !== undefined &&
     fileGroups.branch !== undefined &&
     fileGroups.path !== undefined &&
     fileGroups.branch !== 'refs'
   ) {
+    const typePath = type === 'dataset' ? '/datasets' : type === 'space' ? '/spaces' : ''
     const branch = fileGroups.branch.replace(/\//g, '%2F')
-    const source = `${urlObject.origin}${fileGroups.type}/${fileGroups.namespace}/${fileGroups.repo}/${fileGroups.action}/${branch}${fileGroups.path}`
+    const source = `${urlObject.origin}${typePath}/${fileGroups.namespace}/${fileGroups.repo}/${fileGroups.action}/${branch}${fileGroups.path}`
     return {
       kind: 'file',
       source,
       origin: urlObject.origin,
-      type: parseRepoType(fileGroups.type.slice(1)),
+      type,
       repo: fileGroups.namespace + '/' + fileGroups.repo,
       action: fileGroups.action === 'blob' ? 'blob' : 'resolve',
       branch,
       path: fileGroups.path,
-      resolveUrl: `${urlObject.origin}${fileGroups.type}/${fileGroups.namespace}/${fileGroups.repo}/resolve/${branch}${fileGroups.path}`,
+      resolveUrl: `${urlObject.origin}${typePath}/${fileGroups.namespace}/${fileGroups.repo}/resolve/${branch}${fileGroups.path}`,
     }
   }
 
@@ -258,7 +268,7 @@ export async function fetchRefsList(
   if (options?.accessToken) {
     headers.set('Authorization', `Bearer ${options.accessToken}`)
   }
-  const response = await fetch(`https://huggingface.co/api/${getFullName(url)}/refs`, { ...options?.requestInit, headers })
+  const response = await fetch(`https://huggingface.co/api/${url.type}s/${url.repo}/refs`, { ...options?.requestInit, headers })
   if (!response.ok) {
     throw new Error(`HTTP error ${response.status.toString()}`)
   }
