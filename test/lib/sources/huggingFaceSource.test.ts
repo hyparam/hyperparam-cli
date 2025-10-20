@@ -31,6 +31,15 @@ test.for([
 })
 
 test.for([
+  ['https://huggingface.co/namespace/model'],
+  ['https://huggingface.co/namespace/model/'],
+  ['https://huggingface.co/spaces/namespace/space'],
+  ['https://huggingface.co/spaces/namespace/space/'],
+])('model or space huggingface URL throws: %s', ([url]) => {
+  expect(() => parseHuggingFaceUrl(url)).to.throw()
+})
+
+test.for([
   ['https://huggingface.co/datasets/namespace/repo', 'namespace/repo'],
   ['https://huggingface.co/datasets/namespace/repo/', 'namespace/repo'],
   ['https://huggingface.co/datasets/namespace/123', 'namespace/123'],
