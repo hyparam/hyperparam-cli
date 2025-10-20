@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { Config, ConfigProvider } from '../../hooks/useConfig.js'
 import { getHttpSource } from '../../lib/sources/httpSource.js'
+import { getHuggingFaceSource } from '../../lib/sources/huggingFaceSource.js'
 import { getHyperparamSource } from '../../lib/sources/hyperparamSource.js'
 import Page from '../Page/Page.js'
 
@@ -10,7 +11,9 @@ export default function App() {
   const row = search.get('row') === null ? undefined : Number(search.get('row'))
   const col = search.get('col') === null ? undefined : Number(search.get('col'))
 
-  const source = getHttpSource(sourceId) ?? getHyperparamSource(sourceId, { endpoint: location.origin })
+  const source = getHuggingFaceSource(sourceId) ??
+    getHttpSource(sourceId) ??
+    getHyperparamSource(sourceId, { endpoint: location.origin })
 
   // Memoize the config to avoid creating a new object on each render
   const config: Config = useMemo(() => ({
