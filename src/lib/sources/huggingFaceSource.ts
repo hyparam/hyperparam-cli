@@ -125,13 +125,12 @@ export function parseHuggingFaceUrl(url: string): HFUrl {
   const urlObject = new URL(url)
   // ^ throws 'TypeError: URL constructor: {url} is not a valid URL.' if url is not a valid URL
 
-  if (urlObject.protocol !== 'https:' && urlObject.protocol !== 'http:') {
-    throw new Error('url must be a HTTP URL')
-  }
-
   if (
-    !['huggingface.co', 'huggingface.co', 'hf.co'].includes(urlObject.host) ||
-    urlObject.protocol !== 'https:'
+    urlObject.protocol !== 'https:' ||
+    ![
+      'huggingface.co', 'huggingface.com', 'hf.co',
+      // hf.com is not a HF domain
+    ].includes(urlObject.host)
   ) {
     throw new Error('Not a Hugging Face URL')
   }
