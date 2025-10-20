@@ -15,6 +15,7 @@ describe('parseHuggingFaceUrl', () => {
       kind: 'directory',
       origin,
       repo: 'namespace/repo',
+      type: 'dataset',
       source: url,
       action: 'tree',
       branch: 'main',
@@ -46,7 +47,6 @@ describe('parseHuggingFaceUrl', () => {
     '/datasets/namespace/',
     '/spaces',
     '/spaces/namespace',
-    '/spaces/namespace/space', // TODO(SL): support space
     '/datasets/namespace/repo/branch',
     '/datasets/namespace/repo/tree',
     '/datasets/namespace/repo/tree/',
@@ -65,91 +65,114 @@ describe('parseHuggingFaceUrl', () => {
   })
 
   test.for([
+    { type: 'dataset', typePath: 'datasets/' },
+    { type: 'space', typePath: 'spaces/' },
+    // { type: 'model', typePath: '' },
+  ].flatMap(({ type, typePath }) => [
+    // Root directory
     [
-      'https://huggingface.co/datasets/namespace/repo',
-      'https://huggingface.co/datasets/namespace/repo',
+      `https://huggingface.co/${typePath}namespace/repo`,
+      `https://huggingface.co/${typePath}namespace/repo`,
       'namespace/repo',
+      type,
       'main',
       '',
     ],
     [
-      'https://huggingface.co/datasets/namespace/repo/',
-      'https://huggingface.co/datasets/namespace/repo/',
+      `https://huggingface.co/${typePath}namespace/repo/`,
+      `https://huggingface.co/${typePath}namespace/repo/`,
       'namespace/repo',
+      type,
       'main',
       '',
     ],
+    // all-number identifier is not a valid HF repo name, but we accept any string
     [
-      'https://huggingface.co/datasets/namespace/123',
-      'https://huggingface.co/datasets/namespace/123',
-      // all-number identifier is not a valid HF repo name, but we accept any string
+      `https://huggingface.co/${typePath}namespace/123`,
+      `https://huggingface.co/${typePath}namespace/123`,
       'namespace/123',
+      type,
       'main',
-      ''],
+      '',
+    ],
+    // Branches
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/branch',
-      'https://huggingface.co/datasets/namespace/repo/tree/branch',
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch`,
       'namespace/repo',
+      type,
       'branch',
       '',
     ],
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/',
-      'https://huggingface.co/datasets/namespace/repo/tree/branch',
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch`,
       'namespace/repo',
+      type,
       'branch',
       '',
     ],
+    // special case: both forms 'refs/convert/parquet' and 'refs%2Fconvert%2Fparquet' are accepted
+    // see note in https://url.spec.whatwg.org/#dom-urlsearchparams-urlsearchparams
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/refs%2Fconvert%2Fparquet',
-      'https://huggingface.co/datasets/namespace/repo/tree/refs%2Fconvert%2Fparquet',
+      `https://huggingface.co/${typePath}namespace/repo/tree/refs%2Fconvert%2Fparquet`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/refs%2Fconvert%2Fparquet`,
       'namespace/repo',
+      type,
       'refs%2Fconvert%2Fparquet',
       '',
     ],
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/refs/convert/parquet',
-      // also accepted because of URLSearchParams (see note in https://url.spec.whatwg.org/#dom-urlsearchparams-urlsearchparams)
-      'https://huggingface.co/datasets/namespace/repo/tree/refs%2Fconvert%2Fparquet',
+      `https://huggingface.co/${typePath}namespace/repo/tree/refs/convert/parquet`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/refs%2Fconvert%2Fparquet`,
       'namespace/repo',
+      type,
       'refs%2Fconvert%2Fparquet',
       '',
     ],
+    // PRs are also accepted
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/refs/pr/9',
-      'https://huggingface.co/datasets/namespace/repo/tree/refs%2Fpr%2F9',
+      `https://huggingface.co/${typePath}namespace/repo/tree/refs/pr/9`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/refs%2Fpr%2F9`,
       'namespace/repo',
+      type,
       'refs%2Fpr%2F9',
       '',
     ],
+    // Subdirectories
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/folder',
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/folder',
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/folder`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/folder`,
       'namespace/repo',
+      type,
       'branch',
       '/folder',
     ],
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/a/b/c/',
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/a/b/c',
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/a/b/c/`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/a/b/c`,
       'namespace/repo',
+      type,
       'branch',
       '/a/b/c',
     ],
+    // A subdirectory can have a dot in its name (what matters is 'tree' vs 'blob' or 'resolve')
     [
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/folder.parquet',
-      'https://huggingface.co/datasets/namespace/repo/tree/branch/folder.parquet',
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/folder.parquet`,
+      `https://huggingface.co/${typePath}namespace/repo/tree/branch/folder.parquet`,
       'namespace/repo',
+      type,
       'branch',
       '/folder.parquet',
     ],
-  ])(
-    'tree repo URL with a branch and an optional path returns a FolderUrl: %s',
-    ([url, source, repo, branch, path]) => {
+  ]))(
+    'parses a DirectoryUrl for dataset/space/model root or subdirectory: %s',
+    ([url, source, repo, type, branch, path]) => {
       expect(parseHuggingFaceUrl(url)).toEqual({
         kind: 'directory',
         origin,
         repo,
+        type,
         source,
         action: 'tree',
         branch,
@@ -158,114 +181,34 @@ describe('parseHuggingFaceUrl', () => {
     }
   )
 
-  test.for([
+  const repo = 'namespace/repo'
+  const path = '/path/to/file.parquet'
+  test.for(
     [
-      'https://huggingface.co/datasets/namespace/repo/blob/branch/file',
-      'https://huggingface.co/datasets/namespace/repo/blob/branch/file',
-      'namespace/repo',
-      'branch',
-      '/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/blob/branch/path/to/file',
-      'https://huggingface.co/datasets/namespace/repo/blob/branch/path/to/file',
-      'namespace/repo',
-      'branch',
-      '/path/to/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/path/to/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/blob/refs%2Fconvert%2Fparquet/file',
-      'https://huggingface.co/datasets/namespace/repo/blob/refs%2Fconvert%2Fparquet/file',
-      'namespace/repo',
-      'refs%2Fconvert%2Fparquet',
-      '/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/refs%2Fconvert%2Fparquet/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/blob/refs/convert/parquet/file',
-      'https://huggingface.co/datasets/namespace/repo/blob/refs%2Fconvert%2Fparquet/file',
-      'namespace/repo',
-      'refs%2Fconvert%2Fparquet',
-      '/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/refs%2Fconvert%2Fparquet/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/blob/branch/file.parquet',
-      'https://huggingface.co/datasets/namespace/repo/blob/branch/file.parquet',
-      'namespace/repo',
-      'branch',
-      '/file.parquet',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file.parquet',
-    ],
-  ])(
-    'blob repo URL with a branch and a path returns a FileUrl: %s',
-    ([url, source, repo, branch, path, resolveUrl]) => {
+      { type: 'dataset', typePath: 'datasets/' },
+      { type: 'space', typePath: 'spaces/' },
+    ].flatMap(d => [
+      { ...d, branch: 'branch', sanitizedBranch: 'branch' },
+      { ...d, branch: 'refs/convert/parquet', sanitizedBranch: 'refs%2Fconvert%2Fparquet' },
+      { ...d, branch: 'refs%2Fconvert%2Fparquet', sanitizedBranch: 'refs%2Fconvert%2Fparquet' },
+    ]).flatMap(d => [
+      { ...d, action: 'blob' },
+      { ...d, action: 'resolve' },
+    ]).flatMap(d => [
+      { ...d, url: `https://huggingface.co/${d.typePath}${repo}/${d.action}/${d.branch}${path}` },
+    ]))(
+    'parses a FileUrl for dataset/space/model file URL: $url',
+    ({ type, typePath, sanitizedBranch, action, url }) => {
+      const source = `https://huggingface.co/${typePath}${repo}/${action}/${sanitizedBranch}${path}`
+      const resolveUrl = `https://huggingface.co/${typePath}${repo}/resolve/${sanitizedBranch}${path}`
       expect(parseHuggingFaceUrl(url)).toEqual({
         kind: 'file',
         origin,
         repo,
+        type,
         source,
-        action: 'blob',
-        branch,
-        path,
-        resolveUrl,
-      })
-    }
-  )
-
-  test.for([
-    [
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file',
-      'namespace/repo',
-      'branch',
-      '/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file?download=true',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file',
-      'namespace/repo',
-      'branch',
-      '/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/path/to/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/path/to/file',
-      'namespace/repo',
-      'branch',
-      '/path/to/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/path/to/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/resolve/refs%2Fconvert%2Fparquet/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/refs%2Fconvert%2Fparquet/file',
-      'namespace/repo',
-      'refs%2Fconvert%2Fparquet',
-      '/file',
-      'https://huggingface.co/datasets/namespace/repo/resolve/refs%2Fconvert%2Fparquet/file',
-    ],
-    [
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file.parquet',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file.parquet',
-      'namespace/repo',
-      'branch',
-      '/file.parquet',
-      'https://huggingface.co/datasets/namespace/repo/resolve/branch/file.parquet',
-    ],
-  ])(
-    'resolve repo URL with a branch and a path returns a FileUrl: %s',
-    ([url, source, repo, branch, path, resolveUrl]) => {
-      expect(parseHuggingFaceUrl(url)).toEqual({
-        kind: 'file',
-        origin,
-        repo,
-        source,
-        action: 'resolve',
-        branch,
+        action,
+        branch: sanitizedBranch,
         path,
         resolveUrl,
       })
