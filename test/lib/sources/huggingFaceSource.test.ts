@@ -65,23 +65,27 @@ describe('parseHuggingFaceUrl', () => {
   })
 
   test.for([
-    ['/datasets/namespace/repo', 'namespace/repo'],
-    ['/datasets/namespace/repo/', 'namespace/repo'],
-    ['/datasets/namespace/123', 'namespace/123'], /* all-number identifier is not a valid HF repo name, but we accept any string */
-  ])('returns a RepoURL for dataset repository URL: %s', ([path, repo]) => {
-    const url = `https://huggingface.co${path}`
-    expect(parseHuggingFaceUrl(url)).toEqual({
-      kind: 'directory',
-      origin,
-      repo,
-      source: url,
-      action: 'tree',
-      branch: 'main',
-      path: '',
-    })
-  })
-
-  test.for([
+    [
+      'https://huggingface.co/datasets/namespace/repo',
+      'https://huggingface.co/datasets/namespace/repo',
+      'namespace/repo',
+      'main',
+      '',
+    ],
+    [
+      'https://huggingface.co/datasets/namespace/repo/',
+      'https://huggingface.co/datasets/namespace/repo/',
+      'namespace/repo',
+      'main',
+      '',
+    ],
+    [
+      'https://huggingface.co/datasets/namespace/123',
+      'https://huggingface.co/datasets/namespace/123',
+      // all-number identifier is not a valid HF repo name, but we accept any string
+      'namespace/123',
+      'main',
+      ''],
     [
       'https://huggingface.co/datasets/namespace/repo/tree/branch',
       'https://huggingface.co/datasets/namespace/repo/tree/branch',
