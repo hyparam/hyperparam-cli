@@ -59,7 +59,7 @@
   & > button {
     color: #eee;
 
-    &:hover {
+    &:hover, &:focus {
       color: #fff
     }
   }
