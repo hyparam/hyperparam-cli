@@ -22,15 +22,13 @@ describe('parseHuggingFaceUrl', () => {
       path: '',
     })
   })
-  test.for([
-    'ftp://huggingface.co',
-    'email://huggingface.co',
-    'http://huggingface.co',
-    'https://hf.com',
-    'https://github.com',
-    'huggingface.co',
-  ])('throws for unsupported scheme or domain: \'%s\'', (host) => {
-    expect(() => parseHuggingFaceUrl(`${host}/datasets/namespace/repo`)).to.throw()
+  it('throws for unsupported scheme or domain', () => {
+    expect(() => parseHuggingFaceUrl('ftp://huggingface.co/datasets/namespace/repo')).toThrow()
+    expect(() => parseHuggingFaceUrl('email://huggingface.co/datasets/namespace/repo')).toThrow()
+    expect(() => parseHuggingFaceUrl('http://huggingface.co/datasets/namespace/repo')).toThrow()
+    expect(() => parseHuggingFaceUrl('https://hf.com/datasets/namespace/repo')).toThrow()
+    expect(() => parseHuggingFaceUrl('https://github.com/datasets/namespace/repo')).toThrow()
+    expect(() => parseHuggingFaceUrl('huggingface.co/datasets/namespace/repo')).toThrow()
   })
 
   test.for([
