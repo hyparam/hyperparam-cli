@@ -1,5 +1,6 @@
 export { getHttpSource } from './httpSource.js'
 export { getHyperparamSource } from './hyperparamSource.js'
+export { getHuggingFaceSource } from './huggingFaceSource.js'
 export type { HyperparamFileMetadata } from './hyperparamSource.js'
 export type { DirSource, FileKind, FileMetadata, FileSource, Source, SourcePart } from './types.js'
 export { getFileName } from './utils.js'
