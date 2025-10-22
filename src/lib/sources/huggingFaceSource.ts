@@ -1,6 +1,7 @@
-import { type RepoFullName, type RepoType, listFiles } from '@huggingface/hub'
 import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
+
+type RepoType = 'model' | 'dataset' | 'space'
 
 interface BaseUrl {
   source: string
@@ -45,7 +46,7 @@ interface RefMetadata extends RefResponse {
 
 const baseUrl = 'https://huggingface.co'
 
-function getFullName(url: HFUrl): RepoFullName {
+function getFullName(url: HFUrl): string {
   return url.type === 'dataset' ? `datasets/${url.repo}` : url.type === 'space' ? `spaces/${url.repo}` : url.repo
 }
 function getSourceParts(url: HFUrl): SourcePart[] {
@@ -74,15 +75,12 @@ function getSourceParts(url: HFUrl): SourcePart[] {
 function getPrefix(url: DirectoryUrl): string {
   return `${url.origin}/${getFullName(url)}/tree/${url.branch}${url.path}`.replace(/\/$/, '')
 }
-async function fetchFilesList(url: DirectoryUrl, options?: {requestInit?: RequestInit, accessToken?: string}): Promise<FileMetadata[]> {
+async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: RequestInit, accessToken?: string }): Promise<FileMetadata[]> {
+  const repoFullName = getFullName(url)
   const filesIterator = listFiles({
-    repo: {
-      name: url.repo,
-      type: url.type,
-    },
+    repoFullName,
     revision: url.branch,
     path: 'path' in url ? url.path.replace(/^\//, '') : '', // remove leading slash if any
-    expand: true,
     accessToken: options?.accessToken,
   })
   const files: FileMetadata[] = []
@@ -256,7 +254,7 @@ export function parseHuggingFaceUrl(url: string): HFUrl {
  *
  * @returns the list of branches, tags, pull requests, and converts
  */
-export async function fetchRefsList(
+async function fetchRefsList(
   url: HFUrl,
   options?: {requestInit?: RequestInit, accessToken?: string}
 ): Promise<RefMetadata[]> {
@@ -285,4 +283,78 @@ export async function fetchRefsList(
       }
     })
   })
+}
+
+/*
+ * Copied and adapted from https://github.com/huggingface/huggingface.js/blob/main/packages/hub
+ * MIT License, Copyright (c) 2023 Hugging Face
+ */
+
+interface ListFileEntry {
+	type: 'file' | 'directory' | 'unknown';
+	size: number;
+  path: string;
+  lastCommit?: {
+		date: string;
+		id: string;
+	};
+}
+
+const HUB_URL = 'https://huggingface.co'
+
+/**
+ * List files in a folder. To list ALL files in the directory, call it
+ * with {@link params.recursive} set to `true`.
+ */
+async function* listFiles(
+  params: {
+		repoFullName: string;
+		/**
+		 * Eg 'data' for listing all files in the 'data' folder. Leave it empty to list all
+		 * files in the repo.
+		 */
+		path?: string;
+		revision?: string;
+		/**
+		 * Custom fetch function to use instead of the default one, for example to use a proxy or edit headers.
+		 */
+    fetch?: typeof fetch;
+    accessToken?: string;
+	}
+): AsyncGenerator<ListFileEntry> {
+  let url: string | undefined = `${HUB_URL}/api/${params.repoFullName}/tree/${
+    params.revision ?? 'main'
+  }${params.path ? '/' + params.path : ''}?expand=true`
+
+  while (url) {
+    const res: Response = await (params.fetch ?? fetch)(url, {
+      headers: {
+        accept: 'application/json',
+        ...params.accessToken ? { Authorization: `Bearer ${params.accessToken}` } : undefined,
+      },
+    })
+
+    if (!res.ok) {
+      throw new Error(`Failed to list files: ${res.status.toString()} ${res.statusText}`)
+    }
+
+    const items = await res.json() as ListFileEntry[]
+
+    for (const item of items) {
+      yield item
+    }
+
+    const linkHeader = res.headers.get('Link')
+
+    url = linkHeader ? parseLinkHeader(linkHeader).next : undefined
+  }
+}
+
+/**
+ * Parse Link HTTP header, eg `<https://huggingface.co/api/datasets/bigscience/P3/tree/main?recursive=1&cursor=...>; rel="next"`
+ */
+export function parseLinkHeader(header: string): Record<string, string> {
+  const regex = /<(https?:[/][/][^>]+)>;\s+rel="([^"]+)"/g
+
+  return Object.fromEntries([...header.matchAll(regex)].map(([, url, rel]) => [rel, url])) as Record<string, string>
 }

@@ -55,7 +55,6 @@
     "watch:url": "NODE_ENV=development nodemon bin/cli.js https://hyperparam.blob.core.windows.net/hyperparam/starcoderdata-js-00000-of-00065.parquet"
   },
   "dependencies": {
-    "@huggingface/hub": "2.6.12",
     "hightable": "0.20.2",
     "hyparquet": "1.20.0",
     "hyparquet-compressors": "1.1.1",
