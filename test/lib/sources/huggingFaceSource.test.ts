@@ -1,4 +1,4 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, it, test } from 'vitest'
 import { parseHuggingFaceUrl } from '../../../src/lib/sources/huggingFaceSource.js'
 
 const origin = 'https://huggingface.co'
