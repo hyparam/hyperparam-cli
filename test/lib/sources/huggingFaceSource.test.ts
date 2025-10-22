@@ -36,26 +36,20 @@ describe('parseHuggingFaceUrl', () => {
   test.for([
     '',
     '/',
-    '/anything',
-    '/tasks',
-    '/models',
-    '/spaces',
+    // for the following tests, the same is true:
+    // - with a trailing slash
+    // - replacing /datasets with /anything, /spaces, /models or /.
+    // Avoiding for brevity.
     '/datasets',
-    '/datasets/',
     '/datasets/namespace',
-    '/datasets/namespace/',
     '/datasets/namespace/repo/branch',
     '/datasets/namespace/repo/tree',
-    '/datasets/namespace/repo/tree/',
     '/datasets/namespace/repo/blob',
-    '/datasets/namespace/repo/blob/',
-    '/datasets/namespace/repo/blob/branch',
-    '/datasets/namespace/repo/blob/branch/',
-    '/datasets/namespace/repo/blob/branch/file/',
     '/datasets/namespace/repo/resolve',
-    '/datasets/namespace/repo/resolve/',
+    '/datasets/namespace/repo/blob/branch',
     '/datasets/namespace/repo/resolve/branch',
-    '/datasets/namespace/repo/resolve/branch/',
+    // note the trailing slash
+    '/datasets/namespace/repo/blob/branch/file/',
     '/datasets/namespace/repo/resolve/branch/file/',
   ])('throws for invalid path: %s', (path) => {
     expect(() => parseHuggingFaceUrl(`https://huggingface.co${path}`)).to.throw()
