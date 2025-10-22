@@ -2,7 +2,48 @@ import { type RepoFullName, type RepoType, listFiles } from '@huggingface/hub'
 import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
-export const baseUrl = 'https://huggingface.co'
+interface BaseUrl {
+  source: string
+  origin: string
+  type: RepoType
+  repo: string
+  branch: string
+  path: string
+}
+
+interface DirectoryUrl extends BaseUrl {
+  kind: 'directory'
+  action: 'tree'
+}
+
+interface FileUrl extends BaseUrl {
+  kind: 'file'
+  action: 'resolve' | 'blob'
+  resolveUrl: string
+}
+
+type HFUrl = DirectoryUrl | FileUrl;
+
+interface RefResponse {
+  name: string;
+  ref: string;
+  targetCommit: string;
+}
+
+const refTypes = [
+  'branches',
+  'tags',
+  'converts',
+  'pullRequests',
+] as const
+type RefType = (typeof refTypes)[number];
+type RefsResponse = Partial<Record<RefType, RefResponse[]>>;
+
+interface RefMetadata extends RefResponse {
+  refType: RefType; // TODO(SL): use it to style the refs differently?
+}
+
+const baseUrl = 'https://huggingface.co'
 
 function getFullName(url: HFUrl): RepoFullName {
   return url.type === 'dataset' ? `datasets/${url.repo}` : url.type === 'space' ? `spaces/${url.repo}` : url.repo
@@ -105,28 +146,6 @@ export function getHuggingFaceSource(sourceId: string, options?: {requestInit?: 
   }
 }
 
-interface BaseUrl {
-  source: string
-  origin: string
-  type: RepoType
-  repo: string
-  branch: string
-  path: string
-}
-
-export interface DirectoryUrl extends BaseUrl {
-  kind: 'directory'
-  action: 'tree'
-}
-
-export interface FileUrl extends BaseUrl {
-  kind: 'file'
-  action: 'resolve' | 'blob'
-  resolveUrl: string
-}
-
-type HFUrl = DirectoryUrl | FileUrl;
-
 export function parseHuggingFaceUrl(url: string): HFUrl {
   const urlObject = new URL(url)
   // ^ throws 'TypeError: URL constructor: {url} is not a valid URL.' if url is not a valid URL
@@ -223,25 +242,6 @@ export function parseHuggingFaceUrl(url: string): HFUrl {
   }
 
   throw new Error('Unsupported Hugging Face URL')
-}
-
-interface RefResponse {
-  name: string;
-  ref: string;
-  targetCommit: string;
-}
-
-export const refTypes = [
-  'branches',
-  'tags',
-  'converts',
-  'pullRequests',
-] as const
-type RefType = (typeof refTypes)[number];
-type RefsResponse = Partial<Record<RefType, RefResponse[]>>;
-
-export interface RefMetadata extends RefResponse {
-  refType: RefType; // TODO(SL): use it to style the refs differently?
 }
 
 /**
