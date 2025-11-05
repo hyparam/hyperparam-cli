@@ -21,13 +21,13 @@ const colors = {
 }
 
 /**
- * @import { ResponsesInput, ResponseInputItem } from './types.d.ts'
- * @param {ResponsesInput} chatInput
- * @returns {Promise<ResponseInputItem[]>}
+ * @import { ChatInput, Message } from './types.d.ts'
+ * @param {ChatInput} chatInput
+ * @returns {Promise<Message[]>}
  */
 async function sendToServer(chatInput) {
   // Send the request to the server
-  const response = await fetch('https://hyperparam.app/api/functions/openai/responses', {
+  const response = await fetch('https://hyperparam.app/api/functions/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(chatInput),
@@ -38,7 +38,7 @@ async function sendToServer(chatInput) {
   }
 
   // Process the streaming response
-  /** @type {ResponseInputItem[]} */
+  /** @type {Message[]} */
   const incoming = []
   const reader = response.body?.getReader()
   if (!reader) throw new Error('No response body')
@@ -89,11 +89,13 @@ async function sendToServer(chatInput) {
             summary: chunk.item.summary,
           }
           incoming.push(reasoningItem)
-        } else if (!chunk.key) {
-          console.log('Unknown chunk', chunk)
+        } else if (chunk.key || chunk.type === 'response.completed') {
+          // ignore
+        } else {
+          console.log('\nUnknown chunk', chunk)
         }
       } catch (err) {
-        console.error('Error parsing chunk', err)
+        console.error('\nError parsing chunk', err)
       }
     }
   }
@@ -105,15 +107,15 @@ async function sendToServer(chatInput) {
  * Will mutate the messages array!
  *
  * @import { ResponseFunctionToolCall, ToolHandler } from './types.d.ts'
- * @param {ResponseInputItem[]} input
+ * @param {Message[][]} messages
  * @returns {Promise<void>}
  */
-async function sendMessages(input) {
-  /** @type {ResponsesInput} */
+async function sendMessages(messages) {
+  /** @type {ChatInput} */
   const chatInput = {
     model: 'gpt-5',
     instructions,
-    input,
+    messages,
     reasoning: {
       effort: 'low',
     },
@@ -174,13 +176,13 @@ async function sendMessages(input) {
       }
     }
 
-    input.push(...incoming)
+    messages.push(incoming)
 
     // send messages with tool results
-    await sendMessages(input)
+    await sendMessages(messages)
   } else {
     // no tool calls, just append incoming messages
-    input.push(...incoming)
+    messages.push(incoming)
   }
 }
 
@@ -231,7 +233,7 @@ function writeWithColor() {
 }
 
 export function chat() {
-  /** @type {ResponseInputItem[]} */
+  /** @type {Message[][]} */
   const messages = []
   process.stdin.setEncoding('utf-8')
 
@@ -245,7 +247,7 @@ export function chat() {
       try {
         write(colors.user, 'answer: ', colors.normal)
         outputMode = 'text' // switch to text output mode
-        messages.push({ role: 'user', content: input.trim() })
+        messages.push([{ role: 'user', content: input.trim() }])
         await sendMessages(messages)
       } catch (error) {
         console.error(colors.error, '\n' + error)
