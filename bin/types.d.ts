@@ -1,30 +1,17 @@
 // Model Input
-// Based on ResponseCreateParamsStreaming from openai client
-export interface ResponsesInput {
+export interface ChatInput {
   model: string
-  input: ResponseInputItem[] // or string but we always use stateless messages
   instructions?: string // system prompt
-  background?: boolean
-  include?: string[]
+  messages: Message[][]
+  tools?: ResponseTool[]
   reasoning?: {
-    effort?: 'low' | 'medium' | 'high'
+    effort?: 'minimal' | 'low' | 'medium' | 'high'
     summary?: 'auto' | 'concise' | 'detailed'
   }
-  tools?: ResponseTool[]
-  max_output_tokens?: number
   parallel_tool_calls?: boolean
-  previous_response_id?: string
-  // service_tier?: 'auto' | 'default' | 'flex'
-  // store?: boolean // store response for later retrieval
-  temperature?: number // 0..2
-  text?: unknown
-  tool_choice?: 'auto' | 'none' | 'required'
-  top_p?: number // 0..1
-  truncation?: 'auto' | 'disabled'
-  user?: string
 }
 
-export type ResponseInputItem =
+export type Message =
   | EasyInputMessage
   | ResponseFunctionToolCall
   | FunctionCallOutput
