@@ -23,12 +23,12 @@ interface FileUrl extends BaseUrl {
   resolveUrl: string
 }
 
-type HFUrl = DirectoryUrl | FileUrl;
+type HFUrl = DirectoryUrl | FileUrl
 
 interface RefResponse {
-  name: string;
-  ref: string;
-  targetCommit: string;
+  name: string
+  ref: string
+  targetCommit: string
 }
 
 const refTypes = [
@@ -37,11 +37,11 @@ const refTypes = [
   'converts',
   'pullRequests',
 ] as const
-type RefType = (typeof refTypes)[number];
-type RefsResponse = Partial<Record<RefType, RefResponse[]>>;
+type RefType = (typeof refTypes)[number]
+type RefsResponse = Partial<Record<RefType, RefResponse[]>>
 
 interface RefMetadata extends RefResponse {
-  refType: RefType; // TODO(SL): use it to style the refs differently?
+  refType: RefType // TODO(SL): use it to style the refs differently?
 }
 
 const baseUrl = 'https://huggingface.co'
@@ -291,13 +291,13 @@ async function fetchRefsList(
  */
 
 interface ListFileEntry {
-	type: 'file' | 'directory' | 'unknown';
-	size: number;
-  path: string;
+  type: 'file' | 'directory' | 'unknown'
+  size: number
+  path: string
   lastCommit?: {
-		date: string;
-		id: string;
-	};
+    date: string
+    id: string
+  }
 }
 
 const HUB_URL = 'https://huggingface.co'
@@ -308,19 +308,19 @@ const HUB_URL = 'https://huggingface.co'
  */
 async function* listFiles(
   params: {
-		repoFullName: string;
-		/**
-		 * Eg 'data' for listing all files in the 'data' folder. Leave it empty to list all
-		 * files in the repo.
-		 */
-		path?: string;
-		revision?: string;
-		/**
-		 * Custom fetch function to use instead of the default one, for example to use a proxy or edit headers.
-		 */
-    fetch?: typeof fetch;
-    accessToken?: string;
-	}
+    repoFullName: string
+    /**
+     * Eg 'data' for listing all files in the 'data' folder. Leave it empty to list all
+     * files in the repo.
+     */
+    path?: string
+    revision?: string
+    /**
+     * Custom fetch function to use instead of the default one, for example to use a proxy or edit headers.
+     */
+    fetch?: typeof fetch
+    accessToken?: string
+  }
 ): AsyncGenerator<ListFileEntry> {
   let url: string | undefined = `${HUB_URL}/api/${params.repoFullName}/tree/${
     params.revision ?? 'main'

@@ -5,7 +5,7 @@ const meta: Meta<typeof Dropdown> = {
   component: Dropdown,
 }
 export default meta
-type Story = StoryObj<typeof Dropdown>;
+type Story = StoryObj<typeof Dropdown>
 export const Default: Story = {
   args: {
     label: 'Menu',

@@ -6,7 +6,7 @@ const meta: Meta<typeof Json> = {
   component: Json,
 }
 export default meta
-type Story = StoryObj<typeof Json>;
+type Story = StoryObj<typeof Json>
 
 function render(args: ComponentProps<typeof Json>) {
   return (
@@ -125,7 +125,7 @@ export const MessagesList: Story = {
       },
       {
         role: 'user',
-        content: 'Sure, here it is: function calculate(a, b) { return a + b * c; }',
+        content: 'Sure, here it is: function calculate(a, b) { return a + b * c }',
       },
       {
         role: 'assistant',

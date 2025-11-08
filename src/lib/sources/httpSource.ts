@@ -1,14 +1,22 @@
-import { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
+import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
-async function s3list(bucket: string, prefix: string) {
+interface S3ListItem {
+  key?: string
+  lastModified?: string
+  size?: number
+  eTag?: string
+  isCommonPrefix?: boolean
+}
+
+async function s3list(bucket: string, prefix: string): Promise<S3ListItem[]> {
   const url = `https://${bucket}.s3.amazonaws.com/?list-type=2&prefix=${prefix}&delimiter=/`
   const result = await fetch(url)
   if (!result.ok) {
     throw new Error(`${result.status} ${result.statusText}`)
   }
   const text = await result.text()
-  const results = []
+  const results: S3ListItem[] = []
 
   // Parse regular objects (files and explicit directories)
   const contentsRegex = /<Contents>(.*?)<\/Contents>/gs
