@@ -107,3 +107,18 @@ interface ArrayToolProperty extends BaseToolProperty {
   items: ToolProperty
 }
 export type ToolProperty = StringToolProperty | NumberToolProperty | ArrayToolProperty | BooleanToolProperty
+
+export interface WsRequestPayload {
+  request_id: string
+  type: 'get' | 'head'
+  key: string
+  headers: Record<string, string | string[] | undefined>
+}
+
+export interface WsResponsePayload {
+  request_id: string
+  type: 'response'
+  status: number
+  headers: Record<string, string | undefined>
+  body: string // base64 encoded
+}

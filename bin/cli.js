@@ -3,15 +3,25 @@
 import fs from 'fs/promises'
 import packageJson from '../package.json' with { type: 'json' }
 import { chat } from './chat.js'
+import { scope } from './scope.js'
 import { serve } from './serve.js'
 
 const updateCheck = checkForUpdates()
 
 const arg = process.argv[2]
-if (arg === '--help' || arg === '-H' || arg === '-h') {
+if (arg === 'scope') {
+  const filePath = process.argv[3]
+  if (!filePath) {
+    console.error('Error: hyperparam scope requires a file argument')
+    process.exit(1)
+  }
+  scope(filePath)
+} else if (arg === '--help' || arg === '-H' || arg === '-h') {
   console.log('Usage:')
   console.log('  hyperparam                start chat client')
   console.log('  hyperparam [path]         start hyperparam webapp. "path" is a directory or a URL.')
+  console.log('                            defaults to the current directory.')
+  console.log('  hyperparam scope          start hyperscope client')
   console.log('  ')
   console.log('  hyperparam -h, --help,    give this help list')
   console.log('  hyperparam -v, --version  print program version')
