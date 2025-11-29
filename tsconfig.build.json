@@ -5,9 +5,7 @@
     "rootDir": "src",
     "outDir": "lib",
     "emitDeclarationOnly": true,
-    "declaration": true,
-    "composite": true,
-    "incremental": true
+    "declaration": true
   },
   "include": ["src"]
 }
