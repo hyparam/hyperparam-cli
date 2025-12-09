@@ -1,3 +1,4 @@
+import readline from 'readline'
 import { tools } from './tools/tools.js'
 
 /** @type {'text' | 'tool'} */
@@ -241,26 +242,33 @@ function writeWithColor() {
 export function chat() {
   /** @type {Message[][]} */
   const messages = []
-  process.stdin.setEncoding('utf-8')
-
-  write(colors.system, 'question: ', colors.normal)
-
-  process.stdin.on('data', async (/** @type {string} */ input) => {
-    input = input.trim()
-    if (input === 'exit') {
-      process.exit()
-    } else if (input) {
-      try {
-        write(colors.user, 'answer: ', colors.normal)
-        outputMode = 'text' // switch to text output mode
-        messages.push([{ role: 'user', content: input.trim() }])
-        await sendMessages(messages)
-      } catch (error) {
-        console.error(colors.error, '\n' + error)
-      } finally {
-        write('\n\n')
-      }
-    }
-    write(colors.system, 'question: ', colors.normal)
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+    terminal: true,
   })
+
+  function prompt() {
+    rl.question(`${colors.system}question: ${colors.normal}`, async (input) => {
+      input = input.trim()
+      if (input === 'exit') {
+        rl.close()
+        process.exit()
+      } else if (input) {
+        try {
+          write(colors.user, 'answer: ', colors.normal)
+          outputMode = 'text' // switch to text output mode
+          messages.push([{ role: 'user', content: input }])
+          await sendMessages(messages)
+        } catch (error) {
+          console.error(colors.error, '\n' + error)
+        } finally {
+          write('\n\n')
+        }
+      }
+      prompt()
+    })
+  }
+
+  prompt()
 }
