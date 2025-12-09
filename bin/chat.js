@@ -1,4 +1,4 @@
-import { tools } from './tools.js'
+import { tools } from './tools/tools.js'
 
 /** @type {'text' | 'tool'} */
 let outputMode = 'text' // default output mode
@@ -19,6 +19,12 @@ const colors = {
   error: '\x1b[31m', // red
   normal: '\x1b[0m', // reset
 }
+
+const ignoreMessageTypes = [
+  'response.completed',
+  'response.output_item.added',
+  'response.function_call_arguments.delta',
+]
 
 /**
  * @import { ChatInput, Message } from './types.d.ts'
@@ -89,7 +95,7 @@ async function sendToServer(chatInput) {
             summary: chunk.item.summary,
           }
           incoming.push(reasoningItem)
-        } else if (chunk.key || chunk.type === 'response.completed') {
+        } else if (chunk.key || ignoreMessageTypes.includes(chunk.type)) {
           // ignore
         } else {
           console.log('\nUnknown chunk', chunk)
@@ -171,7 +177,7 @@ async function sendMessages(messages) {
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
         const toolName = toolCall.name ?? toolCall.id
-        write(colors.error, `\nError calling tool ${toolName}: ${message}`, colors.normal)
+        write(colors.error, `\nError calling tool ${toolName}: ${message}\n`, colors.normal)
         incoming.push({ type: 'function_call_output', output: `Error calling tool ${toolName}: ${message}`, call_id })
       }
     }
