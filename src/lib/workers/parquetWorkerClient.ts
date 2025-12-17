@@ -1,4 +1,5 @@
 import type { ColumnData } from 'hyparquet'
+import type { SubColumnData } from 'hyparquet/src/types.js'
 import ParquetWorker from './parquetWorker?worker&inline'
 import type { ClientMessage, ParquetQueryWorkerOptions, ParquetReadObjectsWorkerOptions, ParquetReadWorkerOptions, Rows, WorkerMessage } from './types.js'
 /// ^ the worker is bundled with the main thread code (inline) which is easier for users to import
@@ -9,7 +10,7 @@ let nextQueryId = 0
 interface Agent {
   onComplete?: ((rows: Rows) => void)
   onChunk?: (chunk: ColumnData) => void
-  onPage?: (page: ColumnData) => void
+  onPage?: (page: SubColumnData) => void
   reject: (error: Error) => void
   parquetReadResolve?: () => void
   parquetReadObjectsResolve?: (rows: Rows) => void

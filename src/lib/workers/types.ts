@@ -1,5 +1,6 @@
 import type { ColumnData, ParquetReadOptions } from 'hyparquet'
 import { parquetQuery } from 'hyparquet'
+import { SubColumnData } from 'hyparquet/src/types.js'
 
 // https://github.com/hyparam/hyparquet/pull/105
 type ParquetQueryFilter = Exclude<Parameters<typeof parquetQuery>[0]['filter'], undefined>
@@ -88,7 +89,7 @@ export interface ChunkMessage extends QueryId {
 }
 export interface PageMessage extends QueryId {
   kind: 'onPage'
-  page: ColumnData
+  page: SubColumnData
 }
 export interface RejectMessage extends QueryId {
   kind: 'onReject'
