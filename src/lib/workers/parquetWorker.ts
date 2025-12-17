@@ -1,5 +1,5 @@
-import type { ColumnData } from 'hyparquet'
-import { AsyncBuffer, parquetQuery, parquetRead, parquetReadObjects } from 'hyparquet'
+import { AsyncBuffer, ColumnData, parquetQuery, parquetRead, parquetReadObjects } from 'hyparquet'
+import type { SubColumnData } from 'hyparquet/src/types.js'
 import { compressors } from 'hyparquet-compressors'
 import type { ChunkMessage, ClientMessage, CompleteMessage, PageMessage, ParquetQueryResolveMessage, ParquetReadObjectsResolveMessage, ParquetReadResolveMessage, RejectMessage, Rows } from './types.js'
 import { fromToAsyncBuffer } from './utils.js'
@@ -52,7 +52,7 @@ self.onmessage = async ({ data }: { data: ClientMessage }) => {
   function onChunk(chunk: ColumnData) {
     postChunkMessage({ chunk, queryId })
   }
-  function onPage(page: ColumnData) {
+  function onPage(page: SubColumnData) {
     postPageMessage({ page, queryId })
   }
 }
