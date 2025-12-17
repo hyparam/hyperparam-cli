@@ -18,6 +18,7 @@ const colors = {
   user: '\x1b[33m', // yellow
   tool: '\x1b[90m', // gray
   error: '\x1b[31m', // red
+  code: '\x1b[94m', // light blue
   normal: '\x1b[0m', // reset
 }
 
@@ -202,15 +203,36 @@ function write(...args) {
 
 /**
  * Handle streaming output, but buffer if needed to handle escape codes.
+ * Also renders inline code (backticks) in blue.
  * @returns {(...args: string[]) => void}
  */
 function writeWithColor() {
   /** @type {string | undefined} */
   let buffer
+  /** @type {string | undefined} */
+  let codeBuffer
   /**
    * @param {string} char
    */
   function writeChar(char) {
+    // Handle inline code blocks (backticks)
+    if (char === '`') {
+      if (codeBuffer !== undefined) {
+        // Closing backtick - output buffered content in blue
+        write(colors.code, codeBuffer, colors.normal)
+        codeBuffer = undefined
+      } else {
+        // Opening backtick - start buffering
+        codeBuffer = ''
+      }
+      return
+    }
+    if (codeBuffer !== undefined) {
+      // Inside inline code block - buffer the character
+      codeBuffer += char
+      return
+    }
+
     if (buffer === undefined && char !== '\\' && char !== '\x1b') {
       write(char)
     } else {

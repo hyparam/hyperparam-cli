@@ -11,7 +11,7 @@ const maxRows = 100
  * @type {ToolHandler}
  */
 export const parquetSql = {
-  emoji: '🗃️',
+  emoji: '🛢️',
   tool: {
     type: 'function',
     name: 'parquet_sql',
