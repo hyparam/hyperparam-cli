@@ -1,4 +1,4 @@
-import { asyncBufferFromFile, parquetMetadataAsync } from 'hyparquet'
+import { asyncBufferFromFile, asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
 import { collect, executeSql } from 'squirreling'
 import { parquetDataSource } from './parquetDataSource.js'
@@ -27,9 +27,9 @@ export const parquetSql = {
     parameters: {
       type: 'object',
       properties: {
-        filename: {
+        file: {
           type: 'string',
-          description: 'The name of the parquet file to query.',
+          description: 'The parquet file to query either local file path or url.',
         },
         query: {
           type: 'string',
@@ -40,16 +40,16 @@ export const parquetSql = {
           description: 'Whether to truncate long string values in the results. If true (default), each string cell is limited to 1000 characters. If false, each string cell is limited to 10,000 characters.',
         },
       },
-      required: ['filename', 'query'],
+      required: ['file', 'query'],
     },
   },
   /**
    * @param {Record<string, unknown>} args
    * @returns {Promise<string>}
    */
-  async handleToolCall({ filename, query, truncate = true }) {
-    if (typeof filename !== 'string') {
-      throw new Error('Expected filename to be a string')
+  async handleToolCall({ file, query, truncate = true }) {
+    if (typeof file !== 'string') {
+      throw new Error('Expected file to be a string')
     }
     if (typeof query !== 'string' || query.trim().length === 0) {
       throw new Error('Query parameter must be a non-empty string')
@@ -59,9 +59,11 @@ export const parquetSql = {
       const startTime = performance.now()
 
       // Load parquet file and create data source
-      const file = await asyncBufferFromFile(filename)
-      const metadata = await parquetMetadataAsync(file)
-      const table = parquetDataSource(file, metadata, compressors)
+      const asyncBuffer = file.startsWith('http://') || file.startsWith('https://')
+        ? await asyncBufferFromUrl({ url: file })
+        : await asyncBufferFromFile(file)
+      const metadata = await parquetMetadataAsync(asyncBuffer)
+      const table = parquetDataSource(asyncBuffer, metadata, compressors)
 
       // Execute SQL query
       const results = await collect(executeSql({ tables: { table }, query }))

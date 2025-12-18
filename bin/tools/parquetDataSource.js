@@ -1,11 +1,9 @@
-import { parquetSchema } from 'hyparquet'
-import { parquetPlan } from 'hyparquet/src/plan.js'
-import { asyncGroupToRows, readRowGroup } from 'hyparquet/src/rowgroup.js'
+import { parquetMetadataAsync, parquetReadObjects } from 'hyparquet'
 import { whereToParquetFilter } from './parquetFilter.js'
 
 /**
- * @import { AsyncBuffer, Compressors, FileMetaData } from 'hyparquet'
- * @import { AsyncDataSource } from 'squirreling'
+ * @import { AsyncBuffer, Compressors, FileMetaData, ParquetQueryFilter } from 'hyparquet'
+ * @import { AsyncDataSource, AsyncRow, SqlPrimitive } from 'squirreling'
  * @import { AsyncCells } from 'squirreling/src/types.js'
  */
 
@@ -20,39 +18,75 @@ import { whereToParquetFilter } from './parquetFilter.js'
 export function parquetDataSource(file, metadata, compressors) {
   return {
     async *scan(hints) {
-      const options = {
-        file,
-        metadata,
-        compressors,
-        columns: hints?.columns,
-        // convert WHERE clause to parquet pushdown filter
-        filter: whereToParquetFilter(hints?.where),
-        filterStrict: false,
-      }
+      metadata ??= await parquetMetadataAsync(file)
 
-      // TODO: check that columns exist in parquet file
-      let { columns } = options
-      if (!columns?.length) {
-        const schema = parquetSchema(metadata)
-        columns = schema.children.map(col => col.element.name)
-      }
+      // Convert WHERE AST to hyparquet filter format
+      const whereFilter = hints?.where && whereToParquetFilter(hints.where)
+      /** @type {ParquetQueryFilter | undefined} */
+      const filter = hints?.where ? whereFilter : undefined
+      const filterApplied = !filter || whereFilter
 
-      const plan = parquetPlan(options)
-      for (const subplan of plan.groups) {
-        // Read row group
-        const rg = readRowGroup(options, plan, subplan)
-        // Transpose to materialized rows
-        const rows = await asyncGroupToRows(rg, 0, rg.groupRows, undefined, 'object')
-        // Convert to AsyncRow generator
-        for (const row of rows) {
-          /** @type {AsyncCells} */
-          const cells = {}
-          for (const [key, value] of Object.entries(row)) {
-            cells[key] = () => Promise.resolve(value)
+      // Emit rows by row group
+      let groupStart = 0
+      let remainingLimit = hints?.limit ?? Infinity
+      for (const rowGroup of metadata.row_groups) {
+        const rowCount = Number(rowGroup.num_rows)
+
+        // Skip row groups by offset if where is fully applied
+        let safeOffset = 0
+        let safeLimit = rowCount
+        if (filterApplied) {
+          if (hints?.offset !== undefined && groupStart < hints.offset) {
+            safeOffset = Math.min(rowCount, hints.offset - groupStart)
           }
-          yield { columns, cells }
+          safeLimit = Math.min(rowCount - safeOffset, remainingLimit)
+          if (safeLimit <= 0 && safeOffset < rowCount) break
         }
+        for (let i = 0; i < safeOffset; i++) {
+          // yield empty rows
+          yield asyncRow({})
+        }
+        if (safeOffset === rowCount) {
+          groupStart += rowCount
+          continue
+        }
+
+        // Read objects from this row group
+        const data = await parquetReadObjects({
+          file,
+          metadata,
+          rowStart: groupStart + safeOffset,
+          rowEnd: groupStart + safeOffset + safeLimit,
+          columns: hints?.columns,
+          filter,
+          filterStrict: false,
+          compressors,
+          useOffsetIndex: true,
+        })
+
+        // Yield each row
+        for (const row of data) {
+          yield asyncRow(row)
+        }
+
+        remainingLimit -= data.length
+        groupStart += rowCount
       }
     },
   }
+}
+
+/**
+ * Creates an async row accessor that wraps a plain JavaScript object
+ *
+ * @param {Record<string, SqlPrimitive>} obj - the plain object
+ * @returns {AsyncRow} a row accessor interface
+ */
+function asyncRow(obj) {
+  /** @type {AsyncCells} */
+  const cells = {}
+  for (const [key, value] of Object.entries(obj)) {
+    cells[key] = () => Promise.resolve(value)
+  }
+  return { columns: Object.keys(obj), cells }
 }
