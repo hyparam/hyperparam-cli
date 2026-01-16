@@ -59,12 +59,12 @@
     "hyparquet": "1.24.0",
     "hyparquet-compressors": "1.1.1",
     "icebird": "0.3.1",
-    "squirreling": "0.6.0"
+    "squirreling": "0.7.8"
   },
   "devDependencies": {
     "@storybook/react-vite": "10.1.11",
     "@testing-library/react": "16.3.1",
-    "@types/node": "25.0.8",
+    "@types/node": "25.0.9",
     "@types/react": "19.2.8",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.2",

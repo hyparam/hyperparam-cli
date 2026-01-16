@@ -3,8 +3,7 @@ import { whereToParquetFilter } from './parquetFilter.js'
 
 /**
  * @import { AsyncBuffer, Compressors, FileMetaData, ParquetQueryFilter } from 'hyparquet'
- * @import { AsyncDataSource, AsyncRow, SqlPrimitive } from 'squirreling'
- * @import { AsyncCells } from 'squirreling/src/types.js'
+ * @import { AsyncCells, AsyncDataSource, AsyncRow, SqlPrimitive } from 'squirreling'
  */
 
 /**
@@ -17,7 +16,7 @@ import { whereToParquetFilter } from './parquetFilter.js'
  */
 export function parquetDataSource(file, metadata, compressors) {
   return {
-    async *scan(hints) {
+    async *scan({ hints, signal }) {
       metadata ??= await parquetMetadataAsync(file)
 
       // Convert WHERE AST to hyparquet filter format
@@ -30,6 +29,7 @@ export function parquetDataSource(file, metadata, compressors) {
       let groupStart = 0
       let remainingLimit = hints?.limit ?? Infinity
       for (const rowGroup of metadata.row_groups) {
+        if (signal?.aborted) break
         const rowCount = Number(rowGroup.num_rows)
 
         // Skip row groups by offset if where is fully applied
