@@ -18,6 +18,23 @@ async function s3list(bucket: string, prefix: string): Promise<S3ListItem[]> {
   const text = await result.text()
   const results: S3ListItem[] = []
 
+  // Parse CommonPrefixes (virtual directories)
+  const prefixRegex = /<CommonPrefixes>(.*?)<\/CommonPrefixes>/gs
+  const prefixMatches = text.match(prefixRegex) ?? []
+
+  for (const match of prefixMatches) {
+    const prefixMatch = /<Prefix>(.*?)<\/Prefix>/.exec(match)
+    if (!prefixMatch) continue
+
+    const key = prefixMatch[1]
+    results.push({
+      key,
+      lastModified: new Date().toISOString(), // No lastModified for CommonPrefixes
+      size: 0,
+      isCommonPrefix: true,
+    })
+  }
+
   // Parse regular objects (files and explicit directories)
   const contentsRegex = /<Contents>(.*?)<\/Contents>/gs
   const contentsMatches = text.match(contentsRegex) ?? []
@@ -36,23 +53,6 @@ async function s3list(bucket: string, prefix: string): Promise<S3ListItem[]> {
     const eTag = eTagMatch ? eTagMatch[1] : undefined
 
     results.push({ key, lastModified, size, eTag })
-  }
-
-  // Parse CommonPrefixes (virtual directories)
-  const prefixRegex = /<CommonPrefixes>(.*?)<\/CommonPrefixes>/gs
-  const prefixMatches = text.match(prefixRegex) ?? []
-
-  for (const match of prefixMatches) {
-    const prefixMatch = /<Prefix>(.*?)<\/Prefix>/.exec(match)
-    if (!prefixMatch) continue
-
-    const key = prefixMatch[1]
-    results.push({
-      key,
-      lastModified: new Date().toISOString(), // No lastModified for CommonPrefixes
-      size: 0,
-      isCommonPrefix: true,
-    })
   }
 
   return results
@@ -101,7 +101,8 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
       prefix,
       listFiles: () => s3list(bucket, prefix).then(items =>
         items
-          .filter(item => item.key !== undefined)
+          // skip s3 directory placeholder
+          .filter(item => item.key !== undefined && item.key !== prefix)
           .map(item => {
             if (!item.key) {
               throw new Error('Key is undefined')
