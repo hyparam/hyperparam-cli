@@ -88,7 +88,7 @@ async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: Reque
     files.push({
       name: getFileName(file.path),
       eTag: file.lastCommit?.id,
-      size: file.size,
+      fileSize: file.size,
       lastModified: file.lastCommit?.date,
       sourceId: `${url.origin}/${getFullName(url)}/${file.type === 'file' ? 'blob' : 'tree'}/${url.branch}/${file.path}`.replace(/\/$/, ''),
       kind: file.type === 'file' ? 'file' : 'directory', // 'unknown' is considered as a directory

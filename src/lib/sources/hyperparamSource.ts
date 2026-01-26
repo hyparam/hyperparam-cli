@@ -49,7 +49,7 @@ async function listFiles(prefix: string, { endpoint, requestInit }: {endpoint: s
     return files.map(file => ({
       name: file.key,
       eTag: file.eTag,
-      size: file.fileSize,
+      fileSize: file.fileSize,
       lastModified: file.lastModified,
       sourceId: (prefix === '' ? '' : prefix + '/') + file.key,
       kind: getKind(file.key),

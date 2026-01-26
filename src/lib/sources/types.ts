@@ -3,7 +3,7 @@ export type FileKind = 'file' | 'directory'
 export interface FileMetadata {
   name: string
   eTag?: string
-  size?: number
+  fileSize?: number
   lastModified?: string
   sourceId: string /// the source URL or path
   kind: FileKind

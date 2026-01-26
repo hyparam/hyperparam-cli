@@ -90,8 +90,8 @@ describe('Folder Component', () => {
   it('filters files based on search query', async () => {
     const mockFiles: FileMetadata[] = [
       { sourceId: 'folder1', name: 'folder1/', kind: 'directory', lastModified: '2023-01-01T00:00:00Z' },
-      { sourceId: 'file1.txt', name: 'file1.txt', kind: 'file', size: 8196, lastModified: '2023-01-01T00:00:00Z' },
-      { sourceId: 'report.pdf', name: 'report.pdf', kind: 'file', size: 10240, lastModified: '2023-01-02T00:00:00Z' },
+      { sourceId: 'file1.txt', name: 'file1.txt', kind: 'file', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
+      { sourceId: 'report.pdf', name: 'report.pdf', kind: 'file', fileSize: 10240, lastModified: '2023-01-02T00:00:00Z' },
     ]
     const dirSource: DirSource = {
       sourceId: 'test-source',
@@ -128,8 +128,8 @@ describe('Folder Component', () => {
       value: location,
     })
     const mockFiles: FileMetadata[] = [
-      { sourceId: 'file1.txt', name: 'file1.txt', kind: 'file', size: 8196, lastModified: '2023-01-01T00:00:00Z' },
-      { sourceId: 'file2.txt', name: 'file2.txt', kind: 'file', size: 4096, lastModified: '2023-02-02T00:00:00Z' },
+      { sourceId: 'file1.txt', name: 'file1.txt', kind: 'file', fileSize: 8196, lastModified: '2023-01-01T00:00:00Z' },
+      { sourceId: 'file2.txt', name: 'file2.txt', kind: 'file', fileSize: 4096, lastModified: '2023-02-02T00:00:00Z' },
     ]
     const dirSource: DirSource = {
       sourceId: 'test-source',

@@ -116,6 +116,7 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
             }
             return {
               name,
+              fileSize: item.size,
               lastModified: item.lastModified,
               sourceId: itemSourceId,
               kind: isDirectory ? 'directory' : 'file',
