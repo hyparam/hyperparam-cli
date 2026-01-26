@@ -119,8 +119,8 @@ export default function Folder({ source }: FolderProps) {
                   {file.name}
                 </span>
                 {file.kind === 'file' && <>
-                  {file.size !== undefined && <span data-file-size title={file.size.toLocaleString() + ' bytes'}>
-                    {formatFileSize(file.size)}
+                  {file.fileSize !== undefined && <span data-file-size title={file.fileSize.toLocaleString() + ' bytes'}>
+                    {formatFileSize(file.fileSize)}
                   </span>}
                   <span data-file-date title={getFileDate(file)}>
                     {getFileDateShort(file)}
