@@ -66,17 +66,36 @@
   }
 }
 
+/* settings dropdown */
+.settings {
+  margin-left: 8px;
+
+  & button::before {
+    /* hide caret */
+    display: none;
+  }
+
+  & svg {
+    opacity: 0.8;
+    transition: opacity 0.2s;
+  }
+
+  &:hover svg {
+    opacity: 1;
+  }
+}
+
 /* search */
 .search {
   background: #fff url("../../assets/search.svg") no-repeat center right 8px;
   border: 1px solid transparent;
-  border-radius: 12px;
+  border-radius: 8px;
   flex-shrink: 1;
   font-size: 12px;
   height: 24px;
   min-width: 0;
   outline: none;
-  padding: 4px 20px 2px 8px;
+  padding: 5px 20px 5px 10px;
   width: 100px;
   transition-duration: 0.3s;
   transition-property: border, width;
