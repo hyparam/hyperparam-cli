@@ -255,16 +255,25 @@ describe('Markdown lists', () => {
   })
 
   it('nested code block within a list item', () => {
-    const text = `- List item with code:
-  \`\`\`js
-  console.log("Nested code")
-  \`\`\``
+    const text = `- Item 1
+- Item 2 code:
+
+  \`\`\`bash
+  ./doStuff
+  \`\`\`
+
+- Item 3`
     const { container, getByText } = render(<Markdown text={text} />)
-    getByText('List item with code:')
-    getByText('console.log("Nested code")')
+    getByText('Item 1')
+    getByText('Item 2 code:')
+    getByText('Item 3')
     const codeBlock = container.querySelector('pre')
     expect(codeBlock).toBeTruthy()
-    expect(codeBlock?.textContent).toContain('console.log("Nested code")')
+    // Leading spaces should be stripped
+    expect(codeBlock?.textContent).toBe('./doStuff')
+    // All items should be in the same list
+    expect(container.querySelectorAll('ul').length).toBe(1)
+    expect(container.querySelectorAll('li').length).toBe(3)
   })
 
   it('list with unicode dash –', () => {
