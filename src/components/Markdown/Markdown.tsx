@@ -212,8 +212,9 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
       if (subIndent > baseIndent) {
         const trimmed = subline.trimStart()
         if (trimmed.startsWith('```')) {
-          // If it’s a fenced code block, parse until closing fence
+          // Fenced code block, parse until closing fence
           const language = trimmed.slice(3).trim() || undefined
+          const indentRegex = new RegExp(`^ {0,${subIndent}}`)
           i++
           const codeLines: string[] = []
           while (i < lines.length && !lines[i]?.trimStart().startsWith('```')) {
@@ -221,7 +222,8 @@ function parseList(lines: string[], start: number, baseIndent: number): [Token[]
             if (line === undefined) {
               throw new Error(`Line is undefined at index ${i}`)
             }
-            codeLines.push(line)
+            // Strip spaces to match the fence indent
+            codeLines.push(line.replace(indentRegex, ''))
             i++
           }
           i++ // skip the closing ```
