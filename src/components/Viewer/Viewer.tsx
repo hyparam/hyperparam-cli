@@ -4,7 +4,7 @@ import AvroView from '../AvroView/AvroView.js'
 import ImageView from '../ImageView/ImageView.js'
 import JsonView from '../JsonView/JsonView.js'
 import MarkdownView from '../MarkdownView/MarkdownView.js'
-import TableView from '../ParquetView/ParquetView.js'
+import TableView from '../TableView/TableView.js'
 import TextView from '../TextView/TextView.js'
 
 interface ViewerProps {
@@ -21,7 +21,7 @@ export default function Viewer({ source, setError, setProgress }: ViewerProps) {
   const { fileName } = source
   if (fileName.endsWith('.md')) {
     return <MarkdownView source={source} setError={setError} />
-  } else if (fileName.endsWith('.parquet')) {
+  } else if (fileName.endsWith('.parquet') || fileName.endsWith('.csv') || fileName.endsWith('.jsonl')) {
     return <TableView source={source} setError={setError} setProgress={setProgress} />
   } else if (fileName.endsWith('.json')) {
     return <JsonView source={source} setError={setError} />

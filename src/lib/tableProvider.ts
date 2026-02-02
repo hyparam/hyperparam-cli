@@ -1,9 +1,37 @@
 import { DataFrame, DataFrameEvents, ResolvedValue, arrayDataFrame, checkSignal, createEventTarget, sortableDataFrame, validateFetchParams, validateGetCellParams, validateGetRowNumberParams } from 'hightable'
 import type { ColumnData } from 'hyparquet'
-import { FileMetaData, ParquetReadOptions, parquetSchema } from 'hyparquet'
+import { FileMetaData, ParquetReadOptions, asyncBufferFromUrl, parquetMetadataAsync, parquetSchema } from 'hyparquet'
 import { parseCsv } from './csv.js'
 import { parquetReadWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
+
+interface TableProviderOptions {
+  url: string
+  fileName: string
+  requestInit?: RequestInit
+}
+
+/**
+ * Create a dataframe from a file URL, automatically detecting the file type.
+ * Supports parquet, CSV, and JSONL files.
+ */
+export async function tableProvider({ url, fileName, requestInit }: TableProviderOptions): Promise<DataFrame> {
+  const asyncBuffer = await asyncBufferFromUrl({ url, requestInit })
+  const from = { url, byteLength: asyncBuffer.byteLength, requestInit }
+
+  const baseName = fileName.toLowerCase()
+  if (baseName.endsWith('.csv')) {
+    return csvDataFrame(from)
+  }
+
+  if (baseName.endsWith('.jsonl')) {
+    return jsonLinesDataFrame(from)
+  }
+
+  // Default to parquet
+  const metadata = await parquetMetadataAsync(asyncBuffer)
+  return sortableDataFrame(parquetDataFrame(from, metadata))
+}
 
 type GroupStatus = {
   kind: 'unfetched'
