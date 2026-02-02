@@ -28,6 +28,8 @@ package-lock.json
 *.tgz
 .vscode
 *.parquet
+*.csv
+*.jsonl
 /coverage/
 
 /lib/

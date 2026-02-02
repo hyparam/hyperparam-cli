@@ -1,6 +1,7 @@
-import { DataFrame, DataFrameEvents, ResolvedValue, checkSignal, createEventTarget, validateFetchParams, validateGetCellParams, validateGetRowNumberParams } from 'hightable'
+import { DataFrame, DataFrameEvents, ResolvedValue, arrayDataFrame, checkSignal, createEventTarget, sortableDataFrame, validateFetchParams, validateGetCellParams, validateGetRowNumberParams } from 'hightable'
 import type { ColumnData } from 'hyparquet'
 import { FileMetaData, ParquetReadOptions, parquetSchema } from 'hyparquet'
+import { parseCsv } from './csv.js'
 import { parquetReadWorker } from './workers/parquetWorkerClient.js'
 import type { AsyncBufferFrom } from './workers/types.d.ts'
 
@@ -129,4 +130,50 @@ export function parquetDataFrame(from: AsyncBufferFrom, metadata: FileMetaData, 
   }
 
   return unsortableDataFrame
+}
+
+/**
+ * Convert a CSV file into a sortable dataframe.
+ *
+ * Parses the entire file and creates a sortable dataframe.
+ * The first row is treated as the header.
+ */
+export async function csvDataFrame(from: AsyncBufferFrom): Promise<DataFrame> {
+  let buffer: ArrayBuffer
+  if ('file' in from) {
+    buffer = await from.file.arrayBuffer()
+  } else {
+    const response = await fetch(from.url, from.requestInit)
+    buffer = await response.arrayBuffer()
+  }
+
+  const text = new TextDecoder().decode(buffer)
+  const lines = parseCsv(text)
+  const header = lines[0] ?? []
+  const rows = lines.slice(1).map(row => {
+    return Object.fromEntries(header.map((key, i) => [key, row[i]]))
+  })
+  return sortableDataFrame(arrayDataFrame(rows))
+}
+
+/**
+ * Convert a JSONL file into a sortable dataframe.
+ *
+ * Parses each line as a JSON object and creates a sortable dataframe.
+ */
+export async function jsonLinesDataFrame(from: AsyncBufferFrom): Promise<DataFrame> {
+  let buffer: ArrayBuffer
+  if ('file' in from) {
+    buffer = await from.file.arrayBuffer()
+  } else {
+    const response = await fetch(from.url, from.requestInit)
+    buffer = await response.arrayBuffer()
+  }
+
+  const text = new TextDecoder().decode(buffer).trimEnd()
+  const lines = text.split('\n').filter(line => line.trim())
+  const rows: Record<string, unknown>[] = lines.map(line => {
+    return line ? JSON.parse(line) as Record<string, unknown> : {}
+  })
+  return sortableDataFrame(arrayDataFrame(rows))
 }
