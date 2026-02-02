@@ -1,16 +1,15 @@
-import HighTable, { DataFrame, sortableDataFrame } from 'hightable'
+import HighTable, { DataFrame } from 'hightable'
 import 'hightable/src/HighTable.css'
-import { asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import { appendSearchParams } from '../../lib/routes.js'
 import { FileSource } from '../../lib/sources/types.js'
-import { parquetDataFrame } from '../../lib/tableProvider.js'
+import { tableProvider } from '../../lib/tableProvider.js'
 import { cn } from '../../lib/utils.js'
 import CellPanel from '../CellPanel/CellPanel.js'
 import ContentWrapper, { ContentSize } from '../ContentWrapper/ContentWrapper.js'
 import SlidePanel from '../SlidePanel/SlidePanel.js'
-import styles from './ParquetView.module.css'
+import styles from './TableView.module.css'
 
 interface ViewerProps {
   source: FileSource
@@ -23,27 +22,22 @@ interface Content extends ContentSize {
 }
 
 /**
- * Parquet file viewer
+ * Table file viewer for parquet, CSV, and JSONL files
  */
-export default function ParquetView({ source, setProgress, setError }: ViewerProps) {
+export default function TableView({ source, setProgress, setError }: ViewerProps) {
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
   const { customClass, routes } = useConfig()
 
   useEffect(() => {
-    async function loadParquetDataFrame() {
+    async function loadDataFrame() {
       try {
         setIsLoading(true)
-        setProgress(0.33)
-        const { resolveUrl, requestInit } = source
-        const asyncBuffer = await asyncBufferFromUrl({ url: resolveUrl, requestInit })
-        const from = { url: resolveUrl, byteLength: asyncBuffer.byteLength, requestInit }
-        setProgress(0.66)
-        const metadata = await parquetMetadataAsync(asyncBuffer)
-        const dataframe = sortableDataFrame(parquetDataFrame(from, metadata))
-        const fileSize = asyncBuffer.byteLength
-        setContent({ dataframe, fileSize })
+        setProgress(0.5)
+        const { resolveUrl, fileName, requestInit } = source
+        const dataframe = await tableProvider({ url: resolveUrl, fileName, requestInit })
+        setContent({ dataframe })
       } catch (error) {
         setError(error)
       } finally {
@@ -51,7 +45,7 @@ export default function ParquetView({ source, setProgress, setError }: ViewerPro
         setProgress(1)
       }
     }
-    void loadParquetDataFrame()
+    void loadDataFrame()
   }, [setError, setProgress, source])
 
   // Close cell view on escape key

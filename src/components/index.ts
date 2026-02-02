@@ -14,7 +14,7 @@ import Layout from './Layout/Layout.js'
 import Markdown from './Markdown/Markdown.js'
 import MarkdownView from './MarkdownView/MarkdownView.js'
 import Page from './Page/Page.js'
-import ParquetView from './ParquetView/ParquetView.js'
+import TableView from './TableView/TableView.js'
 import ProgressBar from './ProgressBar/ProgressBar.js'
 import SlidePanel from './SlidePanel/SlidePanel.js'
 import Spinner from './Spinner/Spinner.js'
@@ -40,7 +40,7 @@ export {
   Markdown,
   MarkdownView,
   Page,
-  ParquetView,
+  TableView,
   ProgressBar,
   SlidePanel,
   Spinner,
