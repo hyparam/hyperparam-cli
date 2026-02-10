@@ -12,7 +12,6 @@
     font-size: 10pt;
     gap: 16px;
     height: 24px;
-    overflow: hidden;
     padding: 0 8px;
     /* all one line */
     text-overflow: ellipsis;

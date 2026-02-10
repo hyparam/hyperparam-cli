@@ -1,9 +1,10 @@
-import type { DataFrame, ResolvedValue } from 'hightable'
+import type { DataFrame } from 'hightable'
 import { stringify } from 'hightable'
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useConfig } from '../../hooks/useConfig.js'
 import { cn } from '../../lib/utils.js'
 import ContentWrapper from '../ContentWrapper/ContentWrapper.js'
+import Dropdown from '../Dropdown/Dropdown.js'
 import Json from '../Json/Json.js'
 import jsonStyles from '../Json/Json.module.css'
 import SlideCloseButton from '../SlideCloseButton/SlideCloseButton.js'
@@ -18,45 +19,25 @@ interface ViewerProps {
   onClose: () => void
 }
 
-const UNLOADED_CELL_PLACEHOLDER = '<the content has not been fetched yet>'
+type Lens = 'text' | 'json'
 
 /**
  * Cell viewer displays a single cell from a table.
  */
 export default function CellPanel({ df, row, col, setProgress, setError, onClose }: ViewerProps) {
-  const [content, setContent] = useState<ReactNode>()
+  const [value, setValue] = useState<unknown>()
+  const [lens, setLens] = useState<Lens>('text')
+  const [lensOptions, setLensOptions] = useState<Lens[]>([])
+  const [isLoading, setIsLoading] = useState(true)
   const { customClass } = useConfig()
-
-  const fillContent = useCallback((cell: ResolvedValue<unknown> | undefined) => {
-    let content: ReactNode
-    if (cell === undefined) {
-      content =
-        <code className={cn(jsonStyles.textView, customClass?.textView)}>
-          {UNLOADED_CELL_PLACEHOLDER}
-        </code>
-    } else {
-      const { value } = cell
-      if (value instanceof Object && !(value instanceof Date)) {
-        content =
-          <code className={cn(jsonStyles.jsonView, customClass?.jsonView)}>
-            <Json json={value} />
-          </code>
-      } else {
-        content =
-          <code className={cn(styles.textView, customClass?.textView)}>
-            {stringify(value)}
-          </code>
-      }
-    }
-    setContent(content)
-    setError(undefined)
-  }, [customClass?.textView, customClass?.jsonView, setError])
 
   // Load cell data
   useEffect(() => {
     async function loadCellData() {
       try {
         setProgress(0.5)
+        setIsLoading(true)
+        setLensOptions([])
 
         const columnName = df.columnDescriptors[col]?.name
         if (columnName === undefined) {
@@ -64,32 +45,80 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
         }
         let cell = df.getCell({ row, column: columnName })
         if (cell === undefined) {
-          fillContent(undefined)
-          return
+          await df.fetch?.({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
+          cell = df.getCell({ row, column: columnName })
         }
-        await df.fetch?.({ rowStart: row, rowEnd: row + 1, columns: [columnName] })
-        cell = df.getCell({ row, column: columnName })
         if (cell === undefined) {
           throw new Error(`Cell at row=${row}, column=${columnName} is undefined`)
         }
-        fillContent(cell)
+
+        // Parse string if valid JSON
+        const value: unknown = attemptJSONParse(cell.value)
+
+        const { options, defaultLens } = determineLensOptions(value)
+        setLensOptions(options)
+        setLens(defaultLens)
+        setValue(value)
+        setError(undefined)
       } catch (error) {
         setError(error as Error)
       } finally {
+        setIsLoading(false)
         setProgress(1)
       }
     }
 
     void loadCellData()
-  }, [df, col, row, setProgress, setError, fillContent])
+  }, [df, col, row, setProgress, setError])
 
   const headers = <>
     <SlideCloseButton onClick={onClose} />
     <span>column: {df.columnDescriptors[col]?.name}</span>
     <span>row: {row + 1}</span>
+    {lensOptions.length > 1 && <Dropdown label={lens} align='right'>
+      {lensOptions.map(option =>
+        <button key={option} onClick={() => { setLens(option) }}>
+          {option}
+        </button>
+      )}
+    </Dropdown>}
   </>
 
-  return <ContentWrapper headers={headers}>
+  let content
+  if (isLoading) {
+    content = undefined
+  } else if (value instanceof Error) {
+    content = <code className={cn(styles.textView, customClass?.textView)}>{value.name}: {value.message}</code>
+  } else if (lens === 'json' && isJsonLike(value)) {
+    content = <code className={cn(jsonStyles.jsonView, customClass?.jsonView)}><Json json={value} /></code>
+  } else {
+    content = <code className={cn(styles.textView, customClass?.textView)}>{stringify(value)}</code>
+  }
+
+  return <ContentWrapper headers={headers} isLoading={isLoading}>
     {content}
   </ContentWrapper>
+}
+
+function determineLensOptions(cellValue: unknown): { options: Lens[]; defaultLens: Lens } {
+  if (isJsonLike(cellValue)) {
+    return { options: ['json', 'text'], defaultLens: 'json' }
+  }
+  return { options: ['text'], defaultLens: 'text' }
+}
+
+function isJsonLike(cellValue: unknown): boolean {
+  if (cellValue === null) return false
+  if (cellValue instanceof Date) return false
+  if (cellValue instanceof Error) return false
+  return typeof cellValue === 'object'
+}
+
+function attemptJSONParse(value: unknown): unknown {
+  if (typeof value !== 'string') return value
+  try {
+    return JSON.parse(value) as unknown
+  } catch {
+    return value
+  }
 }
