@@ -15,6 +15,11 @@ export function fromToAsyncBuffer(from: AsyncBufferFrom, cache?: Map<string, Pro
     }
     return asyncBuffer
   } else {
-    return from.file.arrayBuffer()
+    return Promise.resolve({
+      byteLength: from.file.size,
+      slice(start: number, end?: number) {
+        return from.file.slice(start, end).arrayBuffer()
+      },
+    })
   }
 }
