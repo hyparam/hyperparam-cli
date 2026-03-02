@@ -9,6 +9,16 @@ export function isPrimitive(value: unknown): boolean {
   )
 }
 
+export function stringifyPrimitive(value: unknown): string {
+  if (typeof value === 'bigint') {
+    return value.toString()
+  } else if (value === undefined) {
+    return 'undefined'
+  } else {
+    return JSON.stringify(value)
+  }
+}
+
 export function shouldObjectCollapse(obj: object): boolean {
   const values = Object.values(obj)
   if (

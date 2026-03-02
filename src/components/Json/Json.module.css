@@ -61,9 +61,20 @@
 .string {
   color: #eaa;
 }
+.boolean {
+  color: #9ce;
+}
 .other {
   color: #d6d6d6;
 }
 .comment {
   color: #ccd8;
+}
+.showMore {
+  cursor: pointer;
+  color: #ccd8;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
 }

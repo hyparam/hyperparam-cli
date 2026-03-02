@@ -43,6 +43,8 @@ export const Arrays: Story = {
       strings2: Array.from({ length: 2 }, (_, i) => `hello ${i}`),
       strings8: Array.from({ length: 8 }, (_, i) => `hello ${i}`),
       strings100: Array.from({ length: 100 }, (_, i) => `hello ${i}`),
+      dates1: Array.from({ length: 1 }, (_, i) => new Date(2025, 0, i + 1)),
+      dates10: Array.from({ length: 10 }, (_, i) => new Date(2025, 0, i + 1)),
       misc: Array.from({ length: 8 }, (_, i) => i % 2 ? `hello ${i}` : i),
       misc2: Array.from({ length: 8 }, (_, i) => i % 3 === 0 ? i : i % 3 === 1 ? `hello ${i}` : [i, i + 1, i + 2]),
       misc3: [1, 'hello', null, undefined],
@@ -53,11 +55,19 @@ export const Arrays: Story = {
   render,
 }
 
+export const TopLevelArray: Story = {
+  args: {
+    json: Array.from({ length: 300 }, (_, i) => [i, i + 1, i + 2]),
+  },
+  render,
+}
+
 export const Objects: Story = {
   args: {
     json: {
       empty: {},
       numbers1: { k0: 1 },
+      dates1: { d0: new Date('2025-01-01') },
       numbers8: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, i])),
       numbers100: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${i}`, i])),
       strings8: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, `hello ${i}`])),
@@ -65,9 +75,8 @@ export const Objects: Story = {
       misc: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, i % 2 ? `hello ${i}` : i])),
       misc2: Object.fromEntries(Array.from({ length: 8 }, (_, i) => [`k${i}`, i % 3 === 0 ? i : i % 3 === 1 ? `hello ${i}` : [i, i + 1, i + 2]])),
       misc3: { k0: 1, k1: 'a', k2: null, k3: undefined },
-      arrays100: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${i}`, [i, i + 1, i + 2]])),
+      arrays200: Object.fromEntries(Array.from({ length: 200 }, (_, i) => [`k${i}`, [i, i + 1, i + 2]])),
     },
-    label: 'json',
   },
   render,
 }

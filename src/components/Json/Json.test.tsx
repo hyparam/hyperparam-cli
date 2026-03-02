@@ -21,12 +21,13 @@ describe('Json Component', () => {
     getByText('"bar"')
   })
 
-  it.for([
-    [],
-    [1, 2, 3],
-    Array.from({ length: 101 }, (_, i) => i),
-  ])('collapses any array with primitives', (array) => {
-    const { getByRole } = render(<Json json={array} />)
+  it('expands root array by default', () => {
+    const { getByRole } = render(<Json json={[1, 2, 3]} />)
+    expect(getByRole('treeitem').ariaExpanded).toBe('true')
+  })
+
+  it('collapses array with primitives when expandRoot is false', () => {
+    const { getByRole } = render(<Json json={[1, 2, 3]} expandRoot={false} />)
     expect(getByRole('treeitem').ariaExpanded).toBe('false')
   })
 
@@ -41,10 +42,9 @@ describe('Json Component', () => {
     expect(queryByText(/length/)).toBeNull()
   })
 
-  it.for([
-    Array.from({ length: 101 }, (_, i) => i),
-  ])('hides long arrays with trailing comment about length', (array) => {
-    const { getByText } = render(<Json json={array} />)
+  it('hides long arrays with trailing comment about length when collapsed', () => {
+    const longArray = Array.from({ length: 101 }, (_, i) => i)
+    const { getByText } = render(<Json json={longArray} expandRoot={false} />)
     getByText('...')
     getByText(/length/)
   })
@@ -53,6 +53,11 @@ describe('Json Component', () => {
     const { getByText } = render(<Json json={{ key: 'value' }} />)
     getByText('key:')
     getByText('"value"')
+  })
+
+  it('renders a Date as its ISO string', () => {
+    const { getByText } = render(<Json json={new Date('2025-01-01')} />)
+    getByText('"2025-01-01T00:00:00.000Z"')
   })
 
   it('renders nested objects', () => {
@@ -109,46 +114,85 @@ describe('Json Component', () => {
     getByText(/entries/)
   })
 
-  it.for([
-    {},
-    { a: 1, b: 2 },
-    { a: 1, b: true, c: null, d: undefined },
-    Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }])),
-  ])('collapses long objects, or objects with only primitive values (included empty object)', (obj) => {
-    const { getByRole } = render(<Json json={obj} />)
+  it('expands root object by default', () => {
+    const { getByRole } = render(<Json json={{ a: 1, b: 2 }} />)
+    expect(getByRole('treeitem').getAttribute('aria-expanded')).toBe('true')
+  })
+
+  it('collapses objects with only primitive values when expandRoot is false', () => {
+    const { getByRole } = render(<Json json={{ a: 1, b: 2 }} expandRoot={false} />)
     expect(getByRole('treeitem').getAttribute('aria-expanded')).toBe('false')
   })
 
-  it.for([
-    Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }])),
-  ])('hides the content and append number of entries when objects has many entries', (obj) => {
-    const { getByText } = render(<Json json={obj} />)
+  it('hides the content and append number of entries when objects has many entries when collapsed', () => {
+    const longObject = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }]))
+    const { getByText } = render(<Json json={longObject} expandRoot={false} />)
     getByText('...')
     getByText(/entries/)
+  })
+
+  it('paginates large arrays showing only first 100 items', () => {
+    const largeArray = Array.from({ length: 150 }, (_, i) => i)
+    const { getByText, queryByText } = render(<Json json={largeArray} />)
+    getByText('0')
+    getByText('99')
+    expect(queryByText('100')).toBeNull()
+    getByText('Show more...')
+  })
+
+  it('shows more array items when clicking Show more...', async () => {
+    const largeArray = Array.from({ length: 150 }, (_, i) => i)
+    const { getByText, queryByText } = render(<Json json={largeArray} />)
+    const user = userEvent.setup()
+    await user.click(getByText('Show more...'))
+    getByText('100')
+    getByText('149')
+    expect(queryByText('Show more...')).toBeNull()
+  })
+
+  it('paginates large objects showing only first 100 entries', () => {
+    const largeObj = Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`key${i}`, i]))
+    const { getByText, queryByText } = render(<Json json={largeObj} />)
+    getByText('key0:')
+    getByText('key99:')
+    expect(queryByText('key100:')).toBeNull()
+    getByText('Show more...')
+  })
+
+  it('shows more object entries when clicking Show more...', async () => {
+    const largeObj = Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`key${i}`, i]))
+    const { getByText, queryByText } = render(<Json json={largeObj} />)
+    const user = userEvent.setup()
+    await user.click(getByText('Show more...'))
+    getByText('key100:')
+    getByText('key149:')
+    expect(queryByText('Show more...')).toBeNull()
   })
 
   it('toggles array collapse state', async () => {
     const longArray = Array.from({ length: 101 }, (_, i) => i)
     const { getByRole, getByText, queryByText } = render(<Json json={longArray} />)
     const treeItem = getByRole('treeitem')
-    getByText('...')
+    expect(queryByText('...')).toBeNull() // expanded by default
     const user = userEvent.setup()
-    await user.click(treeItem)
-    expect(queryByText('...')).toBeNull()
-    await user.click(treeItem)
+    await user.click(treeItem) // collapse
     getByText('...')
+    await user.click(treeItem) // expand again
+    expect(queryByText('...')).toBeNull()
   })
 
   it('toggles object collapse state', async () => {
     const longObject = Object.fromEntries(Array.from({ length: 101 }, (_, i) => [`key${i}`, { nested: true }]))
-    const { getByRole, getByText, queryByText } = render(<Json json={longObject} />)
-    const treeItem = getByRole('treeitem') // only one treeitem because the inner objects are collapsed and not represented as treeitems
-    getByText('...')
-    const user = userEvent.setup()
-    await user.click(treeItem)
+    const { getAllByRole, getByRole, getByText, queryByText } = render(<Json json={longObject} />)
+    const treeItem = getAllByRole('treeitem')[0] // expanded by default due to expandRoot
+    if (!treeItem) throw new Error('No root element found')
     expect(queryByText('...')).toBeNull()
-    await user.click(treeItem)
+    const user = userEvent.setup()
+    await user.click(treeItem) // collapse
+    getByRole('treeitem') // now only one treeitem
     getByText('...')
+    await user.click(treeItem) // expand again
+    expect(queryByText('...')).toBeNull()
   })
 })
 
