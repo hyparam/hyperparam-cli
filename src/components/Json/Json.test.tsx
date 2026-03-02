@@ -126,6 +126,44 @@ describe('Json Component', () => {
     getByText(/entries/)
   })
 
+  it('paginates large arrays showing only first 100 items', () => {
+    const largeArray = Array.from({ length: 150 }, (_, i) => i)
+    const { getByText, queryByText } = render(<Json json={largeArray} />)
+    getByText('0')
+    getByText('99')
+    expect(queryByText('100')).toBeNull()
+    getByText('Show more...')
+  })
+
+  it('shows more array items when clicking Show more...', async () => {
+    const largeArray = Array.from({ length: 150 }, (_, i) => i)
+    const { getByText, queryByText } = render(<Json json={largeArray} />)
+    const user = userEvent.setup()
+    await user.click(getByText('Show more...'))
+    getByText('100')
+    getByText('149')
+    expect(queryByText('Show more...')).toBeNull()
+  })
+
+  it('paginates large objects showing only first 100 entries', () => {
+    const largeObj = Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`key${i}`, i]))
+    const { getByText, queryByText } = render(<Json json={largeObj} />)
+    getByText('key0:')
+    getByText('key99:')
+    expect(queryByText('key100:')).toBeNull()
+    getByText('Show more...')
+  })
+
+  it('shows more object entries when clicking Show more...', async () => {
+    const largeObj = Object.fromEntries(Array.from({ length: 150 }, (_, i) => [`key${i}`, i]))
+    const { getByText, queryByText } = render(<Json json={largeObj} />)
+    const user = userEvent.setup()
+    await user.click(getByText('Show more...'))
+    getByText('key100:')
+    getByText('key149:')
+    expect(queryByText('Show more...')).toBeNull()
+  })
+
   it('toggles array collapse state', async () => {
     const longArray = Array.from({ length: 101 }, (_, i) => i)
     const { getByRole, getByText, queryByText } = render(<Json json={longArray} />)

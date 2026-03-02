@@ -55,7 +55,7 @@ export const Arrays: Story = {
 
 export const TopLevelArray: Story = {
   args: {
-    json: Array.from({ length: 100 }, (_, i) => [i, i + 1, i + 2]),
+    json: Array.from({ length: 300 }, (_, i) => [i, i + 1, i + 2]),
   },
   render,
 }

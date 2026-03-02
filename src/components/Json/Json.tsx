@@ -1,31 +1,34 @@
 import { ReactNode, useState } from 'react'
 import { cn } from '../../lib'
 import styles from './Json.module.css'
-import { isPrimitive, shouldObjectCollapse } from './helpers.js'
+import { isPrimitive, shouldObjectCollapse, stringifyPrimitive } from './helpers.js'
 import { useWidth } from './useWidth.js'
+
+const defaultPageLimit = 100
 
 interface JsonProps {
   json: unknown
   label?: string
   className?: string
   expandRoot?: boolean // Expand the top-level object/array by default
+  pageLimit?: number // Max items to render before showing "Show more..."
 }
 
 /**
  * JSON viewer component with collapsible objects and arrays.
  */
-export default function Json({ json, label, className, expandRoot = true }: JsonProps): ReactNode {
+export default function Json({ json, label, className, expandRoot = true, pageLimit }: JsonProps): ReactNode {
   return <div className={cn(styles.json, className)} role="tree">
-    <JsonContent json={json} label={label} expandRoot={expandRoot} />
+    <JsonContent json={json} label={label} expandRoot={expandRoot} pageLimit={pageLimit} />
   </div>
 }
 
-function JsonContent({ json, label, expandRoot }: JsonProps): ReactNode {
+function JsonContent({ json, label, expandRoot, pageLimit }: JsonProps): ReactNode {
   let div
   if (Array.isArray(json)) {
-    div = <JsonArray array={json} label={label} expandRoot={expandRoot} />
+    div = <JsonArray array={json} label={label} expandRoot={expandRoot} pageLimit={pageLimit} />
   } else if (typeof json === 'object' && json !== null) {
-    div = <JsonObject label={label} obj={json} expandRoot={expandRoot} />
+    div = <JsonObject label={label} obj={json} expandRoot={expandRoot} pageLimit={pageLimit} />
   } else {
     // primitive
     const key = label ? <span className={styles.key}>{label}: </span> : ''
@@ -52,7 +55,7 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
   const separator = ', '
 
   const children: ReactNode[] = []
-  let suffix: string | undefined = undefined
+  let suffix: string | undefined
 
   let characterCount = 0
   for (const [index, value] of array.entries()) {
@@ -62,9 +65,7 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
     }
     // should we continue?
     if (isPrimitive(value)) {
-      const asString = typeof value === 'bigint' ? value.toString() :
-        value === undefined ? 'undefined' /* see JsonContent - even if JSON.stringify([undefined]) === '[null]' */:
-          JSON.stringify(value)
+      const asString = stringifyPrimitive(value)
       characterCount += asString.length
       if (characterCount < maxCharacterCount) {
         children.push(<JsonContent json={value} key={`value-${index}`} />)
@@ -86,13 +87,14 @@ function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
   )
 }
 
-function JsonArray({ array, label, expandRoot }: { array: unknown[], label?: string, expandRoot?: boolean }): ReactNode {
+function JsonArray({ array, label, expandRoot, pageLimit = defaultPageLimit }: { array: unknown[], label?: string, expandRoot?: boolean, pageLimit?: number }): ReactNode {
   const [collapsed, setCollapsed] = useState(!expandRoot && shouldObjectCollapse(array))
+  const [limit, setLimit] = useState(pageLimit)
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
     return <div role="treeitem" className={styles.clickable} aria-expanded="false" onClick={() => { setCollapsed(false) }}>
       {key}
-      <CollapsedArray array={array}></CollapsedArray>
+      <CollapsedArray array={array} />
     </div>
   }
   return <>
@@ -101,7 +103,10 @@ function JsonArray({ array, label, expandRoot }: { array: unknown[], label?: str
       <span className={styles.array}>{'['}</span>
     </div>
     <ul role="group">
-      {array.map((item, index) => <li key={index}><JsonContent json={item} /></li>)}
+      {array.slice(0, limit).map((item, index) => <li key={index}><JsonContent json={item} /></li>)}
+      {array.length > limit && <li>
+        <button className={styles.showMore} onClick={() => { setLimit(limit + pageLimit) }}>Show more...</button>
+      </li>}
     </ul>
     <div className={styles.array}>{']'}</div>
   </>
@@ -114,7 +119,7 @@ function CollapsedObject({ obj }: { obj: object }): ReactNode {
   const kvSeparator = ': '
 
   const children: ReactNode[] = []
-  let suffix: string | undefined = undefined
+  let suffix: string | undefined
 
   const entries = Object.entries(obj)
   let characterCount = 0
@@ -125,9 +130,7 @@ function CollapsedObject({ obj }: { obj: object }): ReactNode {
     }
     // should we continue?
     if (isPrimitive(value)) {
-      const asString = typeof value === 'bigint' ? value.toString() :
-        value === undefined ? 'undefined' /* see JsonContent - even if JSON.stringify([undefined]) === '[null]' */:
-          JSON.stringify(value)
+      const asString = stringifyPrimitive(value)
       characterCount += key.length + kvSeparator.length + asString.length
       if (characterCount < maxCharacterCount) {
         children.push(<JsonContent json={value as unknown} label={key} key={`value-${index}`} />)
@@ -149,8 +152,9 @@ function CollapsedObject({ obj }: { obj: object }): ReactNode {
   )
 }
 
-function JsonObject({ obj, label, expandRoot }: { obj: object, label?: string, expandRoot?: boolean }): ReactNode {
+function JsonObject({ obj, label, expandRoot, pageLimit = defaultPageLimit }: { obj: object, label?: string, expandRoot?: boolean, pageLimit?: number }): ReactNode {
   const [collapsed, setCollapsed] = useState(!expandRoot && shouldObjectCollapse(obj))
+  const [limit, setLimit] = useState(pageLimit)
   const key = label ? <span className={styles.key}>{label}: </span> : ''
   if (collapsed) {
     return <div role="treeitem" className={styles.clickable} aria-expanded="false" onClick={() => { setCollapsed(false) }}>
@@ -158,17 +162,21 @@ function JsonObject({ obj, label, expandRoot }: { obj: object, label?: string, e
       <CollapsedObject obj={obj} />
     </div>
   }
+  const entries = Object.entries(obj)
   return <>
     <div role="treeitem" className={styles.clickable} aria-expanded="true" onClick={() => { setCollapsed(true) }}>
       {key}
       <span className={styles.object}>{'{'}</span>
     </div>
     <ul role="group">
-      {Object.entries(obj).map(([key, value]) =>
+      {entries.slice(0, limit).map(([key, value]) =>
         <li key={key}>
           <JsonContent json={value as unknown} label={key} />
         </li>
       )}
+      {entries.length > limit && <li>
+        <button className={styles.showMore} onClick={() => { setLimit(limit + pageLimit) }}>Show more...</button>
+      </li>}
     </ul>
     <div className={styles.object}>{'}'}</div>
   </>
