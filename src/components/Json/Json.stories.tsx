@@ -53,6 +53,13 @@ export const Arrays: Story = {
   render,
 }
 
+export const TopLevelArray: Story = {
+  args: {
+    json: Array.from({ length: 100 }, (_, i) => [i, i + 1, i + 2]),
+  },
+  render,
+}
+
 export const Objects: Story = {
   args: {
     json: {
@@ -67,7 +74,6 @@ export const Objects: Story = {
       misc3: { k0: 1, k1: 'a', k2: null, k3: undefined },
       arrays100: Object.fromEntries(Array.from({ length: 100 }, (_, i) => [`k${i}`, [i, i + 1, i + 2]])),
     },
-    label: 'json',
   },
   render,
 }
