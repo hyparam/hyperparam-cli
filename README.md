@@ -1,23 +1,23 @@
-# hyperparam
+# Hyperparam CLI
 
 [![npm](https://img.shields.io/npm/v/hyperparam)](https://www.npmjs.com/package/hyperparam)
 [![workflow status](https://github.com/hyparam/hyperparam-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/hyparam/hyperparam-cli/actions)
 [![mit license](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![coverage](https://img.shields.io/badge/Coverage-60-darkred)
+![coverage](https://img.shields.io/badge/Coverage-49-darkred)
 
-This is the hyperparam cli tool.
+[Hyperparam](https://hyperparam.app) is a tool for exploring and analyzing large datasets in the browser.
 
-The hyperparam cli tool is for viewing arbitrarily large datasets in the browser.
+The Hyperparam CLI is currently only for development and testing purposes. You should probably just use [hyperparam.app](https://hyperparam.app).
 
 ## Viewer
 
-To open a file browser in your current local directory run:
+Use the Hyperparam CLI to open a file browser in your current local directory:
 
 ```sh
 npx hyperparam
 ```
 
-You can also pass a specific file, folder, or url:
+You can also open a specific file, folder, or url:
 
 ```sh
 npx hyperparam example.parquet
@@ -27,7 +27,7 @@ npx hyperparam https://hyperparam-public.s3.amazonaws.com/bunnies.parquet
 
 ## Chat
 
-To start a chat with hyperparam:
+To start a CLI chat with Hyperparam:
 
 ```sh
 npx hyperparam chat
@@ -35,7 +35,7 @@ npx hyperparam chat
 
 ## Installation
 
-Install for all users:
+Install Hyperparam CLI globally:
 
 ```sh
 sudo npm i -g hyperparam
@@ -47,7 +47,7 @@ Now you can just run:
 hyperparam
 ```
 
-or:
+or simply:
 
 ```sh
 hyp
@@ -62,26 +62,26 @@ npm i
 npm run dev
 ```
 
-The application will be rebuild automatically when you make changes, and the browser will refresh.
+The application will rebuild automatically when you make changes, and the browser will refresh.
 
 ### Library and application
 
 Hyperparam is an application that relies on node.js scripts in the `bin/` directory and serves the static web application built in the `dist/` directory.
 
-The `hyperparam` package also includes a library that can be used in other applications. The library is in the `lib/` directory. For example:
+The `hyperparam` package also includes a library of components that can be used in other applications. The library is in the `lib/` directory. For example:
 
 ```js
-import { asyncBufferFrom, AsyncBufferFrom, parquetDataFrame } from "hyperparam";
+import { asyncBufferFrom, AsyncBufferFrom, parquetDataFrame } from 'hyperparam'
 ```
 
 If you encounter any issues with the web worker, you might have to configure your bundler. For example, in Vite, you can use the following configuration:
 
 ```js
-import { defineConfig } from "vite";
+import { defineConfig } from 'vite'
 export default defineConfig({
   ...
   optimizeDeps: {
-    exclude: ["hyperparam"],
+    exclude: ['hyperparam'],
   },
-});
+})
 ```
