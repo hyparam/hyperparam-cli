@@ -27,6 +27,9 @@ function JsonContent({ json, label, expandRoot, pageLimit }: JsonProps): ReactNo
   let div
   if (Array.isArray(json)) {
     div = <JsonArray array={json} label={label} expandRoot={expandRoot} pageLimit={pageLimit} />
+  } else if (json instanceof Date) {
+    const key = label ? <span className={styles.key}>{label}: </span> : ''
+    div = <>{key}<span className={styles.string}>{JSON.stringify(json)}</span></>
   } else if (typeof json === 'object' && json !== null) {
     div = <JsonObject label={label} obj={json} expandRoot={expandRoot} pageLimit={pageLimit} />
   } else {

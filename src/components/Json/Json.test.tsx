@@ -55,6 +55,11 @@ describe('Json Component', () => {
     getByText('"value"')
   })
 
+  it('renders a Date as its ISO string', () => {
+    const { getByText } = render(<Json json={new Date('2025-01-01')} />)
+    getByText('"2025-01-01T00:00:00.000Z"')
+  })
+
   it('renders nested objects', () => {
     const { getByText } = render(<Json json={{ obj: { arr: [314, '42'] } }} />)
     getByText('obj:')
