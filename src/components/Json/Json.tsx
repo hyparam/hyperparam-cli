@@ -29,16 +29,18 @@ function JsonContent({ json, label, expandRoot, pageLimit }: JsonProps): ReactNo
     div = <JsonArray array={json} label={label} expandRoot={expandRoot} pageLimit={pageLimit} />
   } else if (json instanceof Date) {
     const key = label ? <span className={styles.key}>{label}: </span> : ''
-    div = <>{key}<span className={styles.string}>{JSON.stringify(json)}</span></>
+    div = <>{key}<span className={styles.string}>{`"${json.toISOString()}"`}</span></>
   } else if (typeof json === 'object' && json !== null) {
     div = <JsonObject label={label} obj={json} expandRoot={expandRoot} pageLimit={pageLimit} />
   } else {
     // primitive
     const key = label ? <span className={styles.key}>{label}: </span> : ''
     if (typeof json === 'string') {
-      div = <>{key}<span className={styles.string}>{JSON.stringify(json)}</span></>
+      div = <>{key}<span className={styles.string}>{`"${json}"`}</span></>
     } else if (typeof json === 'number') {
-      div = <>{key}<span className={styles.number}>{JSON.stringify(json)}</span></>
+      div = <>{key}<span className={styles.number}>{json.toString()}</span></>
+    } else if (typeof json === 'boolean') {
+      div = <>{key}<span className={styles.boolean}>{json.toString()}</span></>
     } else if (typeof json === 'bigint') {
       // it's not really json, but show it anyway
       div = <>{key}<span className={styles.number}>{json.toString()}</span></>

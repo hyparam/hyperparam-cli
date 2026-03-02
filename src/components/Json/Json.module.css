@@ -61,6 +61,9 @@
 .string {
   color: #eaa;
 }
+.boolean {
+  color: #9ce;
+}
 .other {
   color: #d6d6d6;
 }
