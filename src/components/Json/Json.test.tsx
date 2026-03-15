@@ -194,6 +194,20 @@ describe('Json Component', () => {
     await user.click(treeItem) // expand again
     expect(queryByText('...')).toBeNull()
   })
+
+  it('renders Uint8Array as hex dump', () => {
+    const bytes = new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f])
+    const { getByText } = render(<Json json={bytes} />)
+    getByText('Uint8Array(5)')
+    getByText(/48 65 6c 6c 6f/)
+    getByText('Hello')
+  })
+
+  it('renders ArrayBuffer as hex dump', () => {
+    const { buffer } = new Uint8Array([0xff, 0x00, 0x7e])
+    const { getByText } = render(<Json json={buffer} />)
+    getByText(/ff 00 7e/)
+  })
 })
 
 describe('isPrimitive', () => {

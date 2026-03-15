@@ -30,6 +30,9 @@ function JsonContent({ json, label, expandRoot, pageLimit }: JsonProps): ReactNo
   } else if (json instanceof Date) {
     const key = label ? <span className={styles.key}>{label}: </span> : ''
     div = <>{key}<span className={styles.string}>{`"${json.toISOString()}"`}</span></>
+  } else if (json instanceof ArrayBuffer || json instanceof Uint8Array) {
+    const bytes = json instanceof ArrayBuffer ? new Uint8Array(json) : json
+    div = <ByteArray bytes={bytes} label={label} expandRoot={expandRoot} />
   } else if (typeof json === 'object' && json !== null) {
     div = <JsonObject label={label} obj={json} expandRoot={expandRoot} pageLimit={pageLimit} />
   } else {
@@ -52,6 +55,44 @@ function JsonContent({ json, label, expandRoot, pageLimit }: JsonProps): ReactNo
     }
   }
   return div
+}
+
+function formatHexDump(bytes: Uint8Array): { hex: string, ascii: string }[] {
+  const lines: { hex: string, ascii: string }[] = []
+  for (let i = 0; i < bytes.length; i += 16) {
+    const slice = bytes.slice(i, i + 16)
+    const hex = Array.from(slice).map(b => b.toString(16).padStart(2, '0')).join(' ')
+    const ascii = Array.from(slice).map(b => b >= 0x20 && b <= 0x7e ? String.fromCharCode(b) : '.').join('')
+    lines.push({ hex: hex.padEnd(47), ascii })
+  }
+  return lines
+}
+
+function ByteArray({ bytes, label, expandRoot }: { bytes: Uint8Array, label?: string, expandRoot?: boolean }): ReactNode {
+  const [collapsed, setCollapsed] = useState(!expandRoot)
+  const key = label ? <span className={styles.key}>{label}: </span> : ''
+  const summary = `${bytes.constructor.name}(${bytes.length})`
+
+  if (collapsed) {
+    return <div role="treeitem" className={styles.clickable} aria-expanded="false" onClick={() => { setCollapsed(false) }}>
+      {key}
+      <span className={styles.comment}>{summary}</span>
+    </div>
+  }
+
+  const lines = formatHexDump(bytes)
+  return <>
+    <div role="treeitem" className={styles.clickable} aria-expanded="true" onClick={() => { setCollapsed(true) }}>
+      {key}
+      <span className={styles.comment}>{summary}</span>
+    </div>
+    <pre className={styles.hexDump}>
+      {lines.map((line, i) => {
+        const offset = (i * 16).toString(16).padStart(8, '0')
+        return <div key={i}><span className={styles.comment}>{offset}</span>  <span className={styles.number}>{line.hex}</span>  <span className={styles.string}>{line.ascii}</span></div>
+      })}
+    </pre>
+  </>
 }
 
 function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
