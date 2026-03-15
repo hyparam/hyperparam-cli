@@ -23,7 +23,7 @@ describe('ImageView Component', () => {
     assert(source?.kind === 'file')
 
     const { findByRole, findByText } = render(
-      <ImageView source={source} setError={console.error} />
+      <ImageView source={source} setError={vi.fn()} />
     )
 
     // wait for asynchronous image loading

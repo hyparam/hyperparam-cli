@@ -144,3 +144,19 @@ export const MessagesList: Story = {
   },
   render,
 }
+
+export const ByteArrays: Story = {
+  args: {
+    json: {
+      small: new Uint8Array([0x48, 0x65, 0x6c, 0x6c, 0x6f]),
+      withAscii: new Uint8Array(
+        Array.from('Hello, World! This is a test of the hex dump viewer.', c => c.charCodeAt(0))
+      ),
+      binary: new Uint8Array(Array.from({ length: 256 }, (_, i) => i)),
+      empty: new Uint8Array(0),
+      fromBuffer: new Uint8Array(new ArrayBuffer(32)).map((_, i) => i * 8),
+    },
+    label: 'json',
+  },
+  render,
+}

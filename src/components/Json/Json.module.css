@@ -70,6 +70,11 @@
 .comment {
   color: #ccd8;
 }
+.hexDump {
+  margin: 4px 0 4px 20px;
+  font-family: monospace;
+  line-height: 1.4;
+}
 .showMore {
   cursor: pointer;
   color: #ccd8;
