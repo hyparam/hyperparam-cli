@@ -1,32 +1,29 @@
 import { parquetReadObjects, parquetSchema } from 'hyparquet'
+import type { AsyncBuffer, Compressors, FileMetaData } from 'hyparquet'
+import { AsyncDataSource, ScanOptions, asyncRow } from 'squirreling'
 import { whereToParquetFilter } from './parquetFilter.js'
-
-/**
- * @import { AsyncBuffer, Compressors, FileMetaData, ParquetQueryFilter } from 'hyparquet'
- * @import { AsyncCells, AsyncDataSource, AsyncRow, SqlPrimitive } from 'squirreling'
- */
+import { extractSpatialFilter, rowGroupOverlaps } from './parquetSpatial.js'
 
 /**
  * Creates a parquet data source for use with squirreling SQL engine.
- *
- * @param {AsyncBuffer} file
- * @param {FileMetaData} metadata
- * @param {Compressors} compressors
- * @returns {AsyncDataSource}
  */
-export function parquetDataSource(file, metadata, compressors) {
+export function parquetDataSource(file: AsyncBuffer, metadata: FileMetaData, compressors: Compressors): AsyncDataSource {
+  const schema = parquetSchema(metadata)
   return {
-    scan({ columns, where, limit, offset, signal }) {
+    numRows: Number(metadata.num_rows),
+    columns: schema.children.map(child => child.element.name),
+    scan({ columns, where, limit, offset, signal }: ScanOptions) {
       // Convert WHERE AST to hyparquet filter format
       const whereFilter = where && whereToParquetFilter(where)
-      /** @type {ParquetQueryFilter | undefined} */
       const filter = where ? whereFilter : undefined
       const appliedWhere = Boolean(filter && whereFilter)
       const appliedLimitOffset = !where || appliedWhere
 
+      // Extract spatial filter for row group pruning
+      const spatialFilter = extractSpatialFilter(where)
+
       // Ensure columns exist in metadata if provided
       if (columns) {
-        const schema = parquetSchema(metadata)
         for (const col of columns) {
           if (!schema.children.some(child => child.element.name === col)) {
             throw new Error(`Column "${col}" not found in parquet schema`)
@@ -42,6 +39,12 @@ export function parquetDataSource(file, metadata, compressors) {
           for (const rowGroup of metadata.row_groups) {
             if (signal?.aborted) break
             const rowCount = Number(rowGroup.num_rows)
+
+            // Skip row groups using geospatial statistics
+            if (spatialFilter && !rowGroupOverlaps(rowGroup, spatialFilter)) {
+              groupStart += rowCount
+              continue
+            }
 
             // Skip row groups by offset if where is fully applied
             let safeOffset = 0
@@ -59,7 +62,6 @@ export function parquetDataSource(file, metadata, compressors) {
             }
 
             // Read objects from this row group
-            // TODO: move to worker
             const data = await parquetReadObjects({
               file,
               metadata,
@@ -74,7 +76,7 @@ export function parquetDataSource(file, metadata, compressors) {
 
             // Yield each row
             for (const row of data) {
-              yield asyncRow(row)
+              yield asyncRow(row, Object.keys(row))
             }
 
             remainingLimit -= data.length
@@ -86,19 +88,4 @@ export function parquetDataSource(file, metadata, compressors) {
       }
     },
   }
-}
-
-/**
- * Creates an async row accessor that wraps a plain JavaScript object
- *
- * @param {Record<string, SqlPrimitive>} obj - the plain object
- * @returns {AsyncRow} a row accessor interface
- */
-function asyncRow(obj) {
-  /** @type {AsyncCells} */
-  const cells = {}
-  for (const [key, value] of Object.entries(obj)) {
-    cells[key] = () => Promise.resolve(value)
-  }
-  return { columns: Object.keys(obj), cells }
 }

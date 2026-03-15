@@ -2,7 +2,7 @@ import { render, waitFor } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { strict as assert } from 'assert'
 import { act } from 'react'
-import { beforeEach, describe, expect, it, test, vi } from 'vitest'
+import { describe, expect, it, test, vi } from 'vitest'
 import { Config, ConfigProvider } from '../../hooks/useConfig.js'
 import { DirSource, FileMetadata, HyperparamFileMetadata, getHyperparamSource } from '../../lib/sources/index.js'
 import Folder from './Folder.js'
@@ -20,12 +20,9 @@ const config: Config = {
 }
 
 globalThis.fetch = vi.fn()
+globalThis.console.error = vi.fn()
 
 describe('Folder Component', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-  })
-
   test.for([
     '',
     'subfolder/',
@@ -85,6 +82,7 @@ describe('Folder Component', () => {
     await findByText('Error: ' + errorMessage)
     expect(queryByText('file1.txt')).toBeNull()
     expect(queryByText('folder1/')).toBeNull()
+    expect(console.error).toHaveBeenCalledWith(new Error(errorMessage))
   })
 
   it('filters files based on search query', async () => {

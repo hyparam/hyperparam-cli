@@ -121,7 +121,7 @@ async function sendToServer(chatInput) {
 async function sendMessages(messages) {
   /** @type {ChatInput} */
   const chatInput = {
-    model: 'gpt-5',
+    model: 'gpt-5.4',
     instructions,
     messages,
     reasoning: {
@@ -161,8 +161,6 @@ async function sendMessages(messages) {
       const { toolCall, tool } = toolResult
       const { call_id } = toolCall
       try {
-        const output = await toolResult.result
-
         // Construct function call message
         const args = JSON.parse(toolCall.arguments)
         const entries = Object.entries(args)
@@ -175,6 +173,8 @@ async function sendMessages(messages) {
           func += `(${pairs.join(', ')})`
         }
         write(colors.tool, `${tool.emoji} ${func}`, colors.normal, '\n')
+
+        const output = await toolResult.result
         incoming.push({ type: 'function_call_output', output, call_id })
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
