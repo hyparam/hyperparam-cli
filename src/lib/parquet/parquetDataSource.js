@@ -15,7 +15,9 @@ import { whereToParquetFilter } from './parquetFilter.js'
  * @returns {AsyncDataSource}
  */
 export function parquetDataSource(file, metadata, compressors) {
+  const schema = parquetSchema(metadata)
   return {
+    columns: schema.children.map(child => child.element.name),
     scan({ columns, where, limit, offset, signal }) {
       // Convert WHERE AST to hyparquet filter format
       const whereFilter = where && whereToParquetFilter(where)

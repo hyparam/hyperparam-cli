@@ -59,7 +59,7 @@
     "hyparquet": "1.25.1",
     "hyparquet-compressors": "1.1.1",
     "icebird": "0.3.1",
-    "squirreling": "0.9.4"
+    "squirreling": "0.10.2"
   },
   "devDependencies": {
     "@storybook/react-vite": "10.2.13",
