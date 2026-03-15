@@ -1,6 +1,8 @@
 import { render } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import Layout from './Layout.js'
+
+globalThis.console.error = vi.fn()
 
 describe('Layout Component', () => {
   it('renders children', () => {
@@ -23,5 +25,6 @@ describe('Layout Component', () => {
     const testError = new Error('Test Error')
     const { getByText } = render(<Layout error={testError}>Test Content</Layout>)
     getByText('Error: Test Error')
+    expect(console.error).toHaveBeenCalledWith(testError)
   })
 })

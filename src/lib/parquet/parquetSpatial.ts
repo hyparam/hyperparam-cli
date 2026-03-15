@@ -1,12 +1,11 @@
 import type { RowGroup } from 'hyparquet'
-import { bbox } from 'squirreling/src/spatial/bbox.js'
-import { parseWkt } from 'squirreling/src/spatial/wkt.js'
 import type { ExprNode } from 'squirreling/src/ast.js'
-import type { BBox, Geometry, SimpleGeometry } from 'squirreling/src/spatial/geometry.js'
+import { bbox, decompose, parseWkt } from 'squirreling/src/spatial/index.js'
+import type { BoundingBox, Geometry } from 'squirreling/src/spatial/geometry.js'
 
 export interface SpatialFilter {
   column: string
-  queryBbox: BBox
+  queryBbox: BoundingBox
 }
 
 /**
@@ -40,35 +39,30 @@ function evaluateConstantGeom(node: ExprNode): Geometry | undefined {
     return parseWkt(arg.value) ?? undefined
   }
   if (node.funcName === 'ST_MAKEENVELOPE') {
-    if (node.args.length < 4) return
-    const nums = node.args.slice(0, 4).map(a => a.type === 'literal' ? Number(a.value) : NaN)
-    if (nums.some(n => isNaN(n))) return
-    const [xmin = 0, ymin = 0, xmax = 0, ymax = 0] = nums
+    if (node.args.length !== 4) return
+    const nums = node.args.map(evaluateConstantNumber) as [number, number, number, number]
+    if (nums.some(isNaN)) return
+    const [xmin, ymin, xmax, ymax] = nums
     return {
-      type: 'Polygon' as const,
+      type: 'Polygon',
       coordinates: [[[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]],
     }
   }
 }
 
+function evaluateConstantNumber(node: ExprNode): number {
+  if (node.type !== 'literal') return NaN
+  if (node.value === null) return NaN // Number(null) => 0
+  return Number(node.value)
+}
+
 /**
  * Compute the bounding box of any geometry type.
  */
-function geomBbox(geom: Geometry): BBox | undefined {
-  if (geom.type === 'Point' || geom.type === 'LineString' || geom.type === 'Polygon') {
-    return bbox(geom)
-  }
-  let parts: SimpleGeometry[]
-  if (geom.type === 'MultiPoint') {
-    parts = geom.coordinates.map(c => ({ type: 'Point' as const, coordinates: c }))
-  } else if (geom.type === 'MultiLineString') {
-    parts = geom.coordinates.map(c => ({ type: 'LineString' as const, coordinates: c }))
-  } else if (geom.type === 'MultiPolygon') {
-    parts = geom.coordinates.map(c => ({ type: 'Polygon' as const, coordinates: c }))
-  } else {
-    return // GeometryCollection - not worth the complexity
-  }
-  if (!parts.length) return
+function geomBbox(geom: Geometry): BoundingBox | undefined {
+  const parts = decompose(geom)
+  if (parts.length === 0) return
+
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity
   for (const part of parts) {
     const { minX: bMinX, minY: bMinY, maxX: bMaxX, maxY: bMaxY } = bbox(part)

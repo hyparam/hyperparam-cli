@@ -1,6 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { parseCsv } from '../../src/index.js'
 
+globalThis.console.error = vi.fn()
+
 describe('parseCsv', () => {
   it('parses simple CSV', () => {
     const csv = 'Name,Age,Occupation\nAlice,30,Engineer\nBob,25,Designer'
@@ -56,7 +58,6 @@ describe('parseCsv', () => {
       ['Name', 'Quote'],
       ['Alice', 'This is an unterminated quote\n'],
     ]
-    vi.spyOn(console, 'error')
     expect(parseCsv(csv)).toEqual(expected)
     expect(console.error).toHaveBeenCalledWith('csv unterminated quote')
   })

@@ -34,7 +34,7 @@ describe('JsonView Component', () => {
     } as Response)
 
     const { findAllByRole, findByText } = render(
-      <JsonView source={source} setError={console.error} />
+      <JsonView source={source} setError={vi.fn()} />
     )
 
     expect(fetch).toHaveBeenCalledWith('testKey0', undefined)
