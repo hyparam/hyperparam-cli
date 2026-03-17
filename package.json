@@ -45,7 +45,7 @@
     "preserve": "npm run build",
     "storybook": "storybook dev -p 6006",
     "test": "vitest run",
-    "typecheck": "run-s build typecheck-once-built",
+    "typecheck": "run-s build:types typecheck-once-built",
     "typecheck-once-built": "tsc --noEmit",
     "url": "run-p -l watch:ts watch:cli watch:url",
     "preurl": "npm run build",
