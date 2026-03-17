@@ -109,7 +109,7 @@ export function getGitHubSource(sourceId: string, options?: {requestInit?: Reque
       return {
         label: 'Branches',
         versions: branches.map((branch) => {
-          const branchSourceId = `${url.origin}/${url.repo}/${url.kind === 'file' ? 'blob' : 'tree'}/${branch}${url.path}`
+          const branchSourceId = `${baseUrl}/${url.repo}/${url.kind === 'file' ? 'blob' : 'tree'}/${branch}${url.path}`
           return {
             label: branch,
             sourceId: branchSourceId,
