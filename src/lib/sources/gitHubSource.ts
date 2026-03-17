@@ -104,26 +104,19 @@ async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: Reque
 export function getGitHubSource(sourceId: string, options?: {requestInit?: RequestInit, accessToken?: string}): FileSource | DirSource | undefined {
   try {
     const url = parseGitHubUrl(sourceId)
-    // async function fetchVersions() {
-    //   const refsList = await fetchRefsList(url, options)
-    //   return {
-    //     label: 'Branches',
-    //     versions: refsList.map(({ refType, name, ref }) => {
-    //       const label = refType === 'branches' ? name :
-    //         refType === 'converts' ? `[convert] ${name}` :
-    //           refType === 'tags' ? `[tag] ${name}` :
-    //             `[pr] ${name}`
-    //       // remove refs/heads/ from the ref name
-    //       // e.g. refs/heads/main -> main
-    //       const fixedRef = refType === 'branches' ? ref.replace(/refs\/heads\//, '') : ref
-    //       const branchSourceId = `${url.origin}/${getFullName(url)}/${url.kind === 'file' ? 'blob' : 'tree'}/${fixedRef}${url.path}`
-    //       return {
-    //         label,
-    //         sourceId: branchSourceId,
-    //       }
-    //     }),
-    //   }
-    // }
+    async function fetchVersions() {
+      const branches = await fetchBranchesList(url, options)
+      return {
+        label: 'Branches',
+        versions: branches.map((branch) => {
+          const branchSourceId = `${url.origin}/${url.repo}/${url.kind === 'file' ? 'blob' : 'tree'}/${branch}${url.path}`
+          return {
+            label: branch,
+            sourceId: branchSourceId,
+          }
+        }),
+      }
+    }
     if (url.kind === 'file') {
       return {
         kind: 'file',
@@ -132,7 +125,7 @@ export function getGitHubSource(sourceId: string, options?: {requestInit?: Reque
         fileName: getFileName(url.path),
         resolveUrl: url.resolveUrl,
         requestInit: options?.requestInit,
-        // fetchVersions,
+        fetchVersions,
       }
     } else {
       return {
@@ -141,7 +134,7 @@ export function getGitHubSource(sourceId: string, options?: {requestInit?: Reque
         sourceParts: getSourceParts(url),
         prefix: getPrefix(url),
         listFiles: () => fetchFilesList(url, options),
-        // fetchVersions,
+        fetchVersions,
       }
     }
   } catch {
@@ -259,4 +252,33 @@ export function parseGitHubUrl(url: string): GHUrl {
   }
 
   throw new Error('Unsupported GitHub URL')
+}
+
+/**
+ * List branches in a GitHub dataset repo
+ *
+ * Example API URL: https://api.github.com/repos/owner/repo/branches
+ *
+ * @param repo (namespace/repo)
+ * @param [options]
+ * @param [options.requestInit] - request init object to pass to fetch
+ * @param [options.accessToken] - access token to use for authentication
+ *
+ * @returns the list of branch names
+ */
+async function fetchBranchesList(
+  url: GHUrl,
+  options?: {requestInit?: RequestInit, accessToken?: string}
+): Promise<string[]> {
+  const headers = new Headers(options?.requestInit?.headers)
+  headers.set('accept', 'application/vnd.github+json')
+  if (options?.accessToken) {
+    headers.set('Authorization', `Bearer ${options.accessToken}`)
+  }
+  const response = await fetch(`https://api.github.com/repos/${url.repo}/branches`, { ...options?.requestInit, headers })
+  if (!response.ok) {
+    throw new Error(`HTTP error ${response.status.toString()}`)
+  }
+  const branches = await response.json() as {name: string}[]
+  return branches.map(({ name }) => name)
 }
