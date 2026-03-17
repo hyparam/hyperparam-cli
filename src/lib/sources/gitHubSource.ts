@@ -62,7 +62,7 @@ async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: Reque
     'Accept': 'application/vnd.github+json',
   }
   if (options?.accessToken) {
-    headers.Authorization = `token ${options.accessToken}`
+    headers.Authorization = `Bearer ${options.accessToken}`
   }
   const response = await fetch(apiURL, {
     method: 'GET',
