@@ -57,17 +57,16 @@ function getPrefix(url: DirectoryUrl): string {
   return `${baseUrl}/${url.repo}/tree/${url.branch}${url.path}`.replace(/\/$/, '')
 }
 async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: RequestInit, accessToken?: string }): Promise<FileMetadata[]> {
-  const apiURL = `https://api.github.com/repos/${url.repo}/contents/${url.path}?ref=${url.branch}`
-  const headers: Record<string, string> = {
-    'Accept': 'application/vnd.github+json',
-  }
+  const apiURL = `https://api.github.com/repos/${url.repo}/contents${url.path}?ref=${url.branch}`
+  const headers = new Headers(options?.requestInit?.headers)
+  headers.set('Accept', 'application/vnd.github+json')
   if (options?.accessToken) {
-    headers.Authorization = `Bearer ${options.accessToken}`
+    headers.set('Authorization', `Bearer ${options.accessToken}`)
   }
   const response = await fetch(apiURL, {
+    ...options?.requestInit,
     method: 'GET',
     headers,
-    ...options?.requestInit,
   })
   if (!response.ok) {
     throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${await response.text()}`)
