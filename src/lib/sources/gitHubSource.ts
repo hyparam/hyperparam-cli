@@ -16,7 +16,7 @@ interface DirectoryUrl extends BaseUrl {
 
 interface FileUrl extends BaseUrl {
   kind: 'file'
-  action?: 'blob' | 'raw/refs/heads'
+  action?: 'blob' | 'raw' | 'raw/refs/heads'
   resolveUrl: string
 }
 
@@ -226,7 +226,7 @@ export function parseGitHubUrl(url: string): GHUrl {
   // https://github.com/apache/parquet-testing/blob/master/variant/README.md
   // https://github.com/apache/parquet-testing/raw/refs/heads/master/variant/README.md
   const fileGroups =
-    /^\/(?<owner>[^/]+)\/(?<repo>[^/]+)\/(?<action>blob|refs\/heads|raw\/refs\/heads)\/(?<branch>[^/]+)(?<path>(\/[^/]+)+)$/.exec(
+    /^\/(?<owner>[^/]+)\/(?<repo>[^/]+)\/(?<action>blob|raw|raw\/refs\/heads)\/(?<branch>[^/]+)(?<path>(\/[^/]+)+)$/.exec(
       pathname
     )?.groups
   if (
@@ -243,10 +243,10 @@ export function parseGitHubUrl(url: string): GHUrl {
       source,
       origin: urlObject.origin,
       repo: fileGroups.owner + '/' + fileGroups.repo,
-      action: fileGroups.action === 'blob' ? 'blob' : 'raw/refs/heads',
+      action: fileGroups.action === 'blob' ? 'blob' : fileGroups.action === 'raw' ? 'raw' : 'raw/refs/heads',
       branch,
       path: fileGroups.path,
-      resolveUrl: `${baseRawUrl}/${fileGroups.owner}/${fileGroups.repo}/refs/heads/${branch}${fileGroups.path}`,
+      resolveUrl: `${baseRawUrl}/${fileGroups.owner}/${fileGroups.repo}/${branch}${fileGroups.path}`,
     }
   }
 
