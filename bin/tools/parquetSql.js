@@ -1,7 +1,7 @@
 import { asyncBufferFromFile, asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
 import { collect, executeSql } from 'squirreling'
-import { parquetDataSource } from '../../src/index.js'
+import { parquetDataSource } from 'hyperparam'
 import { markdownTable } from './markdownTable.js'
 
 const maxRows = 100
