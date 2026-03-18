@@ -98,7 +98,6 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
       kind: 'directory',
       sourceId,
       sourceParts,
-      prefix,
       listFiles: () => s3list(bucket, prefix).then(items =>
         items
           // skip s3 directory placeholder

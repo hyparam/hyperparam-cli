@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { Config, ConfigProvider } from '../../hooks/useConfig.js'
+import { getGitHubSource } from '../../lib/sources/gitHubSource.js'
 import { getHttpSource } from '../../lib/sources/httpSource.js'
 import { getHuggingFaceSource } from '../../lib/sources/huggingFaceSource.js'
 import { getHyperparamSource } from '../../lib/sources/hyperparamSource.js'
@@ -12,6 +13,7 @@ export default function App() {
   const col = search.get('col') === null ? undefined : Number(search.get('col'))
 
   const source = getHuggingFaceSource(sourceId) ??
+    getGitHubSource(sourceId) ??
     getHttpSource(sourceId) ??
     getHyperparamSource(sourceId, { endpoint: location.origin })
 

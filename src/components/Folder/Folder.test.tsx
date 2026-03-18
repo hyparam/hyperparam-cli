@@ -95,7 +95,6 @@ describe('Folder Component', () => {
       sourceId: 'test-source',
       sourceParts: [{ text: 'test-source', sourceId: 'test-source' }],
       kind: 'directory',
-      prefix: '',
       listFiles: () => Promise.resolve(mockFiles),
     }
     const { getByPlaceholderText, findByText, getByText, queryByText } = render(<Folder source={dirSource} />)
@@ -133,7 +132,6 @@ describe('Folder Component', () => {
       sourceId: 'test-source',
       sourceParts: [{ text: 'test-source', sourceId: 'test-source' }],
       kind: 'directory',
-      prefix: '',
       listFiles: () => Promise.resolve(mockFiles),
     }
     const { getByPlaceholderText, findByText } = render(<Folder source={dirSource} />)
@@ -153,7 +151,6 @@ describe('Folder Component', () => {
       sourceId: 'test-source',
       sourceParts: [{ text: 'test-source', sourceId: 'test-source' }],
       kind: 'directory',
-      prefix: '',
       listFiles: async () => {
         await fetch('something') // to ensure we wait for loading
         return []
