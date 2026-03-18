@@ -1,6 +1,8 @@
 import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
+// TODO(SL): support branches with slashes in their names (feature/foo)
+
 interface BaseUrl {
   source: string
   origin: string
