@@ -63,15 +63,15 @@ export default function Folder({ source }: FolderProps) {
       } else if (e.key === 'Enter') {
         // if there is only one result, view it
         if (filtered?.length === 1 && 0 in filtered) {
-          const key = join(source.prefix, filtered[0].name)
-          if (key.endsWith('/')) {
+          const file = filtered[0]
+          if (file.kind === 'directory') {
             // clear search because we're about to change folder
             if (searchRef.current) {
               searchRef.current.value = ''
             }
             setSearchQuery('')
           }
-          location.href = `/files?key=${key}`
+          location.href = routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? `/files?key=${file.sourceId}`
         }
       } else if (e.key === 'ArrowDown') {
         // move focus to first list item
@@ -81,7 +81,7 @@ export default function Folder({ source }: FolderProps) {
     searchElement?.addEventListener('keyup', handleKeyup)
     // Clean up event listener
     return () => searchElement?.removeEventListener('keyup', handleKeyup)
-  }, [filtered, source.prefix])
+  }, [filtered, routes])
 
   // Jump to search box if user types '/'
   useEffect(() => {
@@ -97,7 +97,7 @@ export default function Folder({ source }: FolderProps) {
     return () => { document.removeEventListener('keydown', handleKeydown) }
   }, [])
 
-  return <Layout error={error} title={source.prefix}>
+  return <Layout error={error} title={source.sourceId}>
     <Breadcrumb source={source}>
       <input autoFocus className={cn(styles.search, customClass?.search)} placeholder='Search...' ref={searchRef} />
       <Dropdown className={styles.settings} label={gearIcon} align='right'>
@@ -114,7 +114,7 @@ export default function Folder({ source }: FolderProps) {
         <ul className={cn(styles.fileList, customClass?.fileList)} ref={listRef}>
           {filtered.map((file, index) =>
             <li key={index}>
-              <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? location.href}>
+              <a href={routes?.getSourceRouteUrl?.({ sourceId: file.sourceId }) ?? `/files?key=${file.sourceId}`}>
                 <span data-file-kind={file.kind}>
                   {file.name}
                 </span>
@@ -132,8 +132,4 @@ export default function Folder({ source }: FolderProps) {
         </ul>
     }
   </Layout>
-}
-
-function join(prefix: string, file: string) {
-  return prefix ? prefix + '/' + file : file
 }

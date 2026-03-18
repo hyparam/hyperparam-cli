@@ -80,7 +80,6 @@ export function getHyperparamSource(sourceId: string, { endpoint, requestInit }:
       kind: 'directory',
       sourceId,
       sourceParts,
-      prefix,
       listFiles: () => listFiles(prefix, { endpoint, requestInit }),
     }
   }

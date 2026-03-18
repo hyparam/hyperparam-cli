@@ -7,33 +7,47 @@ interface BaseUrl {
   source: string
   origin: string
   repo: string
+}
+
+interface RepoUrl extends BaseUrl {
+  kind: 'repo'
+}
+
+interface PathUrl extends BaseUrl {
   branch: string
   path: string
 }
 
-interface DirectoryUrl extends BaseUrl {
+interface DirectoryUrl extends PathUrl {
   kind: 'directory'
   action: 'tree'
 }
 
-interface FileUrl extends BaseUrl {
+interface FileUrl extends PathUrl {
   kind: 'file'
   action?: 'blob' | 'raw' | 'raw/refs/heads'
   resolveUrl: string
 }
 
-interface RawFileUrl extends BaseUrl {
+interface RawFileUrl extends PathUrl {
   kind: 'file'
   action: undefined
   resolveUrl: string
 }
 
-type GHUrl = DirectoryUrl | FileUrl | RawFileUrl
+type GHUrl = RepoUrl | DirectoryUrl | FileUrl | RawFileUrl
 
 const baseUrl = 'https://github.com'
 const baseRawUrl = 'https://raw.githubusercontent.com'
 
 function getSourceParts(url: GHUrl): SourcePart[] {
+  if (url.kind === 'repo') {
+    return [{
+      sourceId: `${baseUrl}/${url.repo}`,
+      text: `${baseUrl}/${url.repo}`,
+    }]
+  }
+
   const sourceParts: SourcePart[] = [{
     sourceId: `${baseUrl}/${url.repo}/tree/${url.branch}/`,
     text: `${baseUrl}/${url.repo}/tree/${url.branch}/`,
@@ -55,11 +69,10 @@ function getSourceParts(url: GHUrl): SourcePart[] {
   }
   return sourceParts
 }
-function getPrefix(url: DirectoryUrl): string {
-  return `${baseUrl}/${url.repo}/tree/${url.branch}${url.path}`.replace(/\/$/, '')
-}
-async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: RequestInit, accessToken?: string }): Promise<FileMetadata[]> {
-  const apiURL = `https://api.github.com/repos/${url.repo}/contents${url.path}?ref=${url.branch}`
+async function fetchFilesList(url: DirectoryUrl | RepoUrl, options?: { requestInit?: RequestInit, accessToken?: string }): Promise<FileMetadata[]> {
+  const path = url.kind === 'repo' ? '/' : url.path
+  const branchParam = url.kind === 'repo' ? '' : `?ref=${url.branch}`
+  const apiURL = `https://api.github.com/repos/${url.repo}/contents${path}${branchParam}`
   const headers = new Headers(options?.requestInit?.headers)
   headers.set('Accept', 'application/vnd.github+json')
   if (options?.accessToken) {
@@ -74,11 +87,11 @@ async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: Reque
     throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${await response.text()}`)
   }
   try {
-    const data = await response.json() as {name: string, path: string, type: 'file' | 'dir', size: number}[]
+    const data = await response.json() as {html_url: string, path: string, type: 'file' | 'dir', size: number}[]
     return data.map((file) => ({
       name: getFileName(file.path),
       fileSize: file.size,
-      sourceId: `${url.origin}/${url.repo}/${file.type === 'file' ? 'blob' : 'tree'}/${url.branch}/${file.path}`.replace(/\/$/, ''),
+      sourceId: file.html_url,
       kind: file.type === 'file' ? 'file' : 'directory',
     }))
   } catch (error) {
@@ -88,12 +101,13 @@ async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: Reque
 export function getGitHubSource(sourceId: string, options?: {requestInit?: RequestInit, accessToken?: string}): FileSource | DirSource | undefined {
   try {
     const url = parseGitHubUrl(sourceId)
+    const path = url.kind === 'repo' ? '/' : url.path
     async function fetchVersions() {
       const branches = await fetchBranchesList(url, options)
       return {
         label: 'Branches',
         versions: branches.map((branch) => {
-          const branchSourceId = `${baseUrl}/${url.repo}/${url.kind === 'file' ? 'blob' : 'tree'}/${branch}${url.path}`
+          const branchSourceId = `${baseUrl}/${url.repo}/${url.kind === 'file' ? 'blob' : 'tree'}/${branch}${path}`
           return {
             label: branch,
             sourceId: branchSourceId,
@@ -116,7 +130,6 @@ export function getGitHubSource(sourceId: string, options?: {requestInit?: Reque
         kind: 'directory',
         sourceId,
         sourceParts: getSourceParts(url),
-        prefix: getPrefix(url),
         listFiles: () => fetchFilesList(url, options),
         fetchVersions,
       }
@@ -174,13 +187,10 @@ export function parseGitHubUrl(url: string): GHUrl {
   )?.groups
   if (repoGroups?.owner !== undefined && repoGroups.repo !== undefined) {
     return {
-      kind: 'directory',
+      kind: 'repo',
       source: url,
       origin: urlObject.origin,
       repo: repoGroups.owner + '/' + repoGroups.repo,
-      action: 'tree',
-      branch: 'main', // hardcode the default branch
-      path: '',
     }
   }
 

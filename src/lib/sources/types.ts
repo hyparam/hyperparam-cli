@@ -39,7 +39,6 @@ export interface FileSource extends BaseSource {
 
 export interface DirSource extends BaseSource {
   kind: 'directory'
-  prefix: string,
   listFiles: () => Promise<FileMetadata[]>
 }
 

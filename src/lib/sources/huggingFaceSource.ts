@@ -72,9 +72,6 @@ function getSourceParts(url: HFUrl): SourcePart[] {
   }
   return sourceParts
 }
-function getPrefix(url: DirectoryUrl): string {
-  return `${url.origin}/${getFullName(url)}/tree/${url.branch}${url.path}`.replace(/\/$/, '')
-}
 async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: RequestInit, accessToken?: string }): Promise<FileMetadata[]> {
   const repoFullName = getFullName(url)
   const filesIterator = listFiles({
@@ -134,7 +131,6 @@ export function getHuggingFaceSource(sourceId: string, options?: {requestInit?: 
         kind: 'directory',
         sourceId,
         sourceParts: getSourceParts(url),
-        prefix: getPrefix(url),
         listFiles: () => fetchFilesList(url, options),
         fetchVersions,
       }

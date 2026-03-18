@@ -10,13 +10,10 @@ describe('parseGitHubUrl', () => {
     const origin = `https://${domain}`
     const url = `${origin}/owner/repo`
     expect(parseGitHubUrl(url)).toEqual({
-      kind: 'directory',
+      kind: 'repo',
       origin,
       repo: 'owner/repo',
       source: url,
-      action: 'tree',
-      branch: 'main',
-      path: '',
     })
   })
 
@@ -46,29 +43,6 @@ describe('parseGitHubUrl', () => {
   })
 
   test.for([
-    // Root directory
-    [
-      'https://github.com/owner/repo',
-      'https://github.com/owner/repo',
-      'owner/repo',
-      'main',
-      '',
-    ],
-    [
-      'https://github.com/owner/repo/',
-      'https://github.com/owner/repo/',
-      'owner/repo',
-      'main',
-      '',
-    ],
-    // all-number identifier is not a valid GitHub repo name, but we accept any string
-    [
-      'https://github.com/owner/123',
-      'https://github.com/owner/123',
-      'owner/123',
-      'main',
-      '',
-    ],
     // Branches
     [
       'https://github.com/owner/repo/tree/branch',
@@ -148,8 +122,8 @@ describe('getGitHubSource', () => {
     it('returns the URL for a repository URL', () => {
       const url = 'https://github.com/owner/repo'
       expect(getGitHubSource(url)?.sourceParts).toEqual([{
-        sourceId: 'https://github.com/owner/repo/tree/main/',
-        text: 'https://github.com/owner/repo/tree/main/',
+        sourceId: 'https://github.com/owner/repo',
+        text: 'https://github.com/owner/repo',
       }])
     })
     it('returns the URL for a branch root URL', () => {
