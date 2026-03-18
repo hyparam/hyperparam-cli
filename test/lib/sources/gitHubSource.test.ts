@@ -128,7 +128,7 @@ describe('parseGitHubUrl', () => {
   const path = '/path/to/file.parquet'
   it('parses a FileUrl for file URL', () => {
     const url = `https://github.com/${repo}/blob/${branch}${path}`
-    const resolveUrl = `https://raw.githubusercontent.com/${repo}/refs/heads/${branch}${path}`
+    const resolveUrl = `https://raw.githubusercontent.com/${repo}/${branch}${path}`
     expect(parseGitHubUrl(url)).toEqual({
       kind: 'file',
       origin,
