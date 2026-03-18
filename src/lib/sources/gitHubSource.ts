@@ -72,30 +72,13 @@ async function fetchFilesList(url: DirectoryUrl, options?: { requestInit?: Reque
     throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${await response.text()}`)
   }
   try {
-    const data: unknown = await response.json()
-    const isDirectory = Array.isArray(data)
-    if (!isDirectory) {
-      throw new Error('Not a directory')
-    }
-    const files: FileMetadata[] = []
-    for (const file of data as unknown[]) {
-      if (typeof file !== 'object' || file === null || !('name' in file) || !('path' in file) || !('type' in file) || !('size' in file)) {
-        throw new Error('Invalid file metadata')
-      }
-      if (file.type !== 'file' && file.type !== 'dir') {
-        throw new Error('Unsupported file type')
-      }
-      if (typeof file.name !== 'string' || typeof file.path !== 'string' || typeof file.size !== 'number') {
-        throw new Error('Invalid file metadata types')
-      }
-      files.push({
-        name: getFileName(file.path),
-        fileSize: file.size,
-        sourceId: `${url.origin}/${url.repo}/${file.type === 'file' ? 'blob' : 'tree'}/${url.branch}/${file.path}`.replace(/\/$/, ''),
-        kind: file.type === 'file' ? 'file' : 'directory', // 'unknown' is considered as a directory
-      })
-    }
-    return files
+    const data = await response.json() as {name: string, path: string, type: 'file' | 'dir', size: number}[]
+    return data.map((file) => ({
+      name: getFileName(file.path),
+      fileSize: file.size,
+      sourceId: `${url.origin}/${url.repo}/${file.type === 'file' ? 'blob' : 'tree'}/${url.branch}/${file.path}`.replace(/\/$/, ''),
+      kind: file.type === 'file' ? 'file' : 'directory',
+    }))
   } catch (error) {
     throw new Error(`Failed to parse GitHub API response: ${error instanceof Error ? error.message : String(error)}`)
   }
