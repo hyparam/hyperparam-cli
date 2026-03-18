@@ -1,8 +1,6 @@
 import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
-// TODO(SL): support branches with slashes in their names (feature/foo)
-
 interface BaseUrl {
   source: string
   origin: string
@@ -106,7 +104,10 @@ export function getGitHubSource(sourceId: string, options?: {requestInit?: Reque
       const branches = await fetchBranchesList(url, options)
       return {
         label: 'Branches',
-        versions: branches.map((branch) => {
+        versions: branches.filter(
+          // TODO(SL): support branches with slashes in their names (feature/foo/bar)
+          branch => !branch.includes('/')
+        ).map((branch) => {
           const branchSourceId = `${baseUrl}/${url.repo}/${url.kind === 'file' ? 'blob' : 'tree'}/${branch}${path}`
           return {
             label: branch,
@@ -139,6 +140,7 @@ export function getGitHubSource(sourceId: string, options?: {requestInit?: Reque
   }
 }
 
+// TODO(SL): support branches with slashes in their names (feature/foo)
 export function parseGitHubUrl(url: string): GHUrl {
   const urlObject = new URL(url)
   // ^ throws 'TypeError: URL constructor: {url} is not a valid URL.' if url is not a valid URL
