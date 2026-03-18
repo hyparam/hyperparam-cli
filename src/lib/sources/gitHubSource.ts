@@ -273,7 +273,7 @@ async function fetchBranchesList(
   }
   const response = await fetch(`https://api.github.com/repos/${url.repo}/branches`, { ...options?.requestInit, headers })
   if (!response.ok) {
-    throw new Error(`HTTP error ${response.status.toString()}`)
+    throw new Error(`HTTP error ${response.statusText} (${response.status})`)
   }
   const branches = await response.json() as {name: string}[]
   return branches.map(({ name }) => name)
