@@ -1,10 +1,85 @@
 import { asyncBufferFromFile, asyncBufferFromUrl, parquetMetadataAsync } from 'hyparquet'
 import { compressors } from 'hyparquet-compressors'
-import { collect, executeSql } from 'squirreling'
+import { collect, executeSql, parseSql, planSql } from 'squirreling'
 import { parquetDataSource } from 'hyperparam'
 import { markdownTable } from './markdownTable.js'
 
 const maxRows = 100
+
+/**
+ * Recursively collect table names from all Scan/Count nodes in a query plan.
+ *
+ * @param {import('squirreling').QueryPlan} plan
+ * @returns {Set<string>}
+ */
+function scanTables(plan) {
+  /** @type {Set<string>} */
+  const tables = new Set()
+  /** @param {import('squirreling').QueryPlan} node */
+  function walk(node) {
+    if (!node) return
+    if (node.type === 'Scan' || node.type === 'Count') {
+      tables.add(node.table)
+    } else if ('child' in node) {
+      walk(node.child)
+    }
+    if ('left' in node) walk(node.left)
+    if ('right' in node) walk(node.right)
+  }
+  walk(plan)
+  return tables
+}
+
+/**
+ * Build an AsyncDataSource for a file path or URL.
+ *
+ * @param {string} file
+ * @returns {Promise<import('squirreling').AsyncDataSource>}
+ */
+async function fileToDataSource(file) {
+  const asyncBuffer = file.startsWith('http://') || file.startsWith('https://')
+    ? await asyncBufferFromUrl({ url: file })
+    : await asyncBufferFromFile(file)
+  const metadata = await parquetMetadataAsync(asyncBuffer)
+  return parquetDataSource(asyncBuffer, metadata, compressors)
+}
+
+/**
+ * Execute a SQL query by extracting table names from the plan and loading them
+ * as parquet data sources. Returns a formatted result string.
+ *
+ * @param {string} query
+ * @param {boolean} [truncate]
+ * @returns {Promise<string>}
+ */
+export async function runSqlQuery(query, truncate = true) {
+  const startTime = performance.now()
+  const ast = parseSql({ query })
+  const plan = planSql({ query: ast })
+  const tableNames = scanTables(plan)
+
+  /** @type {Record<string, import('squirreling').AsyncDataSource>} */
+  const tables = {}
+  await Promise.all([...tableNames].map(async name => {
+    tables[name] = await fileToDataSource(name)
+  }))
+
+  const results = await collect(executeSql({ tables, query }))
+  const queryTime = (performance.now() - startTime) / 1000
+
+  if (results.length === 0) {
+    return `Query executed successfully but returned no results in ${queryTime.toFixed(1)} seconds.`
+  }
+
+  const rowCount = results.length
+  const maxChars = truncate ? 1000 : 10000
+  let content = `Query returned ${rowCount} row${rowCount === 1 ? '' : 's'} in ${queryTime.toFixed(1)} seconds.\n\n`
+  content += markdownTable(results.slice(0, maxRows), maxChars)
+  if (rowCount > maxRows) {
+    content += `\n\n... and ${rowCount - maxRows} more row${rowCount - maxRows === 1 ? '' : 's'} (showing first ${maxRows} rows)`
+  }
+  return content
+}
 
 /**
  * @import { ToolHandler } from '../types.d.ts'

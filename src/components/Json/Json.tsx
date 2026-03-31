@@ -96,7 +96,7 @@ function ByteArray({ bytes, label, expandRoot }: { bytes: Uint8Array, label?: st
 }
 
 function CollapsedArray({ array }: {array: unknown[]}): ReactNode {
-  const { elementRef, width } = useWidth<HTMLSpanElement>()
+  const { elementRef, width } = useWidth()
   const maxCharacterCount = Math.max(20, Math.floor(width / 8))
   const separator = ', '
 
@@ -159,7 +159,7 @@ function JsonArray({ array, label, expandRoot, pageLimit = defaultPageLimit }: {
 }
 
 function CollapsedObject({ obj }: { obj: object }): ReactNode {
-  const { elementRef, width } = useWidth<HTMLSpanElement>()
+  const { elementRef, width } = useWidth()
   const maxCharacterCount = Math.max(20, Math.floor(width / 8))
   const separator = ', '
   const kvSeparator = ': '
