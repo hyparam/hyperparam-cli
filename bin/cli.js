@@ -8,21 +8,18 @@ import { serve } from './serve.js'
 const updateCheck = checkForUpdates()
 
 const arg = process.argv[2]
-if (arg === 'chat') {
-  await updateCheck // wait for update check to finish before chat
-  chat()
-} else if (arg === '--help' || arg === '-H' || arg === '-h') {
+if (arg === '--help' || arg === '-H' || arg === '-h') {
   console.log('Usage:')
+  console.log('  hyperparam                start chat client')
   console.log('  hyperparam [path]         start hyperparam webapp. "path" is a directory or a URL.')
-  console.log('                            defaults to the current directory.')
-  console.log('  hyperparam chat           start chat client')
   console.log('  ')
   console.log('  hyperparam -h, --help,    give this help list')
   console.log('  hyperparam -v, --version  print program version')
 } else if (arg === '--version' || arg === '-V' || arg === '-v') {
   console.log(packageJson.version)
 } else if (!arg) {
-  serve(process.cwd(), undefined) // current directory
+  await updateCheck
+  chat()
 } else if (/^https?:\/\//.exec(arg)) {
   serve(undefined, arg) // url
 } else {

@@ -1,4 +1,6 @@
 import readline from 'readline'
+import { parseSql } from 'squirreling'
+import { runSqlQuery } from './tools/parquetSql.js'
 import { tools } from './tools/tools.js'
 
 /** @type {'text' | 'tool'} */
@@ -277,11 +279,26 @@ export function chat() {
         rl.close()
         process.exit()
       } else if (input) {
+        // If the input is valid SQL, run it directly without sending to the model
+        let isSql = false
         try {
-          write(colors.user, 'answer: ', colors.normal)
-          outputMode = 'text' // switch to text output mode
-          messages.push([{ role: 'user', content: input }])
-          await sendMessages(messages)
+          parseSql({ query: input })
+          isSql = true
+        } catch {
+          // not SQL
+        }
+
+        try {
+          if (isSql) {
+            write(colors.user, 'answer: ', colors.normal)
+            const result = await runSqlQuery(input)
+            write(result)
+          } else {
+            write(colors.user, 'answer: ', colors.normal)
+            outputMode = 'text' // switch to text output mode
+            messages.push([{ role: 'user', content: input }])
+            await sendMessages(messages)
+          }
         } catch (error) {
           console.error(colors.error, '\n' + error)
         } finally {

@@ -1,5 +1,7 @@
 import { parquetReadObjects, parquetSchema } from 'hyparquet'
-import type { AsyncBuffer, Compressors, FileMetaData } from 'hyparquet'
+import { parquetReadAsync } from 'hyparquet/src/read.js'
+import { assembleAsync } from 'hyparquet/src/rowgroup.js'
+import type { AsyncBuffer, AsyncRowGroup, Compressors, FileMetaData } from 'hyparquet'
 import { AsyncDataSource, ScanOptions, asyncRow } from 'squirreling'
 import { whereToParquetFilter } from './parquetFilter.js'
 import { extractSpatialFilter, rowGroupOverlaps } from './parquetSpatial.js'
@@ -85,6 +87,41 @@ export function parquetDataSource(file: AsyncBuffer, metadata: FileMetaData, com
         })(),
         appliedWhere,
         appliedLimitOffset,
+      }
+    },
+
+    async *scanColumn({ column, limit, offset, signal }) {
+      const rowStart = offset ?? 0
+      const rowEnd = limit !== undefined ? rowStart + limit : undefined
+      const asyncGroups = parquetReadAsync({
+        file,
+        metadata,
+        rowStart,
+        rowEnd,
+        columns: [column],
+        compressors,
+      })
+      const schemaTree = parquetSchema(metadata)
+      const assembled = asyncGroups.map((arg: AsyncRowGroup) => assembleAsync(arg, schemaTree))
+
+      for (const rg of assembled) {
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
+        const [firstCol] = rg.asyncColumns
+        if (!firstCol) continue
+        const { skipped, data } = await firstCol.data
+        if (signal?.aborted) throw new DOMException('Aborted', 'AbortError')
+        let dataStart = rg.groupStart + skipped
+        for (const page of data) {
+          const pageRows = page.length
+          const selectStart = Math.max(rowStart - dataStart, 0)
+          const selectEnd = Math.min((rowEnd ?? Infinity) - dataStart, pageRows)
+          if (selectEnd > selectStart) {
+            yield selectStart > 0 || selectEnd < pageRows
+              ? page.slice(selectStart, selectEnd)
+              : page
+          }
+          dataStart += pageRows
+        }
       }
     },
   }

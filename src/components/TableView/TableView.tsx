@@ -25,7 +25,7 @@ interface Content extends ContentSize {
  * Table file viewer for parquet, CSV, and JSONL files
  */
 export default function TableView({ source, setProgress, setError }: ViewerProps) {
-  const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [isLoading, setIsLoading] = useState(true)
   const [content, setContent] = useState<Content>()
   const [cell, setCell] = useState<{ row: number, col: number } | undefined>()
   const { customClass, routes } = useConfig()
