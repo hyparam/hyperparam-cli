@@ -34,7 +34,7 @@ export function parquetDataSource(file: AsyncBuffer, metadata: FileMetaData, com
       }
 
       return {
-        rows: (async function* () {
+        async *rows() {
           // Emit rows by row group
           let groupStart = 0
           let remainingLimit = limit ?? Infinity
@@ -84,7 +84,7 @@ export function parquetDataSource(file: AsyncBuffer, metadata: FileMetaData, com
             remainingLimit -= data.length
             groupStart += rowCount
           }
-        })(),
+        },
         appliedWhere,
         appliedLimitOffset,
       }

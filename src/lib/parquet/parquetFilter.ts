@@ -75,8 +75,10 @@ function mapOperator(op: BinaryOp, flipped: boolean, negate: boolean): string | 
   if (negate) mappedOp = neg(mappedOp)
   if (flipped) mappedOp = flip(mappedOp)
   switch (mappedOp) {
-    case '=': return '$eq'
-    case '!=': case '<>': return '$ne'
+    case '=':
+    case '==': return '$eq'
+    case '!=':
+    case '<>': return '$ne'
     case '<': return '$lt'
     case '<=': return '$lte'
     case '>': return '$gt'
@@ -91,21 +93,18 @@ function neg(op: ComparisonOp): ComparisonOp {
     case '>': return '<='
     case '>=': return '<'
     case '=': return '!='
+    case '==': return '!='
     case '!=': return '='
     case '<>': return '='
   }
 }
 
 function flip(op: ComparisonOp): ComparisonOp {
-  switch (op) {
-    case '<': return '>'
-    case '<=': return '>='
-    case '>': return '<'
-    case '>=': return '<='
-    case '=': return '='
-    case '!=': return '!='
-    case '<>': return '='
-  }
+  if (op === '<') return '>'
+  if (op === '<=') return '>='
+  if (op === '>') return '<'
+  if (op === '>=') return '<='
+  return op
 }
 
 function convertInValues(node: InValuesNode, negate: boolean): ParquetQueryFilter | undefined {
