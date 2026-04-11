@@ -99,15 +99,24 @@ export async function scope(filePath) {
   })
 
   // Handle graceful shutdown
-  process.on('SIGINT', () => {
+  let shuttingDown = false
+  function shutdown() {
+    if (shuttingDown) {
+      // Second signal: force exit
+      ws.terminate()
+      process.exit(1)
+    }
+    shuttingDown = true
     console.log('\nShutting down hyperscope connection...')
     ws.close()
-  })
-
-  process.on('SIGTERM', () => {
-    console.log('\nShutting down hyperscope connection...')
-    ws.close()
-  })
+    // Fallback in case the close handshake hangs
+    setTimeout(() => {
+      ws.terminate()
+      process.exit(0)
+    }, 2000).unref()
+  }
+  process.on('SIGINT', shutdown)
+  process.on('SIGTERM', shutdown)
 }
 
 /**
