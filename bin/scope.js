@@ -56,7 +56,7 @@ export async function scope(filePath) {
   const ws = new WebSocket(url)
 
   ws.on('open', () => {
-    const hyperparamBase = 'https://hyperparam.app/files?key='
+    const hyperparamBase = 'https://hyperparam.app/open?key='
     // Use provided S3 path or default to the hardcoded one
     const key = encodeURIComponent(`https://scope.hyperparam.app/scope/${connectionId}?key=${encodeURIComponent(filePath ?? '')}`)
     const url = `${hyperparamBase}${key}`
