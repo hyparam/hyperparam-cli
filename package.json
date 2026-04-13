@@ -57,12 +57,12 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1029.0",
-    "@aws-sdk/credential-provider-node": "3.927.0",
+    "@aws-sdk/credential-provider-node": "3.972.30",
     "hightable": "0.26.4",
     "hyparquet": "1.25.6",
     "hyparquet-compressors": "1.1.1",
     "icebird": "0.3.1",
-    "squirreling": "0.12.2",
+    "squirreling": "0.12.3",
     "ws": "8.20.0"
   },
   "devDependencies": {
@@ -79,7 +79,7 @@
     "eslint-plugin-react-hooks": "7.0.1",
     "eslint-plugin-react-refresh": "0.5.2",
     "eslint-plugin-storybook": "10.3.5",
-    "globals": "17.4.0",
+    "globals": "17.5.0",
     "jsdom": "29.0.2",
     "nodemon": "3.1.14",
     "npm-run-all": "4.1.5",

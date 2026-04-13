@@ -74,11 +74,18 @@ export async function scope(filePath) {
     }
 
     // Handle the request and send a response
-    console.log('Request ', request.request_id, request.type, request.key)
     try {
       const response = await handleRequest(request, workingDir)
       ws.send(JSON.stringify(response))
-      console.log('Response', request.request_id, response.status, response.headers['Content-Length'])
+      // Log GET requests: "GET 206 file.parquet (bytes 0-99)" or "GET 200 file.parquet (1234)"
+      if (request.type === 'get') {
+        const fileName = request.key.split('/').pop() || request.key
+        const range = response.headers['Content-Range']
+        const size = range
+          ? `bytes ${range.replace(/^bytes /, '').replace(/\/.*$/, '')}`
+          : response.headers['Content-Length']
+        console.log(`GET ${response.status} ${fileName} (${size})`)
+      }
     } catch (err) {
       console.error('Hyperscope error handling request:', err)
       // Send error response
