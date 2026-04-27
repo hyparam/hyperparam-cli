@@ -32,6 +32,12 @@ export interface ParquetReadWorkerOptions extends Omit<ParquetReadOptions, 'comp
   // rowFormat 'array' is not supported in the worker.
   rowFormat?: 'object'
   onComplete?: (rows: Rows) => void
+  /**
+   * Aborting the signal posts an abort message to the worker. The in-flight
+   * read continues to completion (hyparquet has no AbortSignal support), but
+   * the result is suppressed and the returned promise rejects with AbortError.
+   */
+  signal?: AbortSignal
 }
 /**
  * Options for the worker version of parquetReadObjects
@@ -64,17 +70,20 @@ export interface From {
 }
 export interface ParquetReadClientMessage extends QueryId, From {
   kind: 'parquetRead'
-  options: Omit<ParquetReadWorkerOptions, 'onComplete' | 'onChunk' | 'onPage' | 'from'>
+  options: Omit<ParquetReadWorkerOptions, 'onComplete' | 'onChunk' | 'onPage' | 'from' | 'signal'>
 }
 export interface ParquetReadObjectsClientMessage extends QueryId, From {
   kind: 'parquetReadObjects'
-  options: Omit<ParquetReadObjectsWorkerOptions, 'onChunk' | 'onPage'| 'from'>
+  options: Omit<ParquetReadObjectsWorkerOptions, 'onChunk' | 'onPage'| 'from' | 'signal'>
 }
 export interface ParquetQueryClientMessage extends QueryId, From {
   kind: 'parquetQuery'
-  options: Omit<ParquetQueryWorkerOptions, 'onComplete' | 'onChunk' | 'onPage'| 'from'>
+  options: Omit<ParquetQueryWorkerOptions, 'onComplete' | 'onChunk' | 'onPage'| 'from' | 'signal'>
 }
-export type ClientMessage = ParquetQueryClientMessage | ParquetReadObjectsClientMessage | ParquetReadClientMessage
+export interface AbortClientMessage extends QueryId {
+  kind: 'abort'
+}
+export type ClientMessage = ParquetQueryClientMessage | ParquetReadObjectsClientMessage | ParquetReadClientMessage | AbortClientMessage
 
 /**
  * Messages sent by the worker to the client
