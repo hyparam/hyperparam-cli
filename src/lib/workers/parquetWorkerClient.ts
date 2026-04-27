@@ -68,6 +68,25 @@ function getWorker() {
   return worker
 }
 
+/** Wires an AbortSignal to the queryId: posts an abort message to the worker
+ * and rejects the promise. The worker will suppress the result for this id. */
+function wireAbort(worker: Worker, queryId: number, signal: AbortSignal | undefined, reject: (e: Error) => void): boolean {
+  if (!signal) return false
+  if (signal.aborted) {
+    pendingAgents.delete(queryId)
+    worker.postMessage({ queryId, kind: 'abort' } satisfies ClientMessage)
+    reject(new DOMException('Aborted', 'AbortError'))
+    return true
+  }
+  signal.addEventListener('abort', () => {
+    if (!pendingAgents.has(queryId)) return
+    pendingAgents.delete(queryId)
+    worker.postMessage({ queryId, kind: 'abort' } satisfies ClientMessage)
+    reject(new DOMException('Aborted', 'AbortError'))
+  }, { once: true })
+  return false
+}
+
 /**
  * Presents almost the same interface as parquetRead, but runs in a worker.
  * This is useful for reading large parquet files without blocking the main thread.
@@ -78,11 +97,12 @@ function getWorker() {
  * Note that it only supports 'rowFormat: object' (the default).
  */
 export function parquetReadWorker(options: ParquetReadWorkerOptions): Promise<void> {
-  const { onComplete, onChunk, onPage, from, ...serializableOptions } = options
+  const { onComplete, onChunk, onPage, from, signal, ...serializableOptions } = options
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
     pendingAgents.set(queryId, { parquetReadResolve: resolve, reject, onComplete, onChunk, onPage })
     const worker = getWorker()
+    if (wireAbort(worker, queryId, signal, reject)) return
     const message: ClientMessage = { queryId, from, kind: 'parquetRead', options: serializableOptions }
     worker.postMessage(message)
   })
@@ -98,11 +118,12 @@ export function parquetReadWorker(options: ParquetReadWorkerOptions): Promise<vo
  * Note that it only supports 'rowFormat: object' (the default).
  */
 export function parquetReadObjectsWorker(options: ParquetReadObjectsWorkerOptions): Promise<Rows> {
-  const { onChunk, onPage, from, ...serializableOptions } = options
+  const { onChunk, onPage, from, signal, ...serializableOptions } = options
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
     pendingAgents.set(queryId, { parquetReadObjectsResolve: resolve, reject, onChunk, onPage })
     const worker = getWorker()
+    if (wireAbort(worker, queryId, signal, reject)) return
     const message: ClientMessage = { queryId, from, kind: 'parquetReadObjects', options: serializableOptions }
     worker.postMessage(message)
   })
@@ -118,11 +139,12 @@ export function parquetReadObjectsWorker(options: ParquetReadObjectsWorkerOption
  * Note that it only supports 'rowFormat: object' (the default).
  */
 export function parquetQueryWorker(options: ParquetQueryWorkerOptions): Promise<Rows> {
-  const { onComplete, onChunk, onPage, from, ...serializableOptions } = options
+  const { onComplete, onChunk, onPage, from, signal, ...serializableOptions } = options
   return new Promise((resolve, reject) => {
     const queryId = nextQueryId++
     pendingAgents.set(queryId, { parquetQueryResolve: resolve, reject, onComplete, onChunk, onPage })
     const worker = getWorker()
+    if (wireAbort(worker, queryId, signal, reject)) return
     const message: ClientMessage = { queryId, from, kind: 'parquetQuery', options: serializableOptions }
     worker.postMessage(message)
   })
