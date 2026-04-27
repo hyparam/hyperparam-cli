@@ -1,4 +1,4 @@
-import type { DirSource, FileMetadata, FileSource, SourcePart } from './types.js'
+import type { DirSource, FileSource, SourcePart } from './types.js'
 import { getFileName } from './utils.js'
 
 interface S3ListItem {
@@ -119,10 +119,10 @@ export function getHttpSource(sourceId: string, options?: {requestInit?: Request
               lastModified: item.lastModified,
               sourceId: itemSourceId,
               kind: isDirectory ? 'directory' : 'file',
-            } as FileMetadata
+            }
           })
       ),
-    } as DirSource
+    }
   }
 
   return {

@@ -61,7 +61,7 @@ export default function CellPanel({ df, row, col, setProgress, setError, onClose
         setValue(value)
         setError(undefined)
       } catch (error) {
-        setError(error as Error)
+        setError(error)
       } finally {
         setIsLoading(false)
         setProgress(1)

@@ -59,7 +59,6 @@ export default function CellView({ source, row, col }: CellProps) {
       }
     }
 
-    setProgress(0)
     void loadCellData()
   }, [resolveUrl, requestInit, col, row])
 
