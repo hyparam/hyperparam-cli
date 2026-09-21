@@ -63,7 +63,7 @@
     "hyparquet-compressors": "1.1.1",
     "icebird": "0.3.1",
     "squirreling": "0.12.11",
-    "ws": "8.20.0"
+    "ws": "8.21.0"
   },
   "devDependencies": {
     "@storybook/react-vite": "10.3.5",
